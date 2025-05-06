@@ -223,13 +223,127 @@ The survival curves for the Control and Intervention groups overlap almost entir
 
 ## Checking the Proportional Hazards Assumption
 
+```{r}
+# Test the PH assumption
+cox.zph(cox_model)
+```
+
+**Interpretation of PH Assumption Test (Schoenfeld residuals)**
+
+- trt p = 0.06: This is slightly above the conventional threshold of 0.05. It suggest no strong evidence of violation of the proportional hazards (PH) assumptions for _treatment_. 
+- GLOBAL p = 0.06: This tests the model overall. Not statistically significant so we do not reject the PH assumptions. 
+
+**Porportional Hazards Assumption**
+
+The proportional hazards assumption was assessed using Schoenfeld residuals via the cox.zph() function. The test for the treatment variable (trt) yielded a chi-square statistic of 3.54 with a p-value of 0.06, and the global test returned the same values (χ² = 3.54, df = 1, p = 0.06).
+
+Although the p-values are slightly above the conventional significance threshold of 0.05, they do not provide sufficient evidence to reject the null hypothesis that the proportional hazards assumption holds. As such, the Cox proportional hazards model is considered appropriate for this analysis, though the borderline result suggests caution and may warrant further inspection in more complex models.
+
+
+
 ## Schoenfeld Residuals Plot
+
+```{r}
+plot(cox.zph(cox_model))
+```
+
+**What the Visual Diagnostic Shows:**
+
+The y-axis: Scaled Schoenfeld residuals for trt. If the proportional hazards assumption holds, these residuals should fluctuate randomly around zero.
+
+The x-axis: Time (or transformed time).
+
+The line: A smoothed spline fit (typically a loess curve) showing the trend of residuals over time.
+
+The confidence band: Helps you assess whether the trend significantly deviates from horizontal (i.e., no time-dependent effect).
+
+A flat line (slope ≈ 0): Suggests the hazard ratio for trt does not change over time — good!
+
+A wavy or sloped line: Suggests potential violation of the proportional hazards assumption — this would back up a significant p-value.
+
+x-axis (Time): Time since baseline (likely in days, from your dataset).
+
+y-axis (Beta(t) for trt): Time-varying estimate of the log hazard ratio for the treatment group (trt), based on Schoenfeld residuals.
+
+The solid black line: A smoothed curve showing how the estimated coefficient for trt might change over time.
+
+Dashed lines: Approximate 95% confidence bands around that smoothed estimate.
+
+Open circles: Residuals for each individual event — they don’t need to follow a pattern, but their distribution can hint at model fit.
+
+If the solid line is roughly flat and within the dashed lines, the effect of treatment does not change with time, and the PH assumption is reasonably upheld.
+
+If the solid line drifts noticeably over time, or wanders outside the dashed lines, that's evidence that the treatment effect may change — a violation of the PH assumption.
+
+In our case, the line is gently curved, but still well within the dashed boundaries. There’s no strong time trend — the log hazard ratio is hovering around zero and doesn’t appear to increase or decrease dramatically.
+
+**Schoenfeld Residuals Interpretation**
+
+To assess whether the proportional hazards (PH) assumption holds for the treatment variable (trt), we examined Schoenfeld residuals using both statistical and graphical diagnostics. The global test for proportionality yielded a p-value of 0.06, indicating no statistically significant violation of the PH assumption at the conventional α = 0.05 level, though it approaches significance. The smoothed residual plot for trt shows a relatively stable trend over time, with the estimated log hazard ratio remaining within the 95% confidence bands across the follow-up period. While there is some minor curvature in the smoothed line, it does not suggest substantial deviation from proportionality. These findings support the use of the Cox proportional hazards model for analyzing the effect of treatment on survival in this dataset.
 
 ## Martingale Residuals (for Functional Form of Covariates)
 
+```{r}
+# Generate Martingale residuals
+martingale_resid <- residuals(cox_model, type = "martingale")
 
-## Influential Observations (Optional)
+# Add residuals to your data
+veteran$martingale <- martingale_resid
 
+# Plot residuals against a continuous covariate (e.g., time or another variable)
+# Here we plot against the linear predictor for simplicity
+veteran$linear_pred <- predict(cox_model, type = "lp")
+
+ggplot(veteran, aes(x = linear_pred, y = martingale, color = trt)) +
+  geom_point(alpha = 0.6) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "grey30") +
+  theme_minimal(base_size = 13) +
+  labs(
+    title = "Martingale Residuals vs Linear Predictor",
+    x = "Linear Predictor (Log Hazard)",
+    y = "Martingale Residual",
+    color = "Treatment Group"
+  ) +
+  scale_color_manual(values = c("Control" = "#A569BD", "Intervention" = "#45B39D")) +
+  theme(plot.title = element_text(hjust = 0.5, face = "bold"))
+
+
+```
+<details>
+<summary>More about Martingale Residuals</summary>
+
+Martingale residuals help us check whether the variables in our Cox model are specified correctly — particularly useful for continuous covariates. However, when the variable in question is binary (like our treatment group: Control vs Intervention), the Martingale residual plot will display two vertical stacks of points — one for each group.
+
+In the plot above:
+
+- The **x-axis** represents the linear predictor (log hazard). Because the treatment is binary, there are only two unique predictor values: one for the control group and one for the intervention group.
+- The **y-axis** shows the Martingale residuals for each individual.
+- The **dashed horizontal line at 0** acts as a visual guide to see if residuals are randomly scattered above and below it.
+
+We want to see:
+- No clear patterns or trends in the residuals,
+- A reasonably symmetric spread around zero in each group,
+- No outliers clustering far from the bulk of points.
+
+In this case, both groups show a spread of residuals centered roughly around zero, with no curvature or skew that would suggest model misspecification. That’s a good sign — the model’s structure seems to handle the treatment variable well, and there's no obvious reason to suspect we need to transform it or add interaction terms.
+
+</details>
+
+The Martingale Residuals vs Linear Predictor plot helps us check the fit of our Cox model—specifically, whether our model’s assumptions about the shape of relationships between predictors and survival are holding up.
+
+Martingale residuals were plotted against the linear predictor to assess model fit. As expected with a binary treatment variable, the plot showed two vertical bands of points corresponding to the Control and Intervention groups. The residuals appeared symmetrically distributed around zero within each group, with no obvious non-linear patterns or systematic bias. This suggests the model’s functional form for the treatment variable is appropriate.
+
+## Functional Form of Covariates
+
+::: {.tip title="Why we haven't checked the functional form of covariates"}
+
+The Cox model assumes a linear relationship between continuous covariates and the log hazard. In our current model, only the treatment group (`trt`) is included, which is a categorical variable. 
+
+If we were to build a more complex model including continuous predictors like age, Karnofsky score (`karno`), or time since diagnosis (`diagtime`), we would need to assess whether their relationship with the log hazard is truly linear. This is typically done by plotting Martingale residuals or using `ggcoxfunctional()`.
+
+For now, since our model does not include continuous covariates, this step is not necessary — but it's an important part of model diagnostics when expanding our analysis.
+
+:::
 
 # 🧾 Conclusion
 
