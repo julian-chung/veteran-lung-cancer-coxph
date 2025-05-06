@@ -1,0 +1,237 @@
+---
+title: "Survival Analysis: Veteran Lung Cancer Patients"
+author: "Julian Chung"
+format:
+  html:
+    toc: true
+    code-fold: true
+    number-sections: true
+    theme: cosmo
+execute:
+  echo: true
+---
+# 📘 Introduction
+
+This dataset originates from a clinical trial conducted by the Veterans Administration in the United States to compare the effectiveness of two chemotherapy regimens in treating advanced, inoperable lung cancer. Patients were randomized to receive either a standard treatment or a test treatment (an experimental chemotherapy protocol), and followed until death or censoring. The primary outcome was overall survival, measured in days from treatment initiation.
+
+The dataset contains information on:
+
+    Treatment group (Standard vs Test),
+
+    Cell type (squamous, small cell, adenocarcinoma, or large cell),
+
+    Survival time and status,
+
+    Karnofsky performance score (a proxy for baseline health),
+
+    Time from diagnosis to study entry,
+
+    Patient age, and
+
+    Number of prior treatments received.
+
+The data is widely used in survival analysis teaching due to its realistic structure, meaningful clinical context, and manageable size.
+
+D Kalbfleisch and RL Prentice (1980), The Statistical Analysis of Failure Time Data. Wiley, New York.
+
+# 📦 Load Packages
+
+```{r}
+library(survival)
+library(survminer)
+library(dplyr)
+library(ggplot2)
+library(broom)
+
+```
+
+# 🧬 Load & Inspect Data
+
+```{r}
+# Load the dataset
+veteran <- survival::veteran %>%
+  mutate(trt = factor(trt, levels = c(1, 2), labels = c("Control", "Intervention")))
+
+# Peek at the structure and summary
+glimpse(veteran)
+summary(veteran)
+```
+
+# 📈 Kaplan-Meier Survival Curve
+
+Firstly we estimate the **survival function** for patients using the Kaplan-Meier estimator. This provides a non-parametric view of survival over time, stratified by treatment group.
+
+```{r}
+# Create the survival object
+surv_obj <- Surv(time = veteran$time, event = veteran$status)
+
+# Fit Kaplan-Meier curve stratified by treatment
+km_fit <- survfit(surv_obj ~ trt, data = veteran)
+
+# View basic survival summary
+summary(km_fit)
+
+```
+```{r}
+# Name the treatment groups
+veteran <- survival::veteran %>%
+  mutate(trt = factor(trt, 
+                      levels = c(1, 2), 
+                      labels = c("Control", "Intervention")))
+
+# Create survival variable
+surv_obj <- Surv(time = veteran$time, event = veteran$status)
+
+# Fit Kaplan-Meier model
+km_fit <- survfit(surv_obj ~ trt, data = veteran)
+
+# Plot the KM curve
+ggsurvplot(
+  km_fit,
+  data = veteran,
+  conf.int = TRUE,
+  pval = TRUE,
+  pval.size = 4,
+  risk.table = TRUE,
+  risk.table.title = "Number at Risk",
+  risk.table.col = "strata",
+  risk.table.y.text.col = TRUE,
+  risk.table.fontsize = 4,
+  legend.title = "Treatment Group",
+  legend.labs = c("Control", "Intervention"),
+  xlab = "Time (days)",
+  ylab = "Survival Probability",
+  palette = c("#A569BD", "#45B39D"),
+  title = "Kaplan-Meier Survival Curve: VA Lung Cancer Trial",
+  ggtheme = theme_minimal(base_size = 13) + 
+    theme(
+      legend.position = "top",
+      plot.title = element_text(hjust = 0.5, face = "bold"),
+      panel.grid.major = element_line(color = "grey80", linewidth = 0.4),
+      panel.grid.minor = element_line(color = "grey90", linewidth = 0.2)
+    ),
+  tables.theme = theme(  # Trying to tweak the risk table
+    axis.text.y = element_text(size = 10, margin = margin(r = 12), lineheight = 2)
+  )
+)
+```
+### 🧠 Interpretation
+
+The Kaplan-Meier plot shows survival curves for patients receiving standard vs test treatment.
+
+**X-Axis: Time (days)**
+
+The X-axis shows the time since enrollment in days. The furthest value to the right (~1000 days) marks the maximum observed survival time in the dataset. Shorter durations towards the left reflect early mortality events. 
+
+**Y-Axis: Survival Probability**
+
+The Y-Axis is the Kaplan-Meier estimate of the probability that a patient survives beyond a certain timepoint. The axis starts at 1 (100% survival at time 0), and decreases with each event (death).
+
+**Curves (Blue = Standard, Orange = Test)**
+
+Each step downward represents a death. Tick marks would represent a censored individual (few in this dataset). 
+
+**Shaded Area: 95% Confidence Interval** 
+
+Around each curve is a shaded band indicating **uncertainty** in the estimate. Wider intervals to the right of the chart reflect fewer patients remaining and hence more variability in survival probability. 
+
+**p = 0.93** 
+
+The log-rank test result tests the null hypothesis: there is no difference in survival between the groups. The p-value of 0.93 provides strong evidence _against_ rejecting the H0. In other words, there is no statistically significant difference in survival between the Standard and Test treatments. If the curves had diverged strongly at some point, the P-value would be lower. 
+
+**"Number at Risk" Table**
+
+This shows how many participatns in each treatment group are still alive and uncensored at various timepoints (0, 250, 500, 750, 1000). As time progresses the number declines due to deaths or censoring. Few participants remain beyond 500 days, which is why the Confidence Intervals widen later in the graph. 
+
+- The **p-value** is from a log-rank test (H₀: no difference in survival curves).
+- The **shaded areas** represent 95% confidence intervals.
+- The **risk table** shows the number of patients still at risk at each time point.
+
+Visually, if the curves separate early and remain apart, it suggests a potential treatment effect.
+
+# 📊 Cox Proportional Hazards Model
+
+```{r}
+# Fit the Cox Proportional Hazards model
+cox_model <- coxph(surv_obj ~ trt, data = veteran) # Where trt is a binary treatment variable with levels Control and Intervention
+
+# Summarize the model
+summary(cox_model)
+
+```
+
+| Term          | Value          | What It Means                                                                                                                                                                         |
+| ------------- | -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **coef**      | 0.01774        | This is the log hazard ratio (log(HR)) comparing the *Intervention* group to *Control*. Close to 0 means almost no effect.                                                            |
+| **exp(coef)** | 1.01790        | This is the hazard ratio (HR). A value of 1.018 means the hazard (risk of death) is 1.8% higher in the Intervention group compared to Control. However at this level the value is insigificant. |
+| **se(coef)**  | 0.18066        | The standard error. This gives us the variability around the estimate.                                                                                                                |
+| **z**         | 0.098          | The Wald test statistic. The low value implies no stastical significange.                                                                                     |
+| **p-value**   | 0.922          | Far above the conventional 0.05 threshold. This is very strong evidence *against* any meaningful treatment effect.                                                           |
+| **95% CI**    | (0.7144, 1.45) | Wide confidence interval, spanning both below and above 1—so we can’t rule out either harm or benefit.                                                                                |
+**Concordance** The C-index, or concordance statistic is the probability that a candomly hosen subject who died earlier had a higher predicted risk. At 0.525 it is random chance, suggested poor predictive power. 
+
+**Interpretation of the Cox Model Results**
+
+The Cox proportional hazards model found no statistically significant difference in survival between the Control and Intervention groups (HR = 1.02, 95% CI: 0.71–1.45, p = 0.922). The hazard ratio close to 1 suggests that the treatment had no appreciable effect on the risk of death. Additionally, the wide confidence interval includes both potential harm and benefit, indicating uncertainty in the estimate. The concordance statistic (0.525) implies the model has poor discriminative ability, performing only slightly better than random chance. Overall, the analysis provides no evidence that the intervention improves survival outcomes in this dataset.
+
+```{r}
+# Use ggadjustedcurves for plotting adjusted survival curves directly from the Cox model
+ggadjustedcurves(
+  cox_model,                     # The fitted Cox model
+  data = veteran,                # The original data used to fit the model
+  variable = "trt",              # The variable to plot adjusted curves for
+  method = "average",            # Method for adjusting (average effect of other covariates)
+  conf.int = TRUE,
+  legend.labs = c("Control", "Intervention"),
+  legend.title = "Treatment Group",
+  risk.table = TRUE,             # Include the risk table
+  risk.table.title = "Number at Risk",
+  xlab = "Time (days)",
+  ylab = "Adjusted Survival Probability",
+  title = "Cox Model Adjusted Survival Curves",
+  palette = c("#A569BD", "#45B39D"),
+  ggtheme = theme_minimal(base_size = 13) +
+    theme(
+      legend.position = "top",
+      plot.title = element_text(hjust = 0.5, face = "bold"),
+      panel.grid.major = element_line(color = "grey80", linewidth = 0.4),
+      panel.grid.minor = element_line(color = "grey90", linewidth = 0.2)
+    ),
+  tables.theme = theme(
+    axis.text.y = element_text(size = 10, margin = margin(r = 12), lineheight = 2)
+  )
+)
+```
+
+::: {.callout-tip collapse="true" title="Why use `ggadjustedcurves()` for this plot"}
+For plotting survival curves adjusted for covariates from a Cox Proportional Hazards model, the ggadjustedcurves() function from the survminer package offers one of the most direct and statistically appropriate approaches—particularly as model complexity increases.
+
+    Statistical validity: ggadjustedcurves() uses the fitted cox_model to compute adjusted survival probabilities for the variable of interest (in this case, trt). When method = "average" is specified (the default when covariates are present), it returns marginal estimates—appropriate for interpreting average treatment effects across the population. In our simpler model (~ trt), it effectively plots the model-predicted survival curve for each treatment group.
+
+    Robustness: This function is purpose-built for adjusted curve plotting and avoids many of the pitfalls seen with manually passing newdata to survfit() and plotting with ggsurvplot(), such as misaligned strata or legend issues. It correctly associates the model, the data, and the plot elements, including the risk table.
+
+    Simplicity: It eliminates the need for manually constructing a new_trt data frame or calling survfit() separately, resulting in cleaner, more reproducible code—particularly useful in collaborative or long-term projects.
+:::
+
+The Cox-adjusted survival curves for the Control and Intervention groups are almost perfectly overlapping, indicating no meaningful difference in predicted survival probabilities between the two treatment arms. This is consistent with the hazard ratio from the Cox model, which was very close to 1, and not statistically significant. Visually, the indistinguishability of the curves reinforces the conclusion that the treatment had no observable impact on survival in this dataset.
+
+::: {.tip title="Why do the lines overlap?"}
+The survival curves for the Control and Intervention groups overlap almost entirely in this plot. This is because the Cox proportional hazards model found no significant difference between the two groups in terms of survival (hazard ratio ≈ 1, *p* = 0.922). As a result, the model-predicted curves are nearly identical. The faint visibility of the Control group line is due to it being directly behind the Intervention group line.
+:::
+
+# 🔎 Model Diagnostics
+
+## Checking the Proportional Hazards Assumption
+
+## Schoenfeld Residuals Plot
+
+## Martingale Residuals (for Functional Form of Covariates)
+
+
+## Influential Observations (Optional)
+
+
+# 🧾 Conclusion
+
+# 📌 Limitations
+Briefly reflect on sample size, generalizability, or assumptions.
