@@ -345,6 +345,69 @@ For now, since our model does not include continuous covariates, this step is no
 
 :::
 
+## Additional Covariates
+
+### Age as a Continuous Covariate
+
+#### Model Fit
+<!-- Fit a Cox model including 'age' and show summary -->
+
+#### Linearity Assessment
+<!-- Martingale residual plot for age (continuous) -->
+
+#### Proportional Hazards Assumption
+<!-- cox.zph test + plot for age -->
+
+#### Interpretation
+<!-- Interpret hazard ratio for age and statistical significance -->
+
+
+### Prior Treatment as a Binary Covariate
+
+#### Model Fit
+<!-- Fit a Cox model with 'prior' and show summary -->
+
+#### Proportional Hazards Assumption
+<!-- cox.zph test + plot for prior -->
+
+#### Interpretation
+<!-- Interpret hazard ratio for prior treatment -->
+
+
+### Combined Multivariable Cox Model
+
+#### Model Summary
+<!-- Fit full model with trt + age + prior -->
+
+#### Assumption Checks
+<!-- Global cox.zph, Martingale residuals (age), etc. -->
+
+#### Adjusted Survival Curves
+<!-- ggadjustedcurves for trt (adjusted for age and prior) -->
+
+#### Interpretation
+<!-- Explain each variable’s adjusted effect -->
+
+::: {.tip title="Why not use logistic regression?"}
+Logistic regression ignores time-to-event and censoring. When working with survival data, Cox models are preferred as they preserve the time structure and allow for censored cases.
+:::
+
+# 🔀 Multivariable Cox Regression
+## 📥 Add Covariates (Age, Prior Treatment)
+### 🔁 Continuous Variable: Age
+#### 📈 Martingale Residuals for Age
+### 🔁 Binary Variable: Prior Treatment
+#### 📈 Interaction or Additive Effects?
+
+# 🧾 Model Summary & Interpretation
+## 📌 Hazard Ratios
+## 🧠 Clinical Interpretation
+
+# 🧰 Appendix
+## 📎 Theory: Why Cox Models?
+## 📎 Details: Code Tips, Reproducibility Notes
+## 📎 Export for Report Publishing
+
 # 🧾 Conclusion
 
 # 📌 Limitations
