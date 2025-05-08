@@ -393,10 +393,71 @@ Logistic regression ignores time-to-event and censoring. When working with survi
 :::
 
 # 🔀 Multivariable Cox Regression
+
+To build on the univariable analysis of treatment effects, we next fit a multivariable Cox proportional hazards model that incorporates additional patient-level covariates. This allows us to estimate the effect of treatment on survival **while adjusting for other potential prognostic factors**, such as age and prior treatment history. By doing so, we account for potential confounding and improve the model’s explanatory power.
+::: {.tip title="What is a multivariable Cox model and why are we using it?" collapse=true}
+
+In a univariable Cox model, we examine the effect of **one predictor at a time** on the hazard of an event (e.g., death). While this can be useful for preliminary exploration, it doesn't account for the **influence of other variables** that might confound or modify the relationship.
+
+A **multivariable Cox proportional hazards model** includes **multiple covariates** simultaneously. This allows us to:
+- Estimate the **adjusted effect** of each variable while controlling for the others,
+- Improve model accuracy and interpretability,
+- Detect whether the apparent effect of one variable (e.g., treatment) persists after adjusting for others (e.g., age, comorbidities),
+- Explore potential **interactions** or **effect modification**.
+
+In this section, we'll first add a **continuous covariate** (`age`) and then a **binary variable** (`prior treatment`) to the model. We'll also assess whether the functional form of continuous variables is appropriate and ensure that model assumptions still hold.
+
+:::
+
 ## 📥 Add Covariates (Age, Prior Treatment)
+
+To expand the model beyond treatment alone, we now include additional patient characteristics: `age` (a continuous variable) and `prior` (indicating whether the patient received prior therapy, a binary variable). Including these covariates allows us to better account for baseline differences between patients, assess their independent associations with survival, and evaluate how these variables may influence the effect of treatment.
+
+::: {.tip title="Why include more covariates?" collapse=true}
+
+Adding additional covariates serves several important purposes in survival analysis:
+
+- **Control for confounding:** Variables like age and prior treatment may influence both survival and the likelihood of receiving a particular treatment. Including them helps isolate the true effect of treatment.
+- **Improve model accuracy:** Covariates that predict survival can increase the model’s explanatory power and reduce residual variation.
+- **Uncover independent predictors:** Some variables (like prior therapy) may have a meaningful relationship with survival, regardless of treatment.
+- **Assess effect modification:** Once multiple variables are included, we can test for interactions — for example, whether the effect of treatment depends on age or prior treatment status.
+
+We’ll begin by examining `age` as a continuous covariate (with extra attention to its functional form), followed by `prior` as a binary covariate. We'll then combine them in a multivariable Cox model.
+
+:::
+
+
 ### 🔁 Continuous Variable: Age
+
+Age is a clinically relevant factor that may influence survival outcomes in lung cancer. In this section, we assess whether age is independently associated with survival time and verify that its relationship with the hazard is appropriately modeled as linear on the log-hazard scale.
+
+::: {.tip title="Why model age carefully?" collapse=true}
+
+Unlike categorical variables, continuous predictors like age require us to check their **functional form** in the model. The Cox model assumes a **linear relationship** between the covariate and the log hazard — meaning each 1-year increase in age is assumed to have the same proportional effect on the hazard.
+
+If this assumption doesn't hold (e.g., if risk increases faster at older ages), we may need to use transformations or splines to accurately model the relationship.
+
+We'll start by fitting a Cox model including age and then assess the functional form using Martingale residuals.
+
+:::
+
+
 #### 📈 Martingale Residuals for Age
 ### 🔁 Binary Variable: Prior Treatment
+
+### 🔁 Binary Variable: Prior Treatment
+
+We now evaluate the variable `prior`, which indicates whether a patient received prior therapy before enrollment in the study. This binary variable may capture important differences in disease severity, treatment history, or prognosis that could influence survival outcomes.
+
+::: {.tip title="Why test binary covariates like 'prior'?" collapse=true}
+
+Even though `prior` is binary, its inclusion allows us to control for historical differences in patient treatment, which may affect survival independently of the trial treatment (`trt`). 
+
+For binary variables, we don’t need to assess the functional form, but we **do need to check the proportional hazards assumption** (as with any covariate in the Cox model). We'll interpret the hazard ratio as the relative difference in risk between those who received prior therapy and those who did not.
+
+:::
+
+
 #### 📈 Interaction or Additive Effects?
 
 # 🧾 Model Summary & Interpretation
