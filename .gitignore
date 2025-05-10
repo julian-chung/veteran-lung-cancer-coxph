@@ -10,3 +10,13 @@ renv/*
 
 # Allow tracking of the renv lockfile
 !renv.lock
+
+# macOS system files
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# macOS Finder tags and thumbnails
+._*
+.Spotlight-V100
+.Trashes
