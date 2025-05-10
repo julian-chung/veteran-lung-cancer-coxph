@@ -1055,8 +1055,25 @@ ggplot(veteran, aes(x = linear_pred_spline, y = martingale_spline, color = trt))
   theme(plot.title = element_text(hjust = 0.5, face = "bold"))
 ```
 
-# 📈 Interaction or Additive Effects?
+# Model Comparison: Linear vs Spline Age Term
 
+We now compare the original multivariable Cox model with age modeled linearly to the updated model using a spline transformation for age. This allows us to formally test whether the added flexibility of the spline significantly improves model fit.
+
+```{r}
+# Compare linear age model vs spline-transformed age model
+anova(cox_multivariable, cox_spline, test = "LRT")
+```
+
+# Visualizing the Effect of Spline-Transformed Age
+
+This section uses 'termplot()' to visualize how the hazard changes across age when modeled as a spline. This provides an intuitive look at the non-linear relationship.
+
+```{r}
+termplot(cox_spline, se = TRUE, col.term = "blue")
+```
+
+
+# 📈 Interaction or Additive Effects?
 
 # 🧾 Model Summary & Interpretation
 ## 📌 Hazard Ratios

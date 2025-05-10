@@ -1,5 +1,12 @@
+# RStudio junk
 .Rhistory
 .RData
 .Rproj.user/
-renv/
-renv.lock
+
+# Ignore the renv project infra, except the lockfile
+renv/*
+!renv/activate.R
+!renv/settings.json
+
+# Allow tracking of the renv lockfile
+!renv.lock
