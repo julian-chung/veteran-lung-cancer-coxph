@@ -1,0 +1,9 @@
+---
+title: "Veteran Lung Cancer Analysis"
+---
+
+# Project Overview
+
+This site contains analyses of lung cancer survival data from a Veterans Administration clinical trial.
+
+- [Lung Cancer Survival Analysis](notebooks/veteran-lung-cancer-coxph.html)

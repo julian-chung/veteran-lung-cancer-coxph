@@ -1,0 +1,17 @@
+project:
+  type: website
+  output-dir: docs
+
+website:
+  title: "Veteran Lung Cancer Survival Analysis"
+  navbar:
+    left:
+      - href: index.qmd
+        text: Home
+      - href: notebooks/veteran-lung-cancer-coxph.qmd
+        text: Lung Cancer Analysis
+
+format:
+  html:
+    theme: cosmo
+    toc: true
