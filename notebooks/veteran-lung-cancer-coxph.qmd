@@ -120,7 +120,7 @@ ggsurvplot(
 
 The Kaplan-Meier plot shows survival curves for patients receiving standard vs test treatment.
 
-::: {callout-note title="Intrepretation of Graph Elements" collapse=true}
+::: {.callout-note title="Interpretation of Graph Elements" collapse="true"}
 **X-Axis: Time (days)**
 
 The X-axis shows the time since enrollment in days. The furthest value to the right (~1000 days) marks the maximum observed survival time in the dataset. Shorter durations towards the left reflect early mortality events. 
@@ -163,7 +163,7 @@ summary(cox_model)
 
 ```
 
-::: {callout-note title="Intrepretation of Cox Table" collapse=true}
+::: {.callout-note title="Interpretation of Cox Table" collapse="true"}
 
 | Term          | Value          | What It Means                                                                                                                                                                         |
 | ------------- | -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -210,7 +210,7 @@ ggadjustedcurves(
 )
 ```
 
-::: {callout-tip collapse="true" title="Why use `ggadjustedcurves()` for this plot"}
+::: {.callout-tip title="Why use `ggadjustedcurves()` for this plot" collapse="true"}
 For plotting survival curves adjusted for covariates from a Cox Proportional Hazards model, the ggadjustedcurves() function from the survminer package offers one of the most direct and statistically appropriate approaches—particularly as model complexity increases.
 
     Statistical validity: ggadjustedcurves() uses the fitted cox_model to compute adjusted survival probabilities for the variable of interest (in this case, trt). When method = "average" is specified (the default when covariates are present), it returns marginal estimates—appropriate for interpreting average treatment effects across the population. In our simpler model (~ trt), it effectively plots the model-predicted survival curve for each treatment group.
@@ -222,7 +222,7 @@ For plotting survival curves adjusted for covariates from a Cox Proportional Haz
 
 The Cox-adjusted survival curves for the Control and Intervention groups are almost perfectly overlapping, indicating no meaningful difference in predicted survival probabilities between the two treatment arms. This is consistent with the hazard ratio from the Cox model, which was very close to 1, and not statistically significant. Visually, the indistinguishability of the curves reinforces the conclusion that the treatment had no observable impact on survival in this dataset.
 
-::: {callout-note title="Why do the lines overlap?"}
+::: {.callout-note title="Why do the lines overlap?" collapse="true"}
 The survival curves for the Control and Intervention groups overlap almost entirely in this plot. This is because the Cox proportional hazards model found no significant difference between the two groups in terms of survival (hazard ratio ≈ 1, *p* = 0.922). As a result, the model-predicted curves are nearly identical. The faint visibility of the Control group line is due to it being directly behind the Intervention group line.
 :::
 
@@ -254,7 +254,7 @@ Although the p-values are slightly above the conventional significance threshold
 plot(cox.zph(cox_model))
 ```
 
-::: {callout-note title="What the Visual Diagnostic Shows" collapse=true}
+::: {.callout-note title="What the Visual Diagnostic Shows" collapse="true"}
 
 The y-axis: Scaled Schoenfeld residuals for trt. If the proportional hazards assumption holds, these residuals should fluctuate randomly around zero.
 
@@ -319,7 +319,7 @@ ggplot(veteran, aes(x = linear_pred, y = martingale, color = trt)) +
 
 ```
 
-::: {callout-note title="What do the Martingale Residuals Show" collapse=true}
+::: {.callout-note title="What do the Martingale Residuals Show" collapse="true"}
 
 Martingale residuals help us check whether the variables in our Cox model are specified correctly — particularly useful for continuous covariates. However, when the variable in question is binary (like our treatment group: Control vs Intervention), the Martingale residual plot will display two vertical stacks of points — one for each group.
 
@@ -344,7 +344,7 @@ Martingale residuals were plotted against the linear predictor to assess model f
 
 ## Functional Form of Covariates
 
-::: {callout-tip title="Why we haven't checked the functional form of covariates"}
+::: {.callout-tip title="Why we haven't checked the functional form of covariates" collapse="true"}
 
 The Cox model assumes a linear relationship between continuous covariates and the log hazard. In our current model, only the treatment group (`trt`) is included, which is a categorical variable. 
 
@@ -355,11 +355,12 @@ For now, since our model does not include continuous covariates, this step is no
 :::
 
 ## Additional Covariates
+
 # 🔀 Multivariable Cox Regression
 
 To build on the univariable analysis of treatment effects, we next fit a multivariable Cox proportional hazards model that incorporates additional patient-level covariates. This allows us to estimate the effect of treatment on survival **while adjusting for other potential prognostic factors**, such as age and prior treatment history. By doing so, we account for potential confounding and improve the model's explanatory power.
 
-::: {callout-tip title="What is a multivariable Cox model and why are we using it?" collapse=true}
+::: {.callout-tip title="What is a multivariable Cox model and why are we using it?" collapse="true"}
 In a univariable Cox model, we examine the effect of **one predictor at a time** on the hazard of an event (e.g., death). While this can be useful for preliminary exploration, it doesn't account for the **influence of other variables** that might confound or modify the relationship.
 
 A **multivariable Cox proportional hazards model** includes **multiple covariates** simultaneously. This allows us to:
@@ -379,7 +380,7 @@ Logistic regression ignores time-to-event and censoring. When working with survi
 
 To expand the model beyond treatment alone, we now include additional patient characteristics: `age` (a continuous variable) and `prior` (indicating whether the patient received prior therapy, a binary variable). Including these covariates allows us to better account for baseline differences between patients, assess their independent associations with survival, and evaluate how these variables may influence the effect of treatment.
 
-::: {callout-tip title="Why include more covariates?" collapse=true}
+::: {.callout-tip title="Why include more covariates?" collapse="true"}
 
 Adding additional covariates serves several important purposes in survival analysis:
 
@@ -396,7 +397,7 @@ We'll begin by examining `age` as a continuous covariate (with extra attention t
 
 Age is a clinically relevant factor that may influence survival outcomes in lung cancer. In this section, we assess whether age is independently associated with survival time and verify that its relationship with the hazard is appropriately modeled as linear on the log-hazard scale.
 
-::: {callout-tip title="Why model age carefully?" collapse=true}
+::: {.callout-tip title="Why model age carefully?" collapse="true"}
 Unlike categorical variables, continuous predictors like age require us to check their **functional form** in the model. The Cox model assumes a **linear relationship** between the covariate and the log hazard — meaning each 1-year increase in age is assumed to have the same proportional effect on the hazard.
 
 If this assumption doesn't hold (e.g., if risk increases faster at older ages), we may need to use transformations or splines to accurately model the relationship.
@@ -425,7 +426,7 @@ Interpretation:
 
     The overall model performs poorly in predicting survival in this dataset.
 
-::: {callout-note title="Interpreting the Cox Model Output" collapse=true}
+::: {.callout-note title="Interpreting the Cox Model Output" collapse="true"}
 
 Understanding the `coxph()` output is essential for interpreting survival models. Here's a breakdown of the most common components you'll encounter in both univariable and multivariable Cox regressions:
 
@@ -489,7 +490,7 @@ This tests the **null hypothesis** that the covariate has **no effect** (`coef =
 :::
 
 
-#### 📈 Schoenfeld Residuals for Age
+**📈 Schoenfeld Residuals for Age**
 
 ```{r}
 # Test proportional hazards assumption for the model including age
@@ -501,7 +502,7 @@ Proportional hazards were tested using Schoenfeld residuals. The assumption was 
 
 While these results do not strongly indicate a breakdown of the PH assumption, the borderline p-values warrant caution. A visual inspection of the residual plots (`plot(cox.zph())`) can help determine whether the trend is substantial or random variation.
 
-::: {callout-note title="Interpreting Schoenfeld Residuals" collapse=true}
+::: {.callout-note title="Interpreting Schoenfeld Residuals" collapse="true"}
 
 Schoenfeld residuals are used to test the **Proportional Hazards (PH) assumption** in Cox models — that the effect of each covariate remains **constant over time**.
 
@@ -530,7 +531,7 @@ plot(cox_zph_age)
 
 The Schoenfeld residual plot for age demonstrated no clear violations of the proportional hazards assumption. The smoothed coefficient function remained approximately flat across time, and the 95% confidence interval consistently included zero. This visual finding supports the conclusion from the formal test (`p = 0.195`), suggesting that the effect of age on the hazard is relatively stable over the study period.
 
-::: {callout-note title="How to Interpret Schoenfeld Residual Plots" collapse=true}
+::: {.callout-note title="How to Interpret Schoenfeld Residual Plots" collapse="true"}
 
 This plot checks the **Proportional Hazards (PH) assumption** visually for a covariate (e.g., `age`).
 
@@ -554,7 +555,7 @@ If the smoothed line is approximately flat and the confidence interval consisten
 
 :::
 
-#### 📈 Martingale Residuals for Age to Assess Functional Form
+**📈 Martingale Residuals for Age to Assess Functional Form**
 
 To assess whether age is appropriately modeled as a linear predictor in the Cox model, we examine Martingale residuals plotted against age to detect non-linearity in its functional form.
 
@@ -582,7 +583,7 @@ ggplot(veteran, aes(x = age, y = martingale_age, color = trt)) +
 
 Martingale residuals plotted against age showed no clear non-linear trend, with residuals generally scattered randomly across the range of age values. This suggests that modeling age as a linear term in the Cox model is reasonable. There is no strong evidence to support the need for transformations or spline-based modeling of age in this dataset.
 
-::: {callout-note title="How to Interpret Martingale Residuals for Functional Form" collapse=true}
+::: {.callout-note title="How to Interpret Martingale Residuals for Functional Form" collapse="true"}
 
 This plot helps assess whether the **relationship between a continuous variable** (like _age_) and the **log hazard** is **linear**, which is a core assumption of the Cox model.
 
@@ -600,7 +601,7 @@ This plot helps assess whether the **relationship between a continuous variable*
 
 :::
 
-#### 📈 Functional Form Check
+**📈 Functional Form Check**
 
 ```{r}
 # Fit a univariable Cox model to assess functional form of age
@@ -611,7 +612,7 @@ ggcoxfunctional(cox_age_only, data = veteran)
 ```
 
 
-::: {callout-note title="Assessing Functional Form with Martingale Residuals" collapse=true}
+::: {.callout-note title="Assessing Functional Form with Martingale Residuals" collapse="true"}
 
 **What this plot shows:**  
 This diagnostic visualizes whether a **continuous covariate** (e.g., _age_) has a **linear relationship** with the **log hazard**, as assumed by the Cox model.
@@ -647,7 +648,7 @@ While the Martingale residual plot suggests that the relationship between age an
 
 We now evaluate the variable `prior`, which indicates whether a patient received prior therapy before enrolment in the study. This binary variable may capture important differences in disease severity, treatment history, or prognosis that could influence survival outcomes.
 
-::: {callout-tip title="Why test binary covariates like 'prior'?" collapse=true}
+::: {.callout-tip title="Why test binary covariates like 'prior'?" collapse="true"}
 Even though `prior` is binary, its inclusion allows us to control for historical differences in patient treatment, which may affect survival independently of the trial treatment (`trt`). 
 
 For binary variables, we don't need to assess the functional form, but we **do need to check the proportional hazards assumption** (as with any covariate in the Cox model). We'll interpret the hazard ratio as the relative difference in risk between those who received prior therapy and those who did not.
@@ -669,7 +670,7 @@ Model discrimination was weak, with a concordance of 0.517, suggesting the model
 
 Neither treatment assignment nor prior therapy appear to be meaningful predictors of survival in this dataset. There is no evidence of an additive effect between these covariates.
 
-#### 📈 Schoenfeld Residuals for Prior Treatment
+***📈 Schoenfeld Residuals for Prior Treatment**
 
 ```{r}
 # Test proportional hazards assumption for the model including prior treatment
@@ -690,7 +691,7 @@ plot(cox_zph_prior)
 
 The Schoenfeld residual plot for prior reveals a largely flat smoothed line that stays within the 95% confidence band across time. While the global test for proportional hazards was statistically significant (p = 0.048), the visual inspection for prior shows no major deviation or time-varying effect. This supports the idea that, despite the borderline p-values, the proportional hazards assumption is reasonably met for the prior variable.
 
-#### 📈 Martingale Residuals for Prior Treatment
+**📈 Martingale Residuals for Prior Treatment**
 ```{r}
 # Generate Martingale residuals
 veteran$martingale_prior <- residuals(cox_prior, type = "martingale")
@@ -725,7 +726,7 @@ cox_multivariable <- coxph(Surv(time, status) ~ trt + age + prior, data = vetera
 summary(cox_multivariable)
 ```
 
-::: {callout-note title="Interpreting the Cox Model Output" collapse=true}
+::: {.callout-note title="Interpreting the Cox Model Output" collapse="true"}
 
 Understanding the `coxph()` output is essential for interpreting survival models. Here's a breakdown of the most common components you'll encounter in both univariable and multivariable Cox regressions:
 
@@ -799,7 +800,7 @@ A multivariable Cox proportional hazards model was fitted to examine the associa
 
 Model discrimination was minimal (concordance = 0.507), and all global model tests were non-significant (p = 0.8), suggesting the model does not meaningfully predict survival in this dataset.
 
-#### 📈 Schoenfeld Residuals for Multivariable Model
+**📈 Schoenfeld Residuals for Multivariable Model**
 
 We now assess whether the **proportional hazards assumption** holds for each covariate in the multivariable Cox model. This step ensures that the effect of each variable — treatment group, age, and prior therapy — is consistent over time.
 
@@ -828,7 +829,7 @@ plot(cox_zph_multivariable)
 
 Visual inspection of the Schoenfeld residual plot for the prior variable showed a relatively flat trend line with confidence intervals consistently containing zero. This suggests that the effect of prior treatment on the hazard is approximately constant over time, supporting the proportional hazards assumption for this covariate despite its borderline p-value in the global test.
 
-#### Martingale Residuals for Multivariable Model
+**Martingale Residuals for Multivariable Model**
 
 We now examine the Martingale residuals from the multivariable Cox model to evaluate the overall model fit and identify any patterns or potential outliers in the covariate effects.
 
@@ -853,7 +854,7 @@ ggplot(veteran, aes(x = linear_pred_multivariable, y = martingale_multivariable,
 ```
 The Martingale residuals plotted against the linear predictor for the multivariable model appear randomly scattered around the horizontal zero line, with no clear pattern, curvature, or systematic deviation. This suggests that the overall functional form of the covariates (treatment, age, and prior treatment) is reasonably specified. There is no strong evidence of model misspecification or non-linearity in the combined effects. However, the narrow spread of the linear predictor values (mostly between -0.2 and 0.2) reflects the modest effect sizes and limited variation in the log hazard estimates, which aligns with the model's lack of significant predictors.
 
-::: {callout-tip title="What This Plot Tells Us" collapse=true}
+::: {.callout-tip title="What This Plot Tells Us" collapse="true"}
 
 Martingale residuals help assess how well the Cox model fits the data.
 
@@ -871,7 +872,7 @@ Conclusion: The model appears reasonably well-specified, and no major violations
 
 :::
 
-#### Functional Form Check for Continuous Covariates
+**Functional Form Check for Continuous Covariates**
 
 We now recheck the functional form of the continuous variable age within the multivariable Cox model to ensure its effect on the log hazard remains appropriately modeled as linear.
 
@@ -891,7 +892,7 @@ ggcoxfunctional(
 
 The Martingale residual plot for age reveals a clear U-shaped curve, suggesting that the assumption of linearity in the log hazard may not hold. This implies that age may have a non-linear effect on survival, and modeling it as a simple linear term may lead to misestimation of its effect. A transformation (e.g., quadratic or restricted cubic splines) may be warranted in further analysis.
 
-::: {callout-tip title="Why Check Functional Form Again in a Multivariable Model?" collapse=true}
+::: {.callout-tip title="Why Check Functional Form Again in a Multivariable Model?" collapse="true"}
 
 While functional form checks (e.g., using Martingale residuals) are **only necessary for continuous covariates**, it's important to **reassess them in the context of the full model** — even if they passed in a univariable setting.
 
@@ -903,11 +904,11 @@ So we recheck **only the continuous variables** (e.g., age) in the multivariable
 
 :::
 
-# Multivariable Cox Model with Spline-Transformed Age
+## Multivariable Cox Model with Spline-Transformed Age
 
 We refit the Cox model using a restricted cubic spline to model the non-linear relationship between age and the log hazard. This allows for greater flexibility in capturing age-related risk while still accounting for treatment and prior therapy.
 
-::: {callout-note title="Understanding Spline and Non-Linear Transformations in Survival Models" collapse=true}
+::: {.callout-note title="Understanding Spline and Non-Linear Transformations in Survival Models" collapse="true"}
 
 **Why model transformations at all?**  
 The Cox Proportional Hazards model assumes that each covariate has a **linear relationship** with the **log hazard**. For **continuous variables** like age, this means that each one-unit increase is expected to have the same multiplicative effect on the hazard — *regardless of whether someone is 40 or 80 years old*. This is often unrealistic.
@@ -967,7 +968,7 @@ Final tip: Always re-check Schoenfeld residuals and Martingale residuals after a
 
 :::
 
-## Model Output
+**Model Output**
 
 ```{r}
 # Fit a Cox model with restricted cubic splines for age
@@ -981,7 +982,7 @@ The treatment group (p = 0.626) and prior therapy (p = 0.640) also remained non-
 
 However, the model's concordance improved slightly to 0.559 compared to the linear age model, suggesting a modest increase in predictive ability. While not conclusive, the use of splines helps satisfy the functional form assumption and could be valuable if future models identify stronger non-linear trends or interactions with age.
 
-## Checking Proportional Hazards Assumption for Spline Model
+**Checking Proportional Hazards Assumption for Spline Model**
 
 ```{r}
 # Test proportional hazards assumption for the spline model
@@ -990,14 +991,14 @@ cox.zph(cox_spline)
 
 A Cox proportional hazards model incorporating a restricted cubic spline transformation of age (df = 3) demonstrated acceptable fit to the proportional hazards assumption across all covariates. The global Schoenfeld residuals test was non-significant (p = 0.116), suggesting that the model adequately satisfies the proportional hazards assumption. Individually, spline-transformed age (p = 0.211), treatment group (p = 0.114), and prior treatment (p = 0.079) all showed no significant time-dependent effects.
 
-### Visual Check of Proportional Hazards Assumption for Spline Model
+**Visual Check of Proportional Hazards Assumption for Spline Model**
 
 ```{r}
 # Visual check of Schoenfeld residuals for spline model
 plot(cox.zph(cox_spline))
 ```
 
-## Martingale Residuals for Spline Model
+**Martingale Residuals for Spline Model**
 
 ```{r}
 # Residuals vs linear predictor
@@ -1018,7 +1019,7 @@ ggplot(veteran, aes(x = linear_pred_spline, y = martingale_spline, color = trt))
   theme(plot.title = element_text(hjust = 0.5, face = "bold"))
 ```
 
-# Model Comparison: Linear vs Spline Age Term
+## Model Comparison: Linear vs Spline Age Term
 
 We now compare the original multivariable Cox model with age modeled linearly to the updated model using a spline transformation for age. This allows us to formally test whether the added flexibility of the spline significantly improves model fit.
 
@@ -1029,11 +1030,11 @@ anova(cox_multivariable, cox_spline, test = "LRT")
 
 A likelihood ratio test comparing a model with age modeled linearly to one using restricted cubic splines (df = 3) showed a statistically significant improvement in fit (χ² = 7.91, df = 2, p = 0.019). This suggests that the effect of age on survival is non-linear, and that modeling age with splines better captures its relationship with hazard.
 
-# Visualizing the Effect of Spline-Transformed Age
+**Visualizing the Effect of Spline-Transformed Age**
 
 This section uses 'termplot()' to visualize how the hazard changes across age when modeled as a spline. This provides an intuitive look at the non-linear relationship.
 
-::: {callout-note title="Understanding ANOVA in Cox Regression" collapse=true}
+::: {.callout-note title="Understanding ANOVA in Cox Regression" collapse="true"}
 
 In the context of **Cox proportional hazards models**, ANOVA isn't used in the traditional sense (like comparing means). Instead, it's a way of **comparing nested models** using their **log-likelihoods**.
 
@@ -1080,7 +1081,7 @@ The term plots from the spline-based Cox model provide a visual assessment of ea
 
 These visualizations are consistent with the statistical output, reinforcing the conclusion that age shows the most complex effect, while treatment and prior therapy do not demonstrate significant associations with survival in this model.
 
-::: {callout-note title="How to Interpret Term Plots in Cox Models" collapse=true}
+::: {.callout-note title="How to Interpret Term Plots in Cox Models" collapse="true"}
 
 **Term plots** visualize the *partial effect* of each covariate in a fitted model while holding other variables constant. They are especially helpful for interpreting transformations like splines.
 
@@ -1118,12 +1119,9 @@ A term plot shows how the **log hazard** (on the y-axis) changes with a covariat
 
 
 # 📈 Interaction or Additive Effects?
-
 # 🧾 Model Summary & Interpretation
 ## 📌 Hazard Ratios
 ## 🧠 Clinical Interpretation
-
 # 🧾 Conclusion
-
 # 📌 Limitations
 
