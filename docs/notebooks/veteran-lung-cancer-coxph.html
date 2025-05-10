@@ -1,0 +1,2453 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.7.29">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Julian Chung">
+
+<title>Survival Analysis: Veteran Lung Cancer Patients – Veteran Lung Cancer Survival Analysis</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-0815c480559380816a4d1ea211a47e91.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-c1fac2584b48ed01fb6e278e36375074.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+</head>
+
+<body class="nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../index.html">
+    <span class="navbar-title">Veteran Lung Cancer Survival Analysis</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../index.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link active" href="../notebooks/veteran-lung-cancer-coxph.html" aria-current="page"> 
+<span class="menu-text">Lung Cancer Analysis</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#introduction" id="toc-introduction" class="nav-link active" data-scroll-target="#introduction"><span class="header-section-number">1</span> 📘 Introduction</a></li>
+  <li><a href="#load-packages" id="toc-load-packages" class="nav-link" data-scroll-target="#load-packages"><span class="header-section-number">2</span> 📦 Load Packages</a></li>
+  <li><a href="#load-inspect-data" id="toc-load-inspect-data" class="nav-link" data-scroll-target="#load-inspect-data"><span class="header-section-number">3</span> 🧬 Load &amp; Inspect Data</a></li>
+  <li><a href="#kaplan-meier-survival-curve" id="toc-kaplan-meier-survival-curve" class="nav-link" data-scroll-target="#kaplan-meier-survival-curve"><span class="header-section-number">4</span> 📈 Kaplan-Meier Survival Curve</a>
+  <ul class="collapse">
+  <li><a href="#interpretation" id="toc-interpretation" class="nav-link" data-scroll-target="#interpretation"><span class="header-section-number">4.0.1</span> 🧠 Interpretation</a></li>
+  </ul></li>
+  <li><a href="#cox-proportional-hazards-model" id="toc-cox-proportional-hazards-model" class="nav-link" data-scroll-target="#cox-proportional-hazards-model"><span class="header-section-number">5</span> 📊 Cox Proportional Hazards Model</a></li>
+  <li><a href="#model-diagnostics" id="toc-model-diagnostics" class="nav-link" data-scroll-target="#model-diagnostics"><span class="header-section-number">6</span> 🔎 Model Diagnostics</a>
+  <ul class="collapse">
+  <li><a href="#checking-the-proportional-hazards-assumption" id="toc-checking-the-proportional-hazards-assumption" class="nav-link" data-scroll-target="#checking-the-proportional-hazards-assumption"><span class="header-section-number">6.1</span> Checking the Proportional Hazards Assumption</a></li>
+  <li><a href="#schoenfeld-residuals-plot" id="toc-schoenfeld-residuals-plot" class="nav-link" data-scroll-target="#schoenfeld-residuals-plot"><span class="header-section-number">6.2</span> Schoenfeld Residuals Plot</a></li>
+  <li><a href="#martingale-residuals-for-functional-form-of-covariates" id="toc-martingale-residuals-for-functional-form-of-covariates" class="nav-link" data-scroll-target="#martingale-residuals-for-functional-form-of-covariates"><span class="header-section-number">6.3</span> Martingale Residuals (for Functional Form of Covariates)</a></li>
+  <li><a href="#functional-form-of-covariates" id="toc-functional-form-of-covariates" class="nav-link" data-scroll-target="#functional-form-of-covariates"><span class="header-section-number">6.4</span> Functional Form of Covariates</a></li>
+  <li><a href="#additional-covariates" id="toc-additional-covariates" class="nav-link" data-scroll-target="#additional-covariates"><span class="header-section-number">6.5</span> Additional Covariates</a></li>
+  </ul></li>
+  <li><a href="#multivariable-cox-regression" id="toc-multivariable-cox-regression" class="nav-link" data-scroll-target="#multivariable-cox-regression"><span class="header-section-number">7</span> 🔀 Multivariable Cox Regression</a>
+  <ul class="collapse">
+  <li><a href="#add-covariates-age-prior-treatment" id="toc-add-covariates-age-prior-treatment" class="nav-link" data-scroll-target="#add-covariates-age-prior-treatment"><span class="header-section-number">7.1</span> 📥 Add Covariates (Age, Prior Treatment)</a>
+  <ul class="collapse">
+  <li><a href="#continuous-variable-age" id="toc-continuous-variable-age" class="nav-link" data-scroll-target="#continuous-variable-age"><span class="header-section-number">7.1.1</span> 🔁 Continuous Variable: Age</a></li>
+  <li><a href="#binary-variable-prior-treatment" id="toc-binary-variable-prior-treatment" class="nav-link" data-scroll-target="#binary-variable-prior-treatment"><span class="header-section-number">7.1.2</span> 🔁 Binary Variable: Prior Treatment</a></li>
+  <li><a href="#multivariable-cox-model-with-age-and-prior-treatment" id="toc-multivariable-cox-model-with-age-and-prior-treatment" class="nav-link" data-scroll-target="#multivariable-cox-model-with-age-and-prior-treatment"><span class="header-section-number">7.1.3</span> 🔁 Multivariable Cox Model with Age and Prior Treatment</a></li>
+  </ul></li>
+  <li><a href="#multivariable-cox-model-with-spline-transformed-age" id="toc-multivariable-cox-model-with-spline-transformed-age" class="nav-link" data-scroll-target="#multivariable-cox-model-with-spline-transformed-age"><span class="header-section-number">7.2</span> Multivariable Cox Model with Spline-Transformed Age</a></li>
+  <li><a href="#model-comparison-linear-vs-spline-age-term" id="toc-model-comparison-linear-vs-spline-age-term" class="nav-link" data-scroll-target="#model-comparison-linear-vs-spline-age-term"><span class="header-section-number">7.3</span> Model Comparison: Linear vs Spline Age Term</a></li>
+  </ul></li>
+  <li><a href="#interaction-or-additive-effects" id="toc-interaction-or-additive-effects" class="nav-link" data-scroll-target="#interaction-or-additive-effects"><span class="header-section-number">8</span> 📈 Interaction or Additive Effects?</a></li>
+  <li><a href="#model-summary-interpretation" id="toc-model-summary-interpretation" class="nav-link" data-scroll-target="#model-summary-interpretation"><span class="header-section-number">9</span> 🧾 Model Summary &amp; Interpretation</a>
+  <ul class="collapse">
+  <li><a href="#hazard-ratios" id="toc-hazard-ratios" class="nav-link" data-scroll-target="#hazard-ratios"><span class="header-section-number">9.1</span> 📌 Hazard Ratios</a></li>
+  <li><a href="#clinical-interpretation" id="toc-clinical-interpretation" class="nav-link" data-scroll-target="#clinical-interpretation"><span class="header-section-number">9.2</span> 🧠 Clinical Interpretation</a></li>
+  </ul></li>
+  <li><a href="#conclusion" id="toc-conclusion" class="nav-link" data-scroll-target="#conclusion"><span class="header-section-number">10</span> 🧾 Conclusion</a></li>
+  <li><a href="#limitations" id="toc-limitations" class="nav-link" data-scroll-target="#limitations"><span class="header-section-number">11</span> 📌 Limitations</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Survival Analysis: Veteran Lung Cancer Patients</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Julian Chung </p>
+          </div>
+  </div>
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="introduction" class="level1" data-number="1">
+<h1 data-number="1"><span class="header-section-number">1</span> 📘 Introduction</h1>
+<p>This dataset originates from a clinical trial conducted by the Veterans Administration in the United States to compare the effectiveness of two chemotherapy regimens in treating advanced, inoperable lung cancer. Patients were randomized to receive either a standard treatment or a test treatment (an experimental chemotherapy protocol), and followed until death or censoring. The primary outcome was overall survival, measured in days from treatment initiation.</p>
+<p>The dataset contains information on:</p>
+<pre><code>Treatment group (Standard vs Test),
+
+Cell type (squamous, small cell, adenocarcinoma, or large cell),
+
+Survival time and status,
+
+Karnofsky performance score (a proxy for baseline health),
+
+Time from diagnosis to study entry,
+
+Patient age, and
+
+Number of prior treatments received.</code></pre>
+<p>The data is widely used in survival analysis teaching due to its realistic structure, meaningful clinical context, and manageable size.</p>
+<p>D Kalbfleisch and RL Prentice (1980), The Statistical Analysis of Failure Time Data. Wiley, New York.</p>
+</section>
+<section id="load-packages" class="level1" data-number="2">
+<h1 data-number="2"><span class="header-section-number">2</span> 📦 Load Packages</h1>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(survival)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(survminer)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stderr">
+<pre><code>Loading required package: ggplot2</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Loading required package: ggpubr</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>
+Attaching package: 'survminer'</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following object is masked from 'package:survival':
+
+    myeloma</code></pre>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stderr">
+<pre><code>
+Attaching package: 'dplyr'</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following objects are masked from 'package:stats':
+
+    filter, lag</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following objects are masked from 'package:base':
+
+    intersect, setdiff, setequal, union</code></pre>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(broom)</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(splines)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</section>
+<section id="load-inspect-data" class="level1" data-number="3">
+<h1 data-number="3"><span class="header-section-number">3</span> 🧬 Load &amp; Inspect Data</h1>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Load the dataset</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>veteran <span class="ot">&lt;-</span> survival<span class="sc">::</span>veteran <span class="sc">%&gt;%</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">trt =</span> <span class="fu">factor</span>(trt, <span class="at">levels =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>), <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"Control"</span>, <span class="st">"Intervention"</span>)))</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Peek at the structure and summary</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a><span class="fu">glimpse</span>(veteran)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Rows: 137
+Columns: 8
+$ trt      &lt;fct&gt; Control, Control, Control, Control, Control, Control, Control…
+$ celltype &lt;fct&gt; squamous, squamous, squamous, squamous, squamous, squamous, s…
+$ time     &lt;dbl&gt; 72, 411, 228, 126, 118, 10, 82, 110, 314, 100, 42, 8, 144, 25…
+$ status   &lt;dbl&gt; 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0…
+$ karno    &lt;dbl&gt; 60, 70, 60, 60, 70, 20, 40, 80, 50, 70, 60, 40, 30, 80, 70, 6…
+$ diagtime &lt;dbl&gt; 7, 5, 3, 9, 11, 5, 10, 29, 18, 6, 4, 58, 4, 9, 11, 3, 9, 2, 4…
+$ age      &lt;dbl&gt; 69, 64, 38, 63, 65, 49, 69, 68, 43, 70, 81, 63, 63, 52, 48, 6…
+$ prior    &lt;dbl&gt; 0, 10, 0, 10, 10, 0, 10, 0, 0, 0, 0, 10, 0, 10, 10, 0, 0, 0, …</code></pre>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(veteran)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>           trt          celltype       time           status      
+ Control     :69   squamous :35   Min.   :  1.0   Min.   :0.0000  
+ Intervention:68   smallcell:48   1st Qu.: 25.0   1st Qu.:1.0000  
+                   adeno    :27   Median : 80.0   Median :1.0000  
+                   large    :27   Mean   :121.6   Mean   :0.9343  
+                                  3rd Qu.:144.0   3rd Qu.:1.0000  
+                                  Max.   :999.0   Max.   :1.0000  
+     karno          diagtime           age            prior      
+ Min.   :10.00   Min.   : 1.000   Min.   :34.00   Min.   : 0.00  
+ 1st Qu.:40.00   1st Qu.: 3.000   1st Qu.:51.00   1st Qu.: 0.00  
+ Median :60.00   Median : 5.000   Median :62.00   Median : 0.00  
+ Mean   :58.57   Mean   : 8.774   Mean   :58.31   Mean   : 2.92  
+ 3rd Qu.:75.00   3rd Qu.:11.000   3rd Qu.:66.00   3rd Qu.:10.00  
+ Max.   :99.00   Max.   :87.000   Max.   :81.00   Max.   :10.00  </code></pre>
+</div>
+</div>
+</section>
+<section id="kaplan-meier-survival-curve" class="level1" data-number="4">
+<h1 data-number="4"><span class="header-section-number">4</span> 📈 Kaplan-Meier Survival Curve</h1>
+<p>Firstly we estimate the <strong>survival function</strong> for patients using the Kaplan-Meier estimator. This provides a non-parametric view of survival over time, stratified by treatment group.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Create the survival object</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>surv_obj <span class="ot">&lt;-</span> <span class="fu">Surv</span>(<span class="at">time =</span> veteran<span class="sc">$</span>time, <span class="at">event =</span> veteran<span class="sc">$</span>status)</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Fit Kaplan-Meier curve stratified by treatment</span></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>km_fit <span class="ot">&lt;-</span> <span class="fu">survfit</span>(surv_obj <span class="sc">~</span> trt, <span class="at">data =</span> veteran)</span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a><span class="co"># View basic survival summary</span></span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(km_fit)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Call: survfit(formula = surv_obj ~ trt, data = veteran)
+
+                trt=Control 
+ time n.risk n.event survival std.err lower 95% CI upper 95% CI
+    3     69       1   0.9855  0.0144      0.95771        1.000
+    4     68       1   0.9710  0.0202      0.93223        1.000
+    7     67       1   0.9565  0.0246      0.90959        1.000
+    8     66       2   0.9275  0.0312      0.86834        0.991
+   10     64       2   0.8986  0.0363      0.83006        0.973
+   11     62       1   0.8841  0.0385      0.81165        0.963
+   12     61       2   0.8551  0.0424      0.77592        0.942
+   13     59       1   0.8406  0.0441      0.75849        0.932
+   16     58       1   0.8261  0.0456      0.74132        0.921
+   18     57       2   0.7971  0.0484      0.70764        0.898
+   20     55       1   0.7826  0.0497      0.69109        0.886
+   21     54       1   0.7681  0.0508      0.67472        0.874
+   22     53       1   0.7536  0.0519      0.65851        0.862
+   27     51       1   0.7388  0.0529      0.64208        0.850
+   30     50       1   0.7241  0.0539      0.62580        0.838
+   31     49       1   0.7093  0.0548      0.60967        0.825
+   35     48       1   0.6945  0.0556      0.59368        0.812
+   42     47       1   0.6797  0.0563      0.57782        0.800
+   51     46       1   0.6650  0.0570      0.56209        0.787
+   52     45       1   0.6502  0.0576      0.54649        0.774
+   54     44       2   0.6206  0.0587      0.51565        0.747
+   56     42       1   0.6059  0.0591      0.50040        0.734
+   59     41       1   0.5911  0.0595      0.48526        0.720
+   63     40       1   0.5763  0.0598      0.47023        0.706
+   72     39       1   0.5615  0.0601      0.45530        0.693
+   82     38       1   0.5467  0.0603      0.44049        0.679
+   92     37       1   0.5320  0.0604      0.42577        0.665
+   95     36       1   0.5172  0.0605      0.41116        0.651
+  100     34       1   0.5020  0.0606      0.39615        0.636
+  103     32       1   0.4863  0.0607      0.38070        0.621
+  105     31       1   0.4706  0.0608      0.36537        0.606
+  110     30       1   0.4549  0.0607      0.35018        0.591
+  117     29       2   0.4235  0.0605      0.32017        0.560
+  118     27       1   0.4079  0.0602      0.30537        0.545
+  122     26       1   0.3922  0.0599      0.29069        0.529
+  126     24       1   0.3758  0.0596      0.27542        0.513
+  132     23       1   0.3595  0.0592      0.26031        0.496
+  139     22       1   0.3432  0.0587      0.24535        0.480
+  143     21       1   0.3268  0.0582      0.23057        0.463
+  144     20       1   0.3105  0.0575      0.21595        0.446
+  151     19       1   0.2941  0.0568      0.20151        0.429
+  153     18       1   0.2778  0.0559      0.18725        0.412
+  156     17       1   0.2614  0.0550      0.17317        0.395
+  162     16       2   0.2288  0.0527      0.14563        0.359
+  177     14       1   0.2124  0.0514      0.13218        0.341
+  200     12       1   0.1947  0.0501      0.11761        0.322
+  216     11       1   0.1770  0.0486      0.10340        0.303
+  228     10       1   0.1593  0.0468      0.08956        0.283
+  250      9       1   0.1416  0.0448      0.07614        0.263
+  260      8       1   0.1239  0.0426      0.06318        0.243
+  278      7       1   0.1062  0.0400      0.05076        0.222
+  287      6       1   0.0885  0.0371      0.03896        0.201
+  314      5       1   0.0708  0.0336      0.02793        0.180
+  384      4       1   0.0531  0.0295      0.01788        0.158
+  392      3       1   0.0354  0.0244      0.00917        0.137
+  411      2       1   0.0177  0.0175      0.00256        0.123
+  553      1       1   0.0000     NaN           NA           NA
+
+                trt=Intervention 
+ time n.risk n.event survival std.err lower 95% CI upper 95% CI
+    1     68       2   0.9706  0.0205      0.93125        1.000
+    2     66       1   0.9559  0.0249      0.90830        1.000
+    7     65       2   0.9265  0.0317      0.86647        0.991
+    8     63       2   0.8971  0.0369      0.82766        0.972
+   13     61       1   0.8824  0.0391      0.80900        0.962
+   15     60       2   0.8529  0.0429      0.77278        0.941
+   18     58       1   0.8382  0.0447      0.75513        0.930
+   19     57       2   0.8088  0.0477      0.72056        0.908
+   20     55       1   0.7941  0.0490      0.70360        0.896
+   21     54       1   0.7794  0.0503      0.68684        0.884
+   24     53       2   0.7500  0.0525      0.65383        0.860
+   25     51       3   0.7059  0.0553      0.60548        0.823
+   29     48       1   0.6912  0.0560      0.58964        0.810
+   30     47       1   0.6765  0.0567      0.57394        0.797
+   31     46       1   0.6618  0.0574      0.55835        0.784
+   33     45       1   0.6471  0.0580      0.54289        0.771
+   36     44       1   0.6324  0.0585      0.52754        0.758
+   43     43       1   0.6176  0.0589      0.51230        0.745
+   44     42       1   0.6029  0.0593      0.49717        0.731
+   45     41       1   0.5882  0.0597      0.48216        0.718
+   48     40       1   0.5735  0.0600      0.46724        0.704
+   49     39       1   0.5588  0.0602      0.45244        0.690
+   51     38       2   0.5294  0.0605      0.42313        0.662
+   52     36       2   0.5000  0.0606      0.39423        0.634
+   53     34       1   0.4853  0.0606      0.37993        0.620
+   61     33       1   0.4706  0.0605      0.36573        0.606
+   73     32       1   0.4559  0.0604      0.35163        0.591
+   80     31       2   0.4265  0.0600      0.32373        0.562
+   84     28       1   0.4112  0.0597      0.30935        0.547
+   87     27       1   0.3960  0.0594      0.29509        0.531
+   90     25       1   0.3802  0.0591      0.28028        0.516
+   95     24       1   0.3643  0.0587      0.26560        0.500
+   99     23       2   0.3326  0.0578      0.23670        0.467
+  111     20       2   0.2994  0.0566      0.20673        0.434
+  112     18       1   0.2827  0.0558      0.19203        0.416
+  133     17       1   0.2661  0.0550      0.17754        0.399
+  140     16       1   0.2495  0.0540      0.16326        0.381
+  164     15       1   0.2329  0.0529      0.14920        0.363
+  186     14       1   0.2162  0.0517      0.13538        0.345
+  201     13       1   0.1996  0.0503      0.12181        0.327
+  231     12       1   0.1830  0.0488      0.10851        0.308
+  242     10       1   0.1647  0.0472      0.09389        0.289
+  283      9       1   0.1464  0.0454      0.07973        0.269
+  340      8       1   0.1281  0.0432      0.06609        0.248
+  357      7       1   0.1098  0.0407      0.05304        0.227
+  378      6       1   0.0915  0.0378      0.04067        0.206
+  389      5       1   0.0732  0.0344      0.02912        0.184
+  467      4       1   0.0549  0.0303      0.01861        0.162
+  587      3       1   0.0366  0.0251      0.00953        0.140
+  991      2       1   0.0183  0.0180      0.00265        0.126
+  999      1       1   0.0000     NaN           NA           NA</code></pre>
+</div>
+</div>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Name the treatment groups</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>veteran <span class="ot">&lt;-</span> survival<span class="sc">::</span>veteran <span class="sc">%&gt;%</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">trt =</span> <span class="fu">factor</span>(trt, </span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>                      <span class="at">levels =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>), </span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>                      <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"Control"</span>, <span class="st">"Intervention"</span>)))</span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Create survival variable</span></span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>surv_obj <span class="ot">&lt;-</span> <span class="fu">Surv</span>(<span class="at">time =</span> veteran<span class="sc">$</span>time, <span class="at">event =</span> veteran<span class="sc">$</span>status)</span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Fit Kaplan-Meier model</span></span>
+<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a>km_fit <span class="ot">&lt;-</span> <span class="fu">survfit</span>(surv_obj <span class="sc">~</span> trt, <span class="at">data =</span> veteran)</span>
+<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-13"><a href="#cb18-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot the KM curve</span></span>
+<span id="cb18-14"><a href="#cb18-14" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsurvplot</span>(</span>
+<span id="cb18-15"><a href="#cb18-15" aria-hidden="true" tabindex="-1"></a>  km_fit,</span>
+<span id="cb18-16"><a href="#cb18-16" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> veteran,</span>
+<span id="cb18-17"><a href="#cb18-17" aria-hidden="true" tabindex="-1"></a>  <span class="at">conf.int =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb18-18"><a href="#cb18-18" aria-hidden="true" tabindex="-1"></a>  <span class="at">pval =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb18-19"><a href="#cb18-19" aria-hidden="true" tabindex="-1"></a>  <span class="at">pval.size =</span> <span class="dv">4</span>,</span>
+<span id="cb18-20"><a href="#cb18-20" aria-hidden="true" tabindex="-1"></a>  <span class="at">risk.table =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb18-21"><a href="#cb18-21" aria-hidden="true" tabindex="-1"></a>  <span class="at">risk.table.title =</span> <span class="st">"Number at Risk"</span>,</span>
+<span id="cb18-22"><a href="#cb18-22" aria-hidden="true" tabindex="-1"></a>  <span class="at">risk.table.col =</span> <span class="st">"strata"</span>,</span>
+<span id="cb18-23"><a href="#cb18-23" aria-hidden="true" tabindex="-1"></a>  <span class="at">risk.table.y.text.col =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb18-24"><a href="#cb18-24" aria-hidden="true" tabindex="-1"></a>  <span class="at">risk.table.fontsize =</span> <span class="dv">4</span>,</span>
+<span id="cb18-25"><a href="#cb18-25" aria-hidden="true" tabindex="-1"></a>  <span class="at">legend.title =</span> <span class="st">"Treatment Group"</span>,</span>
+<span id="cb18-26"><a href="#cb18-26" aria-hidden="true" tabindex="-1"></a>  <span class="at">legend.labs =</span> <span class="fu">c</span>(<span class="st">"Control"</span>, <span class="st">"Intervention"</span>),</span>
+<span id="cb18-27"><a href="#cb18-27" aria-hidden="true" tabindex="-1"></a>  <span class="at">xlab =</span> <span class="st">"Time (days)"</span>,</span>
+<span id="cb18-28"><a href="#cb18-28" aria-hidden="true" tabindex="-1"></a>  <span class="at">ylab =</span> <span class="st">"Survival Probability"</span>,</span>
+<span id="cb18-29"><a href="#cb18-29" aria-hidden="true" tabindex="-1"></a>  <span class="at">palette =</span> <span class="fu">c</span>(<span class="st">"#A569BD"</span>, <span class="st">"#45B39D"</span>),</span>
+<span id="cb18-30"><a href="#cb18-30" aria-hidden="true" tabindex="-1"></a>  <span class="at">title =</span> <span class="st">"Kaplan-Meier Survival Curve: VA Lung Cancer Trial"</span>,</span>
+<span id="cb18-31"><a href="#cb18-31" aria-hidden="true" tabindex="-1"></a>  <span class="at">ggtheme =</span> <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">13</span>) <span class="sc">+</span> </span>
+<span id="cb18-32"><a href="#cb18-32" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme</span>(</span>
+<span id="cb18-33"><a href="#cb18-33" aria-hidden="true" tabindex="-1"></a>      <span class="at">legend.position =</span> <span class="st">"top"</span>,</span>
+<span id="cb18-34"><a href="#cb18-34" aria-hidden="true" tabindex="-1"></a>      <span class="at">plot.title =</span> <span class="fu">element_text</span>(<span class="at">hjust =</span> <span class="fl">0.5</span>, <span class="at">face =</span> <span class="st">"bold"</span>),</span>
+<span id="cb18-35"><a href="#cb18-35" aria-hidden="true" tabindex="-1"></a>      <span class="at">panel.grid.major =</span> <span class="fu">element_line</span>(<span class="at">color =</span> <span class="st">"grey80"</span>, <span class="at">linewidth =</span> <span class="fl">0.4</span>),</span>
+<span id="cb18-36"><a href="#cb18-36" aria-hidden="true" tabindex="-1"></a>      <span class="at">panel.grid.minor =</span> <span class="fu">element_line</span>(<span class="at">color =</span> <span class="st">"grey90"</span>, <span class="at">linewidth =</span> <span class="fl">0.2</span>)</span>
+<span id="cb18-37"><a href="#cb18-37" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb18-38"><a href="#cb18-38" aria-hidden="true" tabindex="-1"></a>  <span class="at">tables.theme =</span> <span class="fu">theme</span>(  <span class="co"># Trying to tweak the risk table</span></span>
+<span id="cb18-39"><a href="#cb18-39" aria-hidden="true" tabindex="-1"></a>    <span class="at">axis.text.y =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">10</span>, <span class="at">margin =</span> <span class="fu">margin</span>(<span class="at">r =</span> <span class="dv">12</span>), <span class="at">lineheight =</span> <span class="dv">2</span>)</span>
+<span id="cb18-40"><a href="#cb18-40" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb18-41"><a href="#cb18-41" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="veteran-lung-cancer-coxph_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<section id="interpretation" class="level3" data-number="4.0.1">
+<h3 data-number="4.0.1" class="anchored" data-anchor-id="interpretation"><span class="header-section-number">4.0.1</span> 🧠 Interpretation</h3>
+<p>The Kaplan-Meier plot shows survival curves for patients receiving standard vs test treatment.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Interpretation of Graph Elements">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-1-contents" aria-controls="callout-1" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Interpretation of Graph Elements
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-1" class="callout-1-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p><strong>X-Axis: Time (days)</strong></p>
+<p>The X-axis shows the time since enrollment in days. The furthest value to the right (~1000 days) marks the maximum observed survival time in the dataset. Shorter durations towards the left reflect early mortality events.</p>
+<p><strong>Y-Axis: Survival Probability</strong></p>
+<p>The Y-Axis is the Kaplan-Meier estimate of the probability that a patient survives beyond a certain timepoint. The axis starts at 1 (100% survival at time 0), and decreases with each event (death).</p>
+<p><strong>Curves (Blue = Standard, Orange = Test)</strong></p>
+<p>Each step downward represents a death. Tick marks would represent a censored individual (few in this dataset).</p>
+<p><strong>Shaded Area: 95% Confidence Interval</strong></p>
+<p>Around each curve is a shaded band indicating <strong>uncertainty</strong> in the estimate. Wider intervals to the right of the chart reflect fewer patients remaining and hence more variability in survival probability.</p>
+<p><strong>p = 0.93</strong></p>
+<p>The log-rank test result tests the null hypothesis: there is no difference in survival between the groups. The p-value of 0.93 provides strong evidence <em>against</em> rejecting the H0. In other words, there is no statistically significant difference in survival between the Standard and Test treatments. If the curves had diverged strongly at some point, the P-value would be lower.</p>
+<p><strong>“Number at Risk” Table</strong></p>
+<p>This shows how many participatns in each treatment group are still alive and uncensored at various timepoints (0, 250, 500, 750, 1000). As time progresses the number declines due to deaths or censoring. Few participants remain beyond 500 days, which is why the Confidence Intervals widen later in the graph.</p>
+<ul>
+<li>The <strong>p-value</strong> is from a log-rank test (H₀: no difference in survival curves).</li>
+<li>The <strong>shaded areas</strong> represent 95% confidence intervals.</li>
+<li>The <strong>risk table</strong> shows the number of patients still at risk at each time point.</li>
+</ul>
+<p>Visually, if the curves separate early and remain apart, it suggests a potential treatment effect.</p>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="cox-proportional-hazards-model" class="level1" data-number="5">
+<h1 data-number="5"><span class="header-section-number">5</span> 📊 Cox Proportional Hazards Model</h1>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Fit the Cox Proportional Hazards model</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>cox_model <span class="ot">&lt;-</span> <span class="fu">coxph</span>(surv_obj <span class="sc">~</span> trt, <span class="at">data =</span> veteran) <span class="co"># Where trt is a binary treatment variable with levels Control and Intervention</span></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Summarize the model</span></span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(cox_model)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Call:
+coxph(formula = surv_obj ~ trt, data = veteran)
+
+  n= 137, number of events= 128 
+
+                   coef exp(coef) se(coef)     z Pr(&gt;|z|)
+trtIntervention 0.01774   1.01790  0.18066 0.098    0.922
+
+                exp(coef) exp(-coef) lower .95 upper .95
+trtIntervention     1.018     0.9824    0.7144      1.45
+
+Concordance= 0.525  (se = 0.026 )
+Likelihood ratio test= 0.01  on 1 df,   p=0.9
+Wald test            = 0.01  on 1 df,   p=0.9
+Score (logrank) test = 0.01  on 1 df,   p=0.9</code></pre>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled" title="Interpretation of Cox Table">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-2-contents" aria-controls="callout-2" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Interpretation of Cox Table
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-2" class="callout-2-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 6%">
+<col style="width: 6%">
+<col style="width: 87%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Term</th>
+<th>Value</th>
+<th>What It Means</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>coef</strong></td>
+<td>0.01774</td>
+<td>This is the log hazard ratio (log(HR)) comparing the <em>Intervention</em> group to <em>Control</em>. Close to 0 means almost no effect.</td>
+</tr>
+<tr class="even">
+<td><strong>exp(coef)</strong></td>
+<td>1.01790</td>
+<td>This is the hazard ratio (HR). A value of 1.018 means the hazard (risk of death) is 1.8% higher in the Intervention group compared to Control. However at this level the value is insigificant.</td>
+</tr>
+<tr class="odd">
+<td><strong>se(coef)</strong></td>
+<td>0.18066</td>
+<td>The standard error. This gives us the variability around the estimate.</td>
+</tr>
+<tr class="even">
+<td><strong>z</strong></td>
+<td>0.098</td>
+<td>The Wald test statistic. The low value implies no stastical significange.</td>
+</tr>
+<tr class="odd">
+<td><strong>p-value</strong></td>
+<td>0.922</td>
+<td>Far above the conventional 0.05 threshold. This is very strong evidence <em>against</em> any meaningful treatment effect.</td>
+</tr>
+<tr class="even">
+<td><strong>95% CI</strong></td>
+<td>(0.7144, 1.45)</td>
+<td>Wide confidence interval, spanning both below and above 1—so we can’t rule out either harm or benefit.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Concordance</strong> The C-index, or concordance statistic is the probability that a candomly hosen subject who died earlier had a higher predicted risk. At 0.525 it is random chance, suggested poor predictive power.</p>
+</div>
+</div>
+</div>
+<p><strong>Interpretation of the Cox Model Results</strong></p>
+<p>The Cox proportional hazards model found no statistically significant difference in survival between the Control and Intervention groups (HR = 1.02, 95% CI: 0.71–1.45, p = 0.922). The hazard ratio close to 1 suggests that the treatment had no appreciable effect on the risk of death. Additionally, the wide confidence interval includes both potential harm and benefit, indicating uncertainty in the estimate. The concordance statistic (0.525) implies the model has poor discriminative ability, performing only slightly better than random chance. Overall, the analysis provides no evidence that the intervention improves survival outcomes in this dataset.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Use ggadjustedcurves for plotting adjusted survival curves directly from the Cox model</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggadjustedcurves</span>(</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>  cox_model,                     <span class="co"># The fitted Cox model</span></span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> veteran,                <span class="co"># The original data used to fit the model</span></span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">variable =</span> <span class="st">"trt"</span>,              <span class="co"># The variable to plot adjusted curves for</span></span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">method =</span> <span class="st">"average"</span>,            <span class="co"># Method for adjusting (average effect of other covariates)</span></span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">conf.int =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">legend.labs =</span> <span class="fu">c</span>(<span class="st">"Control"</span>, <span class="st">"Intervention"</span>),</span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">legend.title =</span> <span class="st">"Treatment Group"</span>,</span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">risk.table =</span> <span class="cn">TRUE</span>,             <span class="co"># Include the risk table</span></span>
+<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">risk.table.title =</span> <span class="st">"Number at Risk"</span>,</span>
+<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">xlab =</span> <span class="st">"Time (days)"</span>,</span>
+<span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">ylab =</span> <span class="st">"Adjusted Survival Probability"</span>,</span>
+<span id="cb21-14"><a href="#cb21-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">title =</span> <span class="st">"Cox Model Adjusted Survival Curves"</span>,</span>
+<span id="cb21-15"><a href="#cb21-15" aria-hidden="true" tabindex="-1"></a>  <span class="at">palette =</span> <span class="fu">c</span>(<span class="st">"#A569BD"</span>, <span class="st">"#45B39D"</span>),</span>
+<span id="cb21-16"><a href="#cb21-16" aria-hidden="true" tabindex="-1"></a>  <span class="at">ggtheme =</span> <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">13</span>) <span class="sc">+</span></span>
+<span id="cb21-17"><a href="#cb21-17" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme</span>(</span>
+<span id="cb21-18"><a href="#cb21-18" aria-hidden="true" tabindex="-1"></a>      <span class="at">legend.position =</span> <span class="st">"top"</span>,</span>
+<span id="cb21-19"><a href="#cb21-19" aria-hidden="true" tabindex="-1"></a>      <span class="at">plot.title =</span> <span class="fu">element_text</span>(<span class="at">hjust =</span> <span class="fl">0.5</span>, <span class="at">face =</span> <span class="st">"bold"</span>),</span>
+<span id="cb21-20"><a href="#cb21-20" aria-hidden="true" tabindex="-1"></a>      <span class="at">panel.grid.major =</span> <span class="fu">element_line</span>(<span class="at">color =</span> <span class="st">"grey80"</span>, <span class="at">linewidth =</span> <span class="fl">0.4</span>),</span>
+<span id="cb21-21"><a href="#cb21-21" aria-hidden="true" tabindex="-1"></a>      <span class="at">panel.grid.minor =</span> <span class="fu">element_line</span>(<span class="at">color =</span> <span class="st">"grey90"</span>, <span class="at">linewidth =</span> <span class="fl">0.2</span>)</span>
+<span id="cb21-22"><a href="#cb21-22" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb21-23"><a href="#cb21-23" aria-hidden="true" tabindex="-1"></a>  <span class="at">tables.theme =</span> <span class="fu">theme</span>(</span>
+<span id="cb21-24"><a href="#cb21-24" aria-hidden="true" tabindex="-1"></a>    <span class="at">axis.text.y =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">10</span>, <span class="at">margin =</span> <span class="fu">margin</span>(<span class="at">r =</span> <span class="dv">12</span>), <span class="at">lineheight =</span> <span class="dv">2</span>)</span>
+<span id="cb21-25"><a href="#cb21-25" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb21-26"><a href="#cb21-26" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="veteran-lung-cancer-coxph_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled" title="Why use `ggadjustedcurves()` for this plot">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-3-contents" aria-controls="callout-3" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Why use <code>ggadjustedcurves()</code> for this plot
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-3" class="callout-3-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>For plotting survival curves adjusted for covariates from a Cox Proportional Hazards model, the ggadjustedcurves() function from the survminer package offers one of the most direct and statistically appropriate approaches—particularly as model complexity increases.</p>
+<pre><code>Statistical validity: ggadjustedcurves() uses the fitted cox_model to compute adjusted survival probabilities for the variable of interest (in this case, trt). When method = "average" is specified (the default when covariates are present), it returns marginal estimates—appropriate for interpreting average treatment effects across the population. In our simpler model (~ trt), it effectively plots the model-predicted survival curve for each treatment group.
+
+Robustness: This function is purpose-built for adjusted curve plotting and avoids many of the pitfalls seen with manually passing newdata to survfit() and plotting with ggsurvplot(), such as misaligned strata or legend issues. It correctly associates the model, the data, and the plot elements, including the risk table.
+
+Simplicity: It eliminates the need for manually constructing a new_trt data frame or calling survfit() separately, resulting in cleaner, more reproducible code—particularly useful in collaborative or long-term projects.</code></pre>
+</div>
+</div>
+</div>
+<p>The Cox-adjusted survival curves for the Control and Intervention groups are almost perfectly overlapping, indicating no meaningful difference in predicted survival probabilities between the two treatment arms. This is consistent with the hazard ratio from the Cox model, which was very close to 1, and not statistically significant. Visually, the indistinguishability of the curves reinforces the conclusion that the treatment had no observable impact on survival in this dataset.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Why do the lines overlap?">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-4-contents" aria-controls="callout-4" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Why do the lines overlap?
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-4" class="callout-4-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>The survival curves for the Control and Intervention groups overlap almost entirely in this plot. This is because the Cox proportional hazards model found no significant difference between the two groups in terms of survival (hazard ratio ≈ 1, <em>p</em> = 0.922). As a result, the model-predicted curves are nearly identical. The faint visibility of the Control group line is due to it being directly behind the Intervention group line.</p>
+</div>
+</div>
+</div>
+</section>
+<section id="model-diagnostics" class="level1" data-number="6">
+<h1 data-number="6"><span class="header-section-number">6</span> 🔎 Model Diagnostics</h1>
+<section id="checking-the-proportional-hazards-assumption" class="level2" data-number="6.1">
+<h2 data-number="6.1" class="anchored" data-anchor-id="checking-the-proportional-hazards-assumption"><span class="header-section-number">6.1</span> Checking the Proportional Hazards Assumption</h2>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Test the PH assumption</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="fu">cox.zph</span>(cox_model)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>       chisq df    p
+trt     3.54  1 0.06
+GLOBAL  3.54  1 0.06</code></pre>
+</div>
+</div>
+<p><strong>Interpretation of PH Assumption Test (Schoenfeld residuals)</strong></p>
+<ul>
+<li>trt p = 0.06: This is slightly above the conventional threshold of 0.05. It suggest no strong evidence of violation of the proportional hazards (PH) assumptions for <em>treatment</em>.</li>
+<li>GLOBAL p = 0.06: This tests the model overall. Not statistically significant so we do not reject the PH assumptions.</li>
+</ul>
+<p><strong>Porportional Hazards Assumption</strong></p>
+<p>The proportional hazards assumption was assessed using Schoenfeld residuals via the cox.zph() function. The test for the treatment variable (trt) yielded a chi-square statistic of 3.54 with a p-value of 0.06, and the global test returned the same values (χ² = 3.54, df = 1, p = 0.06).</p>
+<p>Although the p-values are slightly above the conventional significance threshold of 0.05, they do not provide sufficient evidence to reject the null hypothesis that the proportional hazards assumption holds. As such, the Cox proportional hazards model is considered appropriate for this analysis, though the borderline result suggests caution and may warrant further inspection in more complex models.</p>
+</section>
+<section id="schoenfeld-residuals-plot" class="level2" data-number="6.2">
+<h2 data-number="6.2" class="anchored" data-anchor-id="schoenfeld-residuals-plot"><span class="header-section-number">6.2</span> Schoenfeld Residuals Plot</h2>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">cox.zph</span>(cox_model))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="veteran-lung-cancer-coxph_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled" title="What the Visual Diagnostic Shows">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-5-contents" aria-controls="callout-5" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+What the Visual Diagnostic Shows
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-5" class="callout-5-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>The y-axis: Scaled Schoenfeld residuals for trt. If the proportional hazards assumption holds, these residuals should fluctuate randomly around zero.</p>
+<p>The x-axis: Time (or transformed time).</p>
+<p>The line: A smoothed spline fit (typically a loess curve) showing the trend of residuals over time.</p>
+<p>The confidence band: Helps you assess whether the trend significantly deviates from horizontal (i.e., no time-dependent effect).</p>
+<p>A flat line (slope ≈ 0): Suggests the hazard ratio for trt does not change over time — good!</p>
+<p>A wavy or sloped line: Suggests potential violation of the proportional hazards assumption — this would back up a significant p-value.</p>
+<p>x-axis (Time): Time since baseline (likely in days, from your dataset).</p>
+<p>y-axis (Beta(t) for trt): Time-varying estimate of the log hazard ratio for the treatment group (trt), based on Schoenfeld residuals.</p>
+<p>The solid black line: A smoothed curve showing how the estimated coefficient for trt might change over time.</p>
+<p>Dashed lines: Approximate 95% confidence bands around that smoothed estimate.</p>
+<p>Open circles: Residuals for each individual event — they don’t need to follow a pattern, but their distribution can hint at model fit.</p>
+<p>If the solid line is roughly flat and within the dashed lines, the effect of treatment does not change with time, and the PH assumption is reasonably upheld.</p>
+<p>If the solid line drifts noticeably over time, or wanders outside the dashed lines, that’s evidence that the treatment effect may change — a violation of the PH assumption.</p>
+<p>In our case, the line is gently curved, but still well within the dashed boundaries. There’s no strong time trend — the log hazard ratio is hovering around zero and doesn’t appear to increase or decrease dramatically.</p>
+</div>
+</div>
+</div>
+<p><strong>Schoenfeld Residuals Interpretation</strong></p>
+<p>To assess whether the proportional hazards (PH) assumption holds for the treatment variable (trt), we examined Schoenfeld residuals using both statistical and graphical diagnostics. The global test for proportionality yielded a p-value of 0.06, indicating no statistically significant violation of the PH assumption at the conventional α = 0.05 level, though it approaches significance. The smoothed residual plot for trt shows a relatively stable trend over time, with the estimated log hazard ratio remaining within the 95% confidence bands across the follow-up period. While there is some minor curvature in the smoothed line, it does not suggest substantial deviation from proportionality. These findings support the use of the Cox proportional hazards model for analyzing the effect of treatment on survival in this dataset.</p>
+</section>
+<section id="martingale-residuals-for-functional-form-of-covariates" class="level2" data-number="6.3">
+<h2 data-number="6.3" class="anchored" data-anchor-id="martingale-residuals-for-functional-form-of-covariates"><span class="header-section-number">6.3</span> Martingale Residuals (for Functional Form of Covariates)</h2>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Generate Martingale residuals</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>martingale_resid <span class="ot">&lt;-</span> <span class="fu">residuals</span>(cox_model, <span class="at">type =</span> <span class="st">"martingale"</span>)</span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Add residuals to your data</span></span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>veteran<span class="sc">$</span>martingale <span class="ot">&lt;-</span> martingale_resid</span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot residuals against a continuous covariate (e.g., time or another variable)</span></span>
+<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Here we plot against the linear predictor for simplicity</span></span>
+<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a>veteran<span class="sc">$</span>linear_pred <span class="ot">&lt;-</span> <span class="fu">predict</span>(cox_model, <span class="at">type =</span> <span class="st">"lp"</span>)</span>
+<span id="cb26-10"><a href="#cb26-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-11"><a href="#cb26-11" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(veteran, <span class="fu">aes</span>(<span class="at">x =</span> linear_pred, <span class="at">y =</span> martingale, <span class="at">color =</span> trt)) <span class="sc">+</span></span>
+<span id="cb26-12"><a href="#cb26-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.6</span>) <span class="sc">+</span></span>
+<span id="cb26-13"><a href="#cb26-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> <span class="dv">0</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">color =</span> <span class="st">"grey30"</span>) <span class="sc">+</span></span>
+<span id="cb26-14"><a href="#cb26-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">13</span>) <span class="sc">+</span></span>
+<span id="cb26-15"><a href="#cb26-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb26-16"><a href="#cb26-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Martingale Residuals vs Linear Predictor"</span>,</span>
+<span id="cb26-17"><a href="#cb26-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Linear Predictor (Log Hazard)"</span>,</span>
+<span id="cb26-18"><a href="#cb26-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Martingale Residual"</span>,</span>
+<span id="cb26-19"><a href="#cb26-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">color =</span> <span class="st">"Treatment Group"</span></span>
+<span id="cb26-20"><a href="#cb26-20" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb26-21"><a href="#cb26-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"Control"</span> <span class="ot">=</span> <span class="st">"#A569BD"</span>, <span class="st">"Intervention"</span> <span class="ot">=</span> <span class="st">"#45B39D"</span>)) <span class="sc">+</span></span>
+<span id="cb26-22"><a href="#cb26-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">plot.title =</span> <span class="fu">element_text</span>(<span class="at">hjust =</span> <span class="fl">0.5</span>, <span class="at">face =</span> <span class="st">"bold"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="veteran-lung-cancer-coxph_files/figure-html/unnamed-chunk-9-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled" title="What do the Martingale Residuals Show">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-6-contents" aria-controls="callout-6" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+What do the Martingale Residuals Show
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-6" class="callout-6-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>Martingale residuals help us check whether the variables in our Cox model are specified correctly — particularly useful for continuous covariates. However, when the variable in question is binary (like our treatment group: Control vs Intervention), the Martingale residual plot will display two vertical stacks of points — one for each group.</p>
+<p>In the plot above:</p>
+<ul>
+<li>The <strong>x-axis</strong> represents the linear predictor (log hazard). Because the treatment is binary, there are only two unique predictor values: one for the control group and one for the intervention group.</li>
+<li>The <strong>y-axis</strong> shows the Martingale residuals for each individual.</li>
+<li>The <strong>dashed horizontal line at 0</strong> acts as a visual guide to see if residuals are randomly scattered above and below it.</li>
+</ul>
+<p>We want to see: - No clear patterns or trends in the residuals, - A reasonably symmetric spread around zero in each group, - No outliers clustering far from the bulk of points.</p>
+<p>In this case, both groups show a spread of residuals centered roughly around zero, with no curvature or skew that would suggest model misspecification. That’s a good sign — the model’s structure seems to handle the treatment variable well, and there’s no obvious reason to suspect we need to transform it or add interaction terms.</p>
+</div>
+</div>
+</div>
+<p>The Martingale Residuals vs Linear Predictor plot helps us check the fit of our Cox model—specifically, whether our model’s assumptions about the shape of relationships between predictors and survival are holding up.</p>
+<p>Martingale residuals were plotted against the linear predictor to assess model fit. As expected with a binary treatment variable, the plot showed two vertical bands of points corresponding to the Control and Intervention groups. The residuals appeared symmetrically distributed around zero within each group, with no obvious non-linear patterns or systematic bias. This suggests the model’s functional form for the treatment variable is appropriate.</p>
+</section>
+<section id="functional-form-of-covariates" class="level2" data-number="6.4">
+<h2 data-number="6.4" class="anchored" data-anchor-id="functional-form-of-covariates"><span class="header-section-number">6.4</span> Functional Form of Covariates</h2>
+<div class="callout callout-style-default callout-tip callout-titled" title="Why we haven't checked the functional form of covariates">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-7-contents" aria-controls="callout-7" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Why we haven’t checked the functional form of covariates
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-7" class="callout-7-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>The Cox model assumes a linear relationship between continuous covariates and the log hazard. In our current model, only the treatment group (<code>trt</code>) is included, which is a categorical variable.</p>
+<p>If we were to build a more complex model including continuous predictors like age, Karnofsky score (<code>karno</code>), or time since diagnosis (<code>diagtime</code>), we would need to assess whether their relationship with the log hazard is truly linear. This is typically done by plotting Martingale residuals or using <code>ggcoxfunctional()</code>.</p>
+<p>For now, since our model does not include continuous covariates, this step is not necessary — but it’s an important part of model diagnostics when expanding our analysis.</p>
+</div>
+</div>
+</div>
+</section>
+<section id="additional-covariates" class="level2" data-number="6.5">
+<h2 data-number="6.5" class="anchored" data-anchor-id="additional-covariates"><span class="header-section-number">6.5</span> Additional Covariates</h2>
+</section>
+</section>
+<section id="multivariable-cox-regression" class="level1" data-number="7">
+<h1 data-number="7"><span class="header-section-number">7</span> 🔀 Multivariable Cox Regression</h1>
+<p>To build on the univariable analysis of treatment effects, we next fit a multivariable Cox proportional hazards model that incorporates additional patient-level covariates. This allows us to estimate the effect of treatment on survival <strong>while adjusting for other potential prognostic factors</strong>, such as age and prior treatment history. By doing so, we account for potential confounding and improve the model’s explanatory power.</p>
+<div class="callout callout-style-default callout-tip callout-titled" title="What is a multivariable Cox model and why are we using it?">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-8-contents" aria-controls="callout-8" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+What is a multivariable Cox model and why are we using it?
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-8" class="callout-8-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>In a univariable Cox model, we examine the effect of <strong>one predictor at a time</strong> on the hazard of an event (e.g., death). While this can be useful for preliminary exploration, it doesn’t account for the <strong>influence of other variables</strong> that might confound or modify the relationship.</p>
+<p>A <strong>multivariable Cox proportional hazards model</strong> includes <strong>multiple covariates</strong> simultaneously. This allows us to: - Estimate the <strong>adjusted effect</strong> of each variable while controlling for the others, - Improve model accuracy and interpretability, - Detect whether the apparent effect of one variable (e.g., treatment) persists after adjusting for others (e.g., age, comorbidities), - Explore potential <strong>interactions</strong> or <strong>effect modification</strong>.</p>
+<p>In this section, we’ll first add a <strong>continuous covariate</strong> (<code>age</code>) and then a <strong>binary variable</strong> (<code>prior treatment</code>) to the model. We’ll also assess whether the functional form of continuous variables is appropriate and ensure that model assumptions still hold.</p>
+</div>
+</div>
+</div>
+<p>::: {callout-tip title=“Why not use logistic regression?”} Logistic regression ignores time-to-event and censoring. When working with survival data, Cox models are preferred as they preserve the time structure and allow for censored cases. :::</p>
+<section id="add-covariates-age-prior-treatment" class="level2" data-number="7.1">
+<h2 data-number="7.1" class="anchored" data-anchor-id="add-covariates-age-prior-treatment"><span class="header-section-number">7.1</span> 📥 Add Covariates (Age, Prior Treatment)</h2>
+<p>To expand the model beyond treatment alone, we now include additional patient characteristics: <code>age</code> (a continuous variable) and <code>prior</code> (indicating whether the patient received prior therapy, a binary variable). Including these covariates allows us to better account for baseline differences between patients, assess their independent associations with survival, and evaluate how these variables may influence the effect of treatment.</p>
+<div class="callout callout-style-default callout-tip callout-titled" title="Why include more covariates?">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-9-contents" aria-controls="callout-9" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Why include more covariates?
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-9" class="callout-9-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>Adding additional covariates serves several important purposes in survival analysis:</p>
+<ul>
+<li><strong>Control for confounding:</strong> Variables like age and prior treatment may influence both survival and the likelihood of receiving a particular treatment. Including them helps isolate the true effect of treatment.</li>
+<li><strong>Improve model accuracy:</strong> Covariates that predict survival can increase the model’s explanatory power and reduce residual variation.</li>
+<li><strong>Uncover independent predictors:</strong> Some variables (like prior therapy) may have a meaningful relationship with survival, regardless of treatment.</li>
+<li><strong>Assess effect modification:</strong> Once multiple variables are included, we can test for interactions — for example, whether the effect of treatment depends on age or prior treatment status.</li>
+</ul>
+<p>We’ll begin by examining <code>age</code> as a continuous covariate (with extra attention to its functional form), followed by <code>prior</code> as a binary covariate. We’ll then combine them in a multivariable Cox model.</p>
+</div>
+</div>
+</div>
+<section id="continuous-variable-age" class="level3" data-number="7.1.1">
+<h3 data-number="7.1.1" class="anchored" data-anchor-id="continuous-variable-age"><span class="header-section-number">7.1.1</span> 🔁 Continuous Variable: Age</h3>
+<p>Age is a clinically relevant factor that may influence survival outcomes in lung cancer. In this section, we assess whether age is independently associated with survival time and verify that its relationship with the hazard is appropriately modeled as linear on the log-hazard scale.</p>
+<div class="callout callout-style-default callout-tip callout-titled" title="Why model age carefully?">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-10-contents" aria-controls="callout-10" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Why model age carefully?
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-10" class="callout-10-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>Unlike categorical variables, continuous predictors like age require us to check their <strong>functional form</strong> in the model. The Cox model assumes a <strong>linear relationship</strong> between the covariate and the log hazard — meaning each 1-year increase in age is assumed to have the same proportional effect on the hazard.</p>
+<p>If this assumption doesn’t hold (e.g., if risk increases faster at older ages), we may need to use transformations or splines to accurately model the relationship.</p>
+<p>We’ll start by fitting a Cox model including age and then assess the functional form using Martingale residuals.</p>
+</div>
+</div>
+</div>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>cox_age <span class="ot">&lt;-</span> <span class="fu">coxph</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> trt <span class="sc">+</span> age, <span class="at">data =</span> veteran)</span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(cox_age)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Call:
+coxph(formula = Surv(time, status) ~ trt + age, data = veteran)
+
+  n= 137, number of events= 128 
+
+                     coef exp(coef)  se(coef)      z Pr(&gt;|z|)
+trtIntervention -0.003654  0.996352  0.182514 -0.020    0.984
+age              0.007527  1.007556  0.009661  0.779    0.436
+
+                exp(coef) exp(-coef) lower .95 upper .95
+trtIntervention    0.9964     1.0037    0.6967     1.425
+age                1.0076     0.9925    0.9887     1.027
+
+Concordance= 0.514  (se = 0.029 )
+Likelihood ratio test= 0.63  on 2 df,   p=0.7
+Wald test            = 0.62  on 2 df,   p=0.7
+Score (logrank) test = 0.62  on 2 df,   p=0.7</code></pre>
+</div>
+</div>
+<p>A Cox proportional hazards model was fitted to examine the relationship between survival time and two predictors: treatment group (trt) and patient age (age). The model included 137 patients, with 128 events (deaths).</p>
+<p>The hazard ratio for the intervention group was 0.996 (95% CI: 0.697 – 1.425; p = 0.984), suggesting virtually no difference in hazard compared to the control group after adjusting for age. This effect was not statistically significant.</p>
+<p>For age, the hazard ratio was 1.008 (95% CI: 0.989 – 1.027; p = 0.436), indicating that each additional year of age was associated with a 0.8% increase in the hazard of death. However, this association was also not statistically significant and the confidence interval included 1, suggesting uncertainty about the true effect.</p>
+<p>Overall, the model’s ability to discriminate between patients with longer vs shorter survival times was weak, with a concordance index of 0.514 (where 0.5 = random chance). The global model statistics — including the likelihood ratio test, Wald test, and score test — were all non-significant (p = 0.7), indicating that neither variable added substantial predictive value to the model.</p>
+<p>Interpretation:</p>
+<pre><code>There is no evidence of a treatment effect after adjusting for age.
+
+Age may have a small effect, but in this sample, it is not statistically or clinically meaningful.
+
+The overall model performs poorly in predicting survival in this dataset.</code></pre>
+<div class="callout callout-style-default callout-note callout-titled" title="Interpreting the Cox Model Output">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-11-contents" aria-controls="callout-11" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Interpreting the Cox Model Output
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-11" class="callout-11-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>Understanding the <code>coxph()</code> output is essential for interpreting survival models. Here’s a breakdown of the most common components you’ll encounter in both univariable and multivariable Cox regressions:</p>
+<p><strong>🔹 <em>coef</em></strong><br>
+This is the <strong>log hazard ratio</strong> — the raw estimate from the model. It represents the change in the <strong>log hazard</strong> of the event (e.g., death) associated with a <strong>one-unit increase</strong> in the covariate (for continuous variables) or <strong>relative to a reference group</strong> (for categorical variables).</p>
+<ul>
+<li>Positive <code>coef</code> → increased hazard (i.e., higher risk)<br>
+</li>
+<li>Negative <code>coef</code> → decreased hazard (i.e., protective)<br>
+</li>
+<li>A <code>coef</code> close to 0 suggests little to no effect</li>
+</ul>
+<p>🧠 <em>Note:</em> Log hazards are difficult to interpret directly, so we usually exponentiate them.</p>
+<p><strong>🔹 <em>exp(coef)</em></strong><br>
+This is the <strong>hazard ratio (HR)</strong> — the exponentiated <code>coef</code>, which expresses effect size more intuitively.</p>
+<ul>
+<li><code>exp(coef) &gt; 1</code> → Increased hazard<br>
+</li>
+<li><code>exp(coef) &lt; 1</code> → Decreased hazard<br>
+</li>
+<li><code>exp(coef) = 1</code> → No effect</li>
+</ul>
+<p>🔎 Example: <code>exp(coef) = 1.20</code> means a 20% higher hazard.<br>
+<code>exp(coef) = 0.80</code> means a 20% lower hazard.</p>
+<p><strong>🔹 <em>se(coef)</em></strong><br>
+The <strong>standard error</strong> of the coefficient — reflects how much uncertainty surrounds the estimate.</p>
+<ul>
+<li>Smaller values = more precise estimates<br>
+</li>
+<li>Larger values = more uncertainty (due to small samples or noisy data)</li>
+</ul>
+<p><strong>🔹 <em>z</em> and <em>Pr(&gt;|z|)</em></strong><br>
+- <code>z</code> is the <strong>Z-statistic</strong>, calculated as <code>coef / se(coef)</code><br>
+- <code>Pr(&gt;|z|)</code> is the <strong>p-value</strong> from the Wald test for each coefficient</p>
+<p>This tests the <strong>null hypothesis</strong> that the covariate has <strong>no effect</strong> (<code>coef = 0</code>).</p>
+<ul>
+<li><code>p &lt; 0.05</code> → Statistically significant<br>
+</li>
+<li><code>p &gt; 0.05</code> → Not statistically significant</li>
+</ul>
+<p><strong>📊 <em>Model-Level Statistics</em></strong></p>
+<p><strong>🔸 <em>Concordance</em></strong><br>
+- Measures the model’s ability to correctly rank survival times (similar to AUC for classification)<br>
+- Ranges from <code>0.5</code> (random) to <code>1.0</code> (perfect)<br>
+- In clinical data, values of <code>0.6–0.75</code> are typical</p>
+<p><strong>🔸 <em>Likelihood Ratio Test</em></strong><br>
+- Compares the full model to a null (intercept-only) model<br>
+- Tests overall model fit<br>
+- <code>p &lt; 0.05</code> = your model significantly improves fit</p>
+<p><strong>🔸 <em>Wald Test</em></strong><br>
+- Aggregates the individual Wald tests across all covariates<br>
+- Tests whether any coefficients differ significantly from 0</p>
+<p><strong>🔸 <em>Score (Logrank) Test</em></strong><br>
+- Rank-based test comparing observed vs expected survival<br>
+- Can be slightly more sensitive in small samples<br>
+- Often used as an overall model check</p>
+<p>✅ <em>In practice:</em> Use all three global tests and the concordance to evaluate how well the model explains variation in survival. If all are non-significant, the model may lack predictive utility.</p>
+</div>
+</div>
+</div>
+<p><strong>📈 Schoenfeld Residuals for Age</strong></p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Test proportional hazards assumption for the model including age</span></span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>cox_zph_age <span class="ot">&lt;-</span> <span class="fu">cox.zph</span>(cox_age)</span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(cox_zph_age)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>       chisq df     p
+trt     3.67  1 0.055
+age     1.68  1 0.195
+GLOBAL  6.20  2 0.045</code></pre>
+</div>
+</div>
+<p>Proportional hazards were tested using Schoenfeld residuals. The assumption was met for <strong>age</strong> (<code>p = 0.195</code>) but marginally violated for <strong>treatment group</strong> (<code>p = 0.055</code>), which is slightly below the conventional threshold of 0.05. The <strong>global test</strong> for the model (<code>p = 0.045</code>) was also just below 0.05, indicating a <strong>possible overall violation</strong> of the proportional hazards assumption.</p>
+<p>While these results do not strongly indicate a breakdown of the PH assumption, the borderline p-values warrant caution. A visual inspection of the residual plots (<code>plot(cox.zph())</code>) can help determine whether the trend is substantial or random variation.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Interpreting Schoenfeld Residuals">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-12-contents" aria-controls="callout-12" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Interpreting Schoenfeld Residuals
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-12" class="callout-12-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>Schoenfeld residuals are used to test the <strong>Proportional Hazards (PH) assumption</strong> in Cox models — that the effect of each covariate remains <strong>constant over time</strong>.</p>
+<p><strong>How to interpret the output:</strong></p>
+<ul>
+<li>Each row (e.g., <code>trt</code>, <code>age</code>) gives a <strong>test of proportionality</strong> for that specific variable.</li>
+<li>The <code>GLOBAL</code> row tests <strong>all covariates together</strong>.</li>
+</ul>
+<p><strong>What the numbers mean:</strong></p>
+<ul>
+<li><code>chisq</code> is the test statistic (larger values = more evidence of time-varying effects).</li>
+<li><code>p</code> is the p-value testing <strong>null hypothesis: proportional hazards holds</strong>.</li>
+</ul>
+<p><strong>Rule of thumb:</strong> - <code>p &lt; 0.05</code> → <strong>PH assumption violated</strong> (bad) - <code>p &gt; 0.05</code> → <strong>PH assumption holds</strong> (good)</p>
+<p>🧠 <em>Note:</em> Slight violations (e.g., <code>p = 0.055</code>) might not be a problem in practice — but major ones (e.g., <code>p = 0.01</code>) should be addressed.</p>
+</div>
+</div>
+</div>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Visual check</span></span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(cox_zph_age)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="veteran-lung-cancer-coxph_files/figure-html/unnamed-chunk-12-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="veteran-lung-cancer-coxph_files/figure-html/unnamed-chunk-12-2.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>The Schoenfeld residual plot for age demonstrated no clear violations of the proportional hazards assumption. The smoothed coefficient function remained approximately flat across time, and the 95% confidence interval consistently included zero. This visual finding supports the conclusion from the formal test (<code>p = 0.195</code>), suggesting that the effect of age on the hazard is relatively stable over the study period.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="How to Interpret Schoenfeld Residual Plots">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-13-contents" aria-controls="callout-13" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+How to Interpret Schoenfeld Residual Plots
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-13" class="callout-13-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>This plot checks the <strong>Proportional Hazards (PH) assumption</strong> visually for a covariate (e.g., <code>age</code>).</p>
+<p><strong>What we are seeing:</strong></p>
+<ul>
+<li><strong>X-axis:</strong> Time<br>
+</li>
+<li><strong>Y-axis:</strong> Estimated <strong>effect (beta)</strong> of the covariate at each time point<br>
+</li>
+<li><strong>Dots:</strong> Residuals at each event time<br>
+</li>
+<li><strong>Solid line:</strong> Smoothed trend of the coefficient over time<br>
+</li>
+<li><strong>Dashed lines:</strong> 95% confidence interval of that trend</li>
+</ul>
+<p><strong>What we want to see:</strong></p>
+<p>✅ A <strong>flat line near zero</strong>, with the confidence band <strong>containing zero</strong> throughout time → suggests <strong>PH assumption holds</strong>.</p>
+<p>⚠️ A <strong>wavy trend</strong> or curve <strong>drifting far from zero</strong> → suggests <strong>non-proportional hazards</strong> (i.e., the effect of the covariate changes over time).</p>
+<p><strong>Interpreting the plot:</strong></p>
+<p>If the smoothed line is approximately flat and the confidence interval consistently includes zero — with no strong patterns or directional trends — then the PH assumption is likely satisfied for that covariate.</p>
+</div>
+</div>
+</div>
+<p><strong>📈 Martingale Residuals for Age to Assess Functional Form</strong></p>
+<p>To assess whether age is appropriately modeled as a linear predictor in the Cox model, we examine Martingale residuals plotted against age to detect non-linearity in its functional form.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Generate Martingale residuals</span></span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>veteran<span class="sc">$</span>martingale_age <span class="ot">&lt;-</span> <span class="fu">residuals</span>(cox_age, <span class="at">type =</span> <span class="st">"martingale"</span>)</span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Generate linear predictor</span></span>
+<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a>veteran<span class="sc">$</span>linear_pred_age <span class="ot">&lt;-</span> <span class="fu">predict</span>(cox_age, <span class="at">type =</span> <span class="st">"lp"</span>)</span>
+<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-7"><a href="#cb33-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot residuals against age</span></span>
+<span id="cb33-8"><a href="#cb33-8" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(veteran, <span class="fu">aes</span>(<span class="at">x =</span> age, <span class="at">y =</span> martingale_age, <span class="at">color =</span> trt)) <span class="sc">+</span></span>
+<span id="cb33-9"><a href="#cb33-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.6</span>) <span class="sc">+</span></span>
+<span id="cb33-10"><a href="#cb33-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> <span class="dv">0</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">color =</span> <span class="st">"grey30"</span>) <span class="sc">+</span></span>
+<span id="cb33-11"><a href="#cb33-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">13</span>) <span class="sc">+</span></span>
+<span id="cb33-12"><a href="#cb33-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb33-13"><a href="#cb33-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Martingale Residuals vs Age"</span>,</span>
+<span id="cb33-14"><a href="#cb33-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Age (years)"</span>,</span>
+<span id="cb33-15"><a href="#cb33-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Martingale Residual"</span>,</span>
+<span id="cb33-16"><a href="#cb33-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">color =</span> <span class="st">"Treatment Group"</span></span>
+<span id="cb33-17"><a href="#cb33-17" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb33-18"><a href="#cb33-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"Control"</span> <span class="ot">=</span> <span class="st">"#A569BD"</span>, <span class="st">"Intervention"</span> <span class="ot">=</span> <span class="st">"#45B39D"</span>)) <span class="sc">+</span></span>
+<span id="cb33-19"><a href="#cb33-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">plot.title =</span> <span class="fu">element_text</span>(<span class="at">hjust =</span> <span class="fl">0.5</span>, <span class="at">face =</span> <span class="st">"bold"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="veteran-lung-cancer-coxph_files/figure-html/unnamed-chunk-13-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Martingale residuals plotted against age showed no clear non-linear trend, with residuals generally scattered randomly across the range of age values. This suggests that modeling age as a linear term in the Cox model is reasonable. There is no strong evidence to support the need for transformations or spline-based modeling of age in this dataset.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="How to Interpret Martingale Residuals for Functional Form">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-14-contents" aria-controls="callout-14" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+How to Interpret Martingale Residuals for Functional Form
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-14" class="callout-14-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>This plot helps assess whether the <strong>relationship between a continuous variable</strong> (like <em>age</em>) and the <strong>log hazard</strong> is <strong>linear</strong>, which is a core assumption of the Cox model.</p>
+<ul>
+<li><strong>X-axis:</strong> The covariate</li>
+<li><strong>Y-axis:</strong> Martingale residuals (bounded between -∞ and 1)</li>
+<li><strong>Points:</strong> One per individual, representing how well their survival time is predicted</li>
+<li><strong>Dashed line at 0:</strong> Reference line to help spot patterns</li>
+</ul>
+<p><strong>What to look for:</strong> - A <strong>random scatter</strong> of points across the X-axis with <strong>no clear curve</strong> → linearity assumption is likely satisfied ✅ - A <strong>systematic curve</strong>, bend, or wave → suggests the effect of age might be <strong>non-linear</strong> ⚠️<br>
+In that case, consider modeling age using splines or transformations (e.g., <code>log()</code> or <code>^2</code>).</p>
+<p><strong>Important:</strong> These residuals are noisier near their bounds and should be interpreted cautiously, especially when sample size is limited.</p>
+</div>
+</div>
+</div>
+<p><strong>📈 Functional Form Check</strong></p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Fit a univariable Cox model to assess functional form of age</span></span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>cox_age_only <span class="ot">&lt;-</span> <span class="fu">coxph</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> age, <span class="at">data =</span> veteran)</span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Check the functional form visually using Martingale residuals</span></span>
+<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a><span class="fu">ggcoxfunctional</span>(cox_age_only, <span class="at">data =</span> veteran)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="veteran-lung-cancer-coxph_files/figure-html/unnamed-chunk-14-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled" title="Assessing Functional Form with Martingale Residuals">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-15-contents" aria-controls="callout-15" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Assessing Functional Form with Martingale Residuals
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-15" class="callout-15-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p><strong>What this plot shows:</strong><br>
+This diagnostic visualizes whether a <strong>continuous covariate</strong> (e.g., <em>age</em>) has a <strong>linear relationship</strong> with the <strong>log hazard</strong>, as assumed by the Cox model.</p>
+<p><strong>X-axis:</strong><br>
+The values of the continuous variable being assessed (e.g., age)</p>
+<p><strong>Y-axis:</strong><br>
+The <strong>Martingale residuals</strong> from a <strong>null Cox model</strong> (i.e., a model with no covariates)</p>
+<p><strong>Dots:</strong><br>
+Each dot represents one observation</p>
+<p><strong>Smooth black line:</strong><br>
+A <strong>non-parametric smoother</strong> that helps reveal trends in the residuals — this is the key to checking the shape of the relationship</p>
+<p><strong>How to interpret it:</strong></p>
+<ul>
+<li>✅ If the <strong>black line is roughly straight and flat</strong>, this suggests a <strong>linear relationship</strong> between the variable and the log hazard — which is <strong>what the Cox model assumes</strong>.</li>
+<li>⚠️ If the line shows a <strong>curved or non-linear pattern</strong>, this suggests the variable may not be appropriately modeled with a simple linear term.
+<ul>
+<li>This can indicate the need to use <strong>transformations</strong> (e.g., <code>log(age)</code>, <code>age^2</code>) or <strong>splines</strong>.</li>
+</ul></li>
+</ul>
+<p><strong>Tip:</strong><br>
+Small wobbles are not a major concern — we are primarily looking for clear trends, not minor bumps. Major <strong>U-shapes, inflections, or long curves</strong> are the most concerning signs.</p>
+</div>
+</div>
+</div>
+<p>The functional form check using Martingale residuals and a non-parametric smoother suggests that age may not have a strictly linear relationship with the log hazard. The smooth curve appears U-shaped, implying that risk may not increase evenly with age across the full range. This indicates that the assumption of linearity may be violated, and that alternative modeling strategies (e.g., polynomial terms or splines) could improve model fit.</p>
+<p>While the Martingale residual plot suggests that the relationship between age and the log hazard may not be strictly linear, age was not statistically significant in the model. As such, no transformation or spline was applied. This could be revisited in future modeling if age becomes more influential.</p>
+</section>
+<section id="binary-variable-prior-treatment" class="level3" data-number="7.1.2">
+<h3 data-number="7.1.2" class="anchored" data-anchor-id="binary-variable-prior-treatment"><span class="header-section-number">7.1.2</span> 🔁 Binary Variable: Prior Treatment</h3>
+<p>We now evaluate the variable <code>prior</code>, which indicates whether a patient received prior therapy before enrolment in the study. This binary variable may capture important differences in disease severity, treatment history, or prognosis that could influence survival outcomes.</p>
+<div class="callout callout-style-default callout-tip callout-titled" title="Why test binary covariates like 'prior'?">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-16-contents" aria-controls="callout-16" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Why test binary covariates like ‘prior’?
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-16" class="callout-16-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>Even though <code>prior</code> is binary, its inclusion allows us to control for historical differences in patient treatment, which may affect survival independently of the trial treatment (<code>trt</code>).</p>
+<p>For binary variables, we don’t need to assess the functional form, but we <strong>do need to check the proportional hazards assumption</strong> (as with any covariate in the Cox model). We’ll interpret the hazard ratio as the relative difference in risk between those who received prior therapy and those who did not.</p>
+</div>
+</div>
+</div>
+<section id="fit-cox-model-with-prior-treatment" class="level4" data-number="7.1.2.1">
+<h4 data-number="7.1.2.1" class="anchored" data-anchor-id="fit-cox-model-with-prior-treatment"><span class="header-section-number">7.1.2.1</span> Fit Cox Model with Prior Treatment</h4>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Fit the Cox model including prior treatment</span></span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>cox_prior <span class="ot">&lt;-</span> <span class="fu">coxph</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> trt <span class="sc">+</span> prior, <span class="at">data =</span> veteran)</span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(cox_prior)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Call:
+coxph(formula = Surv(time, status) ~ trt + prior, data = veteran)
+
+  n= 137, number of events= 128 
+
+                    coef exp(coef) se(coef)      z Pr(&gt;|z|)
+trtIntervention  0.02608   1.02643  0.18099  0.144    0.885
+prior           -0.01447   0.98563  0.02009 -0.720    0.471
+
+                exp(coef) exp(-coef) lower .95 upper .95
+trtIntervention    1.0264     0.9743    0.7199     1.463
+prior              0.9856     1.0146    0.9476     1.025
+
+Concordance= 0.517  (se = 0.03 )
+Likelihood ratio test= 0.54  on 2 df,   p=0.8
+Wald test            = 0.53  on 2 df,   p=0.8
+Score (logrank) test = 0.53  on 2 df,   p=0.8</code></pre>
+</div>
+</div>
+<p>A Cox proportional hazards model was fitted to evaluate the association between survival and two predictors: treatment group (trt) and prior therapy (prior). The model was based on 137 patients, with 128 observed events.</p>
+<p>The hazard ratio for the intervention group was 1.03 (95% CI: 0.72 – 1.46, p = 0.885), indicating no evidence of a treatment effect after adjusting for prior therapy. Similarly, prior therapy was not associated with survival, with a hazard ratio of 0.99 (95% CI: 0.95 – 1.03, p = 0.471).</p>
+<p>Model discrimination was weak, with a concordance of 0.517, suggesting the model has limited ability to rank survival times accurately. Global model fit tests (likelihood ratio, Wald, and score) were all non-significant (p = 0.8), indicating that the included variables do not significantly improve model performance.</p>
+<p>Neither treatment assignment nor prior therapy appear to be meaningful predictors of survival in this dataset. There is no evidence of an additive effect between these covariates.</p>
+<p>*<strong>📈 Schoenfeld Residuals for Prior Treatment</strong></p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Test proportional hazards assumption for the model including prior treatment</span></span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>cox_zph_prior <span class="ot">&lt;-</span> <span class="fu">cox.zph</span>(cox_prior)</span>
+<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(cox_zph_prior)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>       chisq df     p
+trt     3.38  1 0.066
+prior   3.04  1 0.081
+GLOBAL  6.06  2 0.048</code></pre>
+</div>
+</div>
+<p>Proportional hazards were assessed using Schoenfeld residuals for the model including treatment group and prior therapy. The global test was statistically significant (p = 0.048), suggesting potential violation of the proportional hazards assumption overall.</p>
+<p>Individually, both treatment (p = 0.066) and prior therapy (p = 0.081) had p-values slightly above the conventional 0.05 threshold, indicating borderline evidence of non-proportionality. These results do not strongly confirm a violation, but they do warrant cautious interpretation.</p>
+<p>Given the marginal nature of these findings, visual inspection of the Schoenfeld residual plots is recommended to assess whether any systematic time-varying effects are present.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Visual check</span></span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(cox_zph_prior)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="veteran-lung-cancer-coxph_files/figure-html/unnamed-chunk-17-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="veteran-lung-cancer-coxph_files/figure-html/unnamed-chunk-17-2.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>The Schoenfeld residual plot for prior reveals a largely flat smoothed line that stays within the 95% confidence band across time. While the global test for proportional hazards was statistically significant (p = 0.048), the visual inspection for prior shows no major deviation or time-varying effect. This supports the idea that, despite the borderline p-values, the proportional hazards assumption is reasonably met for the prior variable.</p>
+<p><strong>📈 Martingale Residuals for Prior Treatment</strong></p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Generate Martingale residuals</span></span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a>veteran<span class="sc">$</span>martingale_prior <span class="ot">&lt;-</span> <span class="fu">residuals</span>(cox_prior, <span class="at">type =</span> <span class="st">"martingale"</span>)</span>
+<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Generate linear predictor</span></span>
+<span id="cb40-4"><a href="#cb40-4" aria-hidden="true" tabindex="-1"></a>veteran<span class="sc">$</span>linear_pred_prior <span class="ot">&lt;-</span> <span class="fu">predict</span>(cox_prior, <span class="at">type =</span> <span class="st">"lp"</span>)</span>
+<span id="cb40-5"><a href="#cb40-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot residuals against prior treatment</span></span>
+<span id="cb40-6"><a href="#cb40-6" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(veteran, <span class="fu">aes</span>(<span class="at">x =</span> prior, <span class="at">y =</span> martingale_prior, <span class="at">color =</span> trt)) <span class="sc">+</span></span>
+<span id="cb40-7"><a href="#cb40-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.6</span>) <span class="sc">+</span></span>
+<span id="cb40-8"><a href="#cb40-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> <span class="dv">0</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">color =</span> <span class="st">"grey30"</span>) <span class="sc">+</span></span>
+<span id="cb40-9"><a href="#cb40-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">13</span>) <span class="sc">+</span></span>
+<span id="cb40-10"><a href="#cb40-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb40-11"><a href="#cb40-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Martingale Residuals vs Prior Treatment"</span>,</span>
+<span id="cb40-12"><a href="#cb40-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Prior Treatment (0 = No, 1 = Yes)"</span>,</span>
+<span id="cb40-13"><a href="#cb40-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Martingale Residual"</span>,</span>
+<span id="cb40-14"><a href="#cb40-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">color =</span> <span class="st">"Treatment Group"</span></span>
+<span id="cb40-15"><a href="#cb40-15" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb40-16"><a href="#cb40-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"Control"</span> <span class="ot">=</span> <span class="st">"#A569BD"</span>, <span class="st">"Intervention"</span> <span class="ot">=</span> <span class="st">"#45B39D"</span>)) <span class="sc">+</span></span>
+<span id="cb40-17"><a href="#cb40-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">plot.title =</span> <span class="fu">element_text</span>(<span class="at">hjust =</span> <span class="fl">0.5</span>, <span class="at">face =</span> <span class="st">"bold"</span>)) <span class="sc">+</span></span>
+<span id="cb40-18"><a href="#cb40-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">position =</span> <span class="fu">position_jitter</span>(<span class="at">width =</span> <span class="fl">0.1</span>), <span class="at">alpha =</span> <span class="fl">0.6</span>) <span class="co"># Adding jitter to avoid overlap</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="veteran-lung-cancer-coxph_files/figure-html/unnamed-chunk-18-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>The Martingale residual plot for the prior variable shows two distinct clusters of points at 0 and 1, corresponding to patients with and without prior treatment, respectively. The residuals appear to be roughly symmetric around zero in both groups, with no strong indication of skew or heteroscedasticity. This supports the appropriateness of modeling prior as a binary variable in the Cox regression model. No transformation or alternative coding appears necessary.</p>
+</section>
+</section>
+<section id="multivariable-cox-model-with-age-and-prior-treatment" class="level3" data-number="7.1.3">
+<h3 data-number="7.1.3" class="anchored" data-anchor-id="multivariable-cox-model-with-age-and-prior-treatment"><span class="header-section-number">7.1.3</span> 🔁 Multivariable Cox Model with Age and Prior Treatment</h3>
+<p>In this section, we fit a multivariable Cox proportional hazards model that includes both age and prior treatment as covariates. This allows us to assess the independent effects of these variables on survival while controlling for treatment group.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Fit the multivariable Cox model including age and prior treatment</span></span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a>cox_multivariable <span class="ot">&lt;-</span> <span class="fu">coxph</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> trt <span class="sc">+</span> age <span class="sc">+</span> prior, <span class="at">data =</span> veteran)</span>
+<span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(cox_multivariable)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Call:
+coxph(formula = Surv(time, status) ~ trt + age + prior, data = veteran)
+
+  n= 137, number of events= 128 
+
+                     coef exp(coef)  se(coef)      z Pr(&gt;|z|)
+trtIntervention  0.003621  1.003628  0.183151  0.020    0.984
+age              0.007124  1.007149  0.009675  0.736    0.462
+prior           -0.013562  0.986529  0.020118 -0.674    0.500
+
+                exp(coef) exp(-coef) lower .95 upper .95
+trtIntervention    1.0036     0.9964    0.7009     1.437
+age                1.0071     0.9929    0.9882     1.026
+prior              0.9865     1.0137    0.9484     1.026
+
+Concordance= 0.507  (se = 0.03 )
+Likelihood ratio test= 1.09  on 3 df,   p=0.8
+Wald test            = 1.07  on 3 df,   p=0.8
+Score (logrank) test = 1.07  on 3 df,   p=0.8</code></pre>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled" title="Interpreting the Cox Model Output">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-17-contents" aria-controls="callout-17" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Interpreting the Cox Model Output
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-17" class="callout-17-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>Understanding the <code>coxph()</code> output is essential for interpreting survival models. Here’s a breakdown of the most common components you’ll encounter in both univariable and multivariable Cox regressions:</p>
+<p><strong>🔹 <em>coef</em></strong><br>
+This is the <strong>log hazard ratio</strong> — the raw estimate from the model. It represents the change in the <strong>log hazard</strong> of the event (e.g., death) associated with a <strong>one-unit increase</strong> in the covariate (for continuous variables) or <strong>relative to a reference group</strong> (for categorical variables).</p>
+<ul>
+<li>Positive <code>coef</code> → increased hazard (i.e., higher risk)<br>
+</li>
+<li>Negative <code>coef</code> → decreased hazard (i.e., protective)<br>
+</li>
+<li>A <code>coef</code> close to 0 suggests little to no effect</li>
+</ul>
+<p>🧠 <em>Note:</em> Log hazards are difficult to interpret directly, so we usually exponentiate them.</p>
+<p><strong>🔹 <em>exp(coef)</em></strong><br>
+This is the <strong>hazard ratio (HR)</strong> — the exponentiated <code>coef</code>, which expresses effect size more intuitively.</p>
+<ul>
+<li><code>exp(coef) &gt; 1</code> → Increased hazard<br>
+</li>
+<li><code>exp(coef) &lt; 1</code> → Decreased hazard<br>
+</li>
+<li><code>exp(coef) = 1</code> → No effect</li>
+</ul>
+<p>🔎 Example: <code>exp(coef) = 1.20</code> means a 20% higher hazard.<br>
+<code>exp(coef) = 0.80</code> means a 20% lower hazard.</p>
+<p><strong>🔹 <em>se(coef)</em></strong><br>
+The <strong>standard error</strong> of the coefficient — reflects how much uncertainty surrounds the estimate.</p>
+<ul>
+<li>Smaller values = more precise estimates<br>
+</li>
+<li>Larger values = more uncertainty (due to small samples or noisy data)</li>
+</ul>
+<p><strong>🔹 <em>z</em> and <em>Pr(&gt;|z|)</em></strong><br>
+- <code>z</code> is the <strong>Z-statistic</strong>, calculated as <code>coef / se(coef)</code><br>
+- <code>Pr(&gt;|z|)</code> is the <strong>p-value</strong> from the Wald test for each coefficient</p>
+<p>This tests the <strong>null hypothesis</strong> that the covariate has <strong>no effect</strong> (<code>coef = 0</code>).</p>
+<ul>
+<li><code>p &lt; 0.05</code> → Statistically significant<br>
+</li>
+<li><code>p &gt; 0.05</code> → Not statistically significant</li>
+</ul>
+<p><strong>📊 <em>Model-Level Statistics</em></strong></p>
+<p><strong>🔸 <em>Concordance</em></strong><br>
+- Measures the model’s ability to correctly rank survival times (similar to AUC for classification)<br>
+- Ranges from <code>0.5</code> (random) to <code>1.0</code> (perfect)<br>
+- In clinical data, values of <code>0.6–0.75</code> are typical</p>
+<p><strong>🔸 <em>Likelihood Ratio Test</em></strong><br>
+- Compares the full model to a null (intercept-only) model<br>
+- Tests overall model fit<br>
+- <code>p &lt; 0.05</code> = your model significantly improves fit</p>
+<p><strong>🔸 <em>Wald Test</em></strong><br>
+- Aggregates the individual Wald tests across all covariates<br>
+- Tests whether any coefficients differ significantly from 0</p>
+<p><strong>🔸 <em>Score (Logrank) Test</em></strong><br>
+- Rank-based test comparing observed vs expected survival<br>
+- Can be slightly more sensitive in small samples<br>
+- Often used as an overall model check</p>
+<p>✅ <em>In practice:</em> Use all three global tests and the concordance to evaluate how well the model explains variation in survival. If all are non-significant, the model may lack predictive utility.</p>
+</div>
+</div>
+</div>
+<p>A multivariable Cox proportional hazards model was fitted to examine the association between survival and three covariates: treatment group, age, and prior therapy. After adjusting for all covariates:</p>
+<pre><code>The hazard ratio for the intervention group relative to control was 1.00 (HR = 1.00; 95% CI: 0.70–1.44; p = 0.984), indicating no evidence of a treatment effect.
+
+Age had a hazard ratio of 1.01 per year (p = 0.462), suggesting no significant association with survival in this model.
+
+Prior therapy also showed no effect on hazard (HR = 0.99; p = 0.500).</code></pre>
+<p>Model discrimination was minimal (concordance = 0.507), and all global model tests were non-significant (p = 0.8), suggesting the model does not meaningfully predict survival in this dataset.</p>
+<p><strong>📈 Schoenfeld Residuals for Multivariable Model</strong></p>
+<p>We now assess whether the <strong>proportional hazards assumption</strong> holds for each covariate in the multivariable Cox model. This step ensures that the effect of each variable — treatment group, age, and prior therapy — is consistent over time.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Test proportional hazards assumption for the multivariable model</span></span>
+<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a>cox_zph_multivariable <span class="ot">&lt;-</span> <span class="fu">cox.zph</span>(cox_multivariable)</span>
+<span id="cb44-3"><a href="#cb44-3" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(cox_zph_multivariable)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>       chisq df     p
+trt     3.53  1 0.060
+age     1.76  1 0.184
+prior   3.19  1 0.074
+GLOBAL  8.80  3 0.032</code></pre>
+</div>
+</div>
+<p>The proportional hazards assumption was assessed for the multivariable Cox model using Schoenfeld residuals. The global test was statistically significant (p = 0.032), suggesting that at least one covariate may have a time-varying effect on the hazard.</p>
+<p>At the individual variable level:</p>
+<pre><code>trt showed borderline evidence of non-proportionality (p = 0.060)
+
+prior also approached significance (p = 0.074)
+
+age did not show evidence of time-varying effects (p = 0.184)</code></pre>
+<p>While none of the individual tests crossed the 0.05 threshold, the cumulative result (GLOBAL p &lt; 0.05) suggests some caution is warranted. Visual inspection of the Schoenfeld residual plots is recommended to evaluate whether these borderline findings correspond to meaningful deviations over time.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb47"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Visual check</span></span>
+<span id="cb47-2"><a href="#cb47-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(cox_zph_multivariable)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="veteran-lung-cancer-coxph_files/figure-html/unnamed-chunk-21-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="veteran-lung-cancer-coxph_files/figure-html/unnamed-chunk-21-2.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="veteran-lung-cancer-coxph_files/figure-html/unnamed-chunk-21-3.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Visual inspection of the Schoenfeld residual plot for the prior variable showed a relatively flat trend line with confidence intervals consistently containing zero. This suggests that the effect of prior treatment on the hazard is approximately constant over time, supporting the proportional hazards assumption for this covariate despite its borderline p-value in the global test.</p>
+<p><strong>Martingale Residuals for Multivariable Model</strong></p>
+<p>We now examine the Martingale residuals from the multivariable Cox model to evaluate the overall model fit and identify any patterns or potential outliers in the covariate effects.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb48"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Generate Martingale residuals</span></span>
+<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a>veteran<span class="sc">$</span>martingale_multivariable <span class="ot">&lt;-</span> <span class="fu">residuals</span>(cox_multivariable, <span class="at">type =</span> <span class="st">"martingale"</span>)</span>
+<span id="cb48-3"><a href="#cb48-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Generate linear predictor</span></span>
+<span id="cb48-4"><a href="#cb48-4" aria-hidden="true" tabindex="-1"></a>veteran<span class="sc">$</span>linear_pred_multivariable <span class="ot">&lt;-</span> <span class="fu">predict</span>(cox_multivariable, <span class="at">type =</span> <span class="st">"lp"</span>)</span>
+<span id="cb48-5"><a href="#cb48-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot residuals against linear predictor</span></span>
+<span id="cb48-6"><a href="#cb48-6" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(veteran, <span class="fu">aes</span>(<span class="at">x =</span> linear_pred_multivariable, <span class="at">y =</span> martingale_multivariable, <span class="at">color =</span> trt)) <span class="sc">+</span></span>
+<span id="cb48-7"><a href="#cb48-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.6</span>) <span class="sc">+</span></span>
+<span id="cb48-8"><a href="#cb48-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> <span class="dv">0</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">color =</span> <span class="st">"grey30"</span>) <span class="sc">+</span></span>
+<span id="cb48-9"><a href="#cb48-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">13</span>) <span class="sc">+</span></span>
+<span id="cb48-10"><a href="#cb48-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb48-11"><a href="#cb48-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Martingale Residuals vs Linear Predictor</span><span class="sc">\n</span><span class="st">(Multivariable Model)"</span>,</span>
+<span id="cb48-12"><a href="#cb48-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Linear Predictor (Log Hazard)"</span>,</span>
+<span id="cb48-13"><a href="#cb48-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Martingale Residual"</span>,</span>
+<span id="cb48-14"><a href="#cb48-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">color =</span> <span class="st">"Treatment Group"</span></span>
+<span id="cb48-15"><a href="#cb48-15" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb48-16"><a href="#cb48-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"Control"</span> <span class="ot">=</span> <span class="st">"#A569BD"</span>, <span class="st">"Intervention"</span> <span class="ot">=</span> <span class="st">"#45B39D"</span>)) <span class="sc">+</span></span>
+<span id="cb48-17"><a href="#cb48-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">plot.title =</span> <span class="fu">element_text</span>(<span class="at">hjust =</span> <span class="fl">0.5</span>, <span class="at">face =</span> <span class="st">"bold"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="veteran-lung-cancer-coxph_files/figure-html/unnamed-chunk-22-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>The Martingale residuals plotted against the linear predictor for the multivariable model appear randomly scattered around the horizontal zero line, with no clear pattern, curvature, or systematic deviation. This suggests that the overall functional form of the covariates (treatment, age, and prior treatment) is reasonably specified. There is no strong evidence of model misspecification or non-linearity in the combined effects. However, the narrow spread of the linear predictor values (mostly between -0.2 and 0.2) reflects the modest effect sizes and limited variation in the log hazard estimates, which aligns with the model’s lack of significant predictors.</p>
+<div class="callout callout-style-default callout-tip callout-titled" title="What This Plot Tells Us">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-18-contents" aria-controls="callout-18" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+What This Plot Tells Us
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-18" class="callout-18-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>Martingale residuals help assess how well the Cox model fits the data.</p>
+<p>A good model will show residuals scattered symmetrically around zero with no systematic pattern.</p>
+<p>Since we are plotting residuals against the linear predictor (the model’s estimate of log hazard for each individual), this acts as a catch-all for checking overall model specification.</p>
+<p>In this case:</p>
+<ul>
+<li>There’s no strong non-linear trend.</li>
+<li>No excessive clustering or heteroskedasticity.</li>
+<li>Values are distributed fairly evenly above and below the zero line.</li>
+</ul>
+<p>Conclusion: The model appears reasonably well-specified, and no major violations are detected.</p>
+</div>
+</div>
+</div>
+<p><strong>Functional Form Check for Continuous Covariates</strong></p>
+<p>We now recheck the functional form of the continuous variable age within the multivariable Cox model to ensure its effect on the log hazard remains appropriately modeled as linear.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb49"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Refit a univariable model with age (again, for functional form check)</span></span>
+<span id="cb49-2"><a href="#cb49-2" aria-hidden="true" tabindex="-1"></a>cox_age_for_form_check <span class="ot">&lt;-</span> <span class="fu">coxph</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> age, <span class="at">data =</span> veteran)</span>
+<span id="cb49-3"><a href="#cb49-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb49-4"><a href="#cb49-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot functional form using ggcoxfunctional</span></span>
+<span id="cb49-5"><a href="#cb49-5" aria-hidden="true" tabindex="-1"></a><span class="fu">ggcoxfunctional</span>(</span>
+<span id="cb49-6"><a href="#cb49-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">fit =</span> cox_age_for_form_check,</span>
+<span id="cb49-7"><a href="#cb49-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> veteran,</span>
+<span id="cb49-8"><a href="#cb49-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">point.col =</span> <span class="st">"#E74C3C"</span>,</span>
+<span id="cb49-9"><a href="#cb49-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">ggtheme =</span> <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">13</span>),</span>
+<span id="cb49-10"><a href="#cb49-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">title =</span> <span class="st">"Functional Form Check: Age"</span></span>
+<span id="cb49-11"><a href="#cb49-11" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="veteran-lung-cancer-coxph_files/figure-html/unnamed-chunk-23-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>The Martingale residual plot for age reveals a clear U-shaped curve, suggesting that the assumption of linearity in the log hazard may not hold. This implies that age may have a non-linear effect on survival, and modeling it as a simple linear term may lead to misestimation of its effect. A transformation (e.g., quadratic or restricted cubic splines) may be warranted in further analysis.</p>
+<div class="callout callout-style-default callout-tip callout-titled" title="Why Check Functional Form Again in a Multivariable Model?">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-19-contents" aria-controls="callout-19" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Why Check Functional Form Again in a Multivariable Model?
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-19" class="callout-19-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>While functional form checks (e.g., using Martingale residuals) are <strong>only necessary for continuous covariates</strong>, it’s important to <strong>reassess them in the context of the full model</strong> — even if they passed in a univariable setting.</p>
+<ul>
+<li>In a <strong>univariable Cox model</strong>, we check whether the continuous variable (e.g., age) has a linear relationship with the log hazard.</li>
+<li>However, once we add other covariates (like treatment or prior therapy), the relationship can <strong>change due to confounding or interactions</strong>.</li>
+<li>A variable might look linear on its own, but <strong>show non-linearity when adjusted</strong> for other predictors.</li>
+</ul>
+<p>So we recheck <strong>only the continuous variables</strong> (e.g., age) in the multivariable model to ensure the assumption still holds.</p>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="multivariable-cox-model-with-spline-transformed-age" class="level2" data-number="7.2">
+<h2 data-number="7.2" class="anchored" data-anchor-id="multivariable-cox-model-with-spline-transformed-age"><span class="header-section-number">7.2</span> Multivariable Cox Model with Spline-Transformed Age</h2>
+<p>We refit the Cox model using a restricted cubic spline to model the non-linear relationship between age and the log hazard. This allows for greater flexibility in capturing age-related risk while still accounting for treatment and prior therapy.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Understanding Spline and Non-Linear Transformations in Survival Models">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-20-contents" aria-controls="callout-20" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Understanding Spline and Non-Linear Transformations in Survival Models
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-20" class="callout-20-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p><strong>Why model transformations at all?</strong><br>
+The Cox Proportional Hazards model assumes that each covariate has a <strong>linear relationship</strong> with the <strong>log hazard</strong>. For <strong>continuous variables</strong> like age, this means that each one-unit increase is expected to have the same multiplicative effect on the hazard — <em>regardless of whether someone is 40 or 80 years old</em>. This is often unrealistic.</p>
+<p>To fix this, we apply <strong>non-linear transformations</strong> to more accurately capture the shape of the relationship between a variable (like age) and the outcome (e.g., death).</p>
+<p><strong>What are spline transformations?</strong><br>
+Splines are a <strong>flexible way to model non-linear relationships</strong> without explicitly specifying the form of the curve. They break a variable into <em>segments</em> using predefined cut points called <strong>knots</strong>, and fit separate curves (usually polynomials) between them, ensuring smoothness at the joins.</p>
+<p>They allow the model to “bend” as needed — making them perfect for capturing complex patterns in the data.</p>
+<p><strong>Common types of transformations:</strong></p>
+<p><strong>• <em>Restricted Cubic Splines (Natural Splines)</em>:</strong><br>
+This is the most common spline in Cox models. It creates piecewise cubic polynomials between knots, but constrains the ends to be linear — which prevents overfitting at the tails.</p>
+<ul>
+<li>✅ Best for <em>flexible yet stable</em> curve fitting<br>
+</li>
+<li>📌 Recommended when you suspect non-linearity but don’t want to manually test transformations</li>
+</ul>
+<p><strong>• <em>Quadratic or Polynomial Terms (e.g., age + I(age^2))</em>:</strong><br>
+Adds a squared (or cubic) term to capture curvature.</p>
+<ul>
+<li>✅ Simple to interpret</li>
+<li>⚠️ Risky at the extremes — can overfit or behave erratically</li>
+</ul>
+<p><strong>• <em>Log Transformations (e.g., log(age))</em>:</strong><br>
+Used when the effect <em>decelerates</em> — i.e., rapid effect early on that flattens with increasing value.</p>
+<ul>
+<li>✅ Great when data is skewed</li>
+<li>⚠️ Doesn’t work if the variable contains 0s or negatives</li>
+</ul>
+<p><strong>• <em>Categorization (e.g., age groups)</em>:</strong><br>
+Turns a continuous variable into bins (e.g., under 50, 50–65, over 65).</p>
+<ul>
+<li>✅ Easy to explain</li>
+<li>⚠️ Loses statistical power and may mislead if cutoffs are arbitrary</li>
+</ul>
+<p><strong>When should you use each?</strong></p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 30%">
+<col style="width: 69%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Transformation</th>
+<th>Use when…</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Splines (ns())</strong></td>
+<td>You want a smooth, data-driven relationship</td>
+</tr>
+<tr class="even">
+<td><strong>Quadratic term</strong></td>
+<td>You suspect a simple “U-shaped” or curvilinear trend</td>
+</tr>
+<tr class="odd">
+<td><strong>Log transform</strong></td>
+<td>The variable increases rapidly then levels off</td>
+</tr>
+<tr class="even">
+<td><strong>Categories</strong></td>
+<td>Clinical guidelines or reporting require it</td>
+</tr>
+</tbody>
+</table>
+<p><strong>How many knots do I use for splines?</strong><br>
+A good rule of thumb (Harrell, 2015):</p>
+<ul>
+<li>3 knots: small datasets (n &lt; 100)</li>
+<li>4–5 knots: medium datasets (n ~ 100–300)</li>
+<li>5–7 knots: large datasets</li>
+</ul>
+<p>Knots are often placed at <strong>percentiles</strong> of the variable — e.g., 5th, 35th, 65th, 95th percentile.</p>
+<p>Final tip: Always re-check Schoenfeld residuals and Martingale residuals after applying any transformation.</p>
+</div>
+</div>
+</div>
+<p><strong>Model Output</strong></p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb50"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Fit a Cox model with restricted cubic splines for age</span></span>
+<span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a>cox_spline <span class="ot">&lt;-</span> <span class="fu">coxph</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> <span class="fu">ns</span>(age, <span class="at">df =</span> <span class="dv">3</span>) <span class="sc">+</span> trt <span class="sc">+</span> prior, <span class="at">data =</span> veteran)</span>
+<span id="cb50-3"><a href="#cb50-3" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(cox_spline)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Call:
+coxph(formula = Surv(time, status) ~ ns(age, df = 3) + trt + 
+    prior, data = veteran)
+
+  n= 137, number of events= 128 
+
+                      coef exp(coef)  se(coef)      z Pr(&gt;|z|)
+ns(age, df = 3)1  0.039605  1.040400  0.336973  0.118    0.906
+ns(age, df = 3)2 -1.464948  0.231090  1.001124 -1.463    0.143
+ns(age, df = 3)3  0.891042  2.437668  0.629382  1.416    0.157
+trtIntervention   0.090883  1.095141  0.186594  0.487    0.626
+prior            -0.009429  0.990615  0.020175 -0.467    0.640
+
+                 exp(coef) exp(-coef) lower .95 upper .95
+ns(age, df = 3)1    1.0404     0.9612   0.53749     2.014
+ns(age, df = 3)2    0.2311     4.3273   0.03248     1.644
+ns(age, df = 3)3    2.4377     0.4102   0.70998     8.370
+trtIntervention     1.0951     0.9131   0.75970     1.579
+prior               0.9906     1.0095   0.95221     1.031
+
+Concordance= 0.559  (se = 0.03 )
+Likelihood ratio test= 9  on 5 df,   p=0.1
+Wald test            = 9.13  on 5 df,   p=0.1
+Score (logrank) test = 9.34  on 5 df,   p=0.1</code></pre>
+</div>
+</div>
+<p>A multivariable Cox proportional hazards model incorporating a restricted cubic spline transformation of age (df = 3) was fitted to explore potential non-linear effects of age on survival. None of the individual spline terms were statistically significant at the 0.05 level (p = 0.906, 0.143, and 0.157), suggesting that while the spline captures flexibility, the overall contribution of age remains statistically weak.</p>
+<p>The treatment group (p = 0.626) and prior therapy (p = 0.640) also remained non-significant. Model-level tests showed that the likelihood ratio test (p = 0.1), Wald test (p = 0.1), and score test (p = 0.1) were all non-significant, indicating that the model, as specified, may not provide strong explanatory power.</p>
+<p>However, the model’s concordance improved slightly to 0.559 compared to the linear age model, suggesting a modest increase in predictive ability. While not conclusive, the use of splines helps satisfy the functional form assumption and could be valuable if future models identify stronger non-linear trends or interactions with age.</p>
+<p><strong>Checking Proportional Hazards Assumption for Spline Model</strong></p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb52"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Test proportional hazards assumption for the spline model</span></span>
+<span id="cb52-2"><a href="#cb52-2" aria-hidden="true" tabindex="-1"></a><span class="fu">cox.zph</span>(cox_spline)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>                chisq df     p
+ns(age, df = 3)  4.52  3 0.211
+trt              2.50  1 0.114
+prior            3.08  1 0.079
+GLOBAL           8.84  5 0.116</code></pre>
+</div>
+</div>
+<p>A Cox proportional hazards model incorporating a restricted cubic spline transformation of age (df = 3) demonstrated acceptable fit to the proportional hazards assumption across all covariates. The global Schoenfeld residuals test was non-significant (p = 0.116), suggesting that the model adequately satisfies the proportional hazards assumption. Individually, spline-transformed age (p = 0.211), treatment group (p = 0.114), and prior treatment (p = 0.079) all showed no significant time-dependent effects.</p>
+<p><strong>Visual Check of Proportional Hazards Assumption for Spline Model</strong></p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb54"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Visual check of Schoenfeld residuals for spline model</span></span>
+<span id="cb54-2"><a href="#cb54-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">cox.zph</span>(cox_spline))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="veteran-lung-cancer-coxph_files/figure-html/unnamed-chunk-26-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="veteran-lung-cancer-coxph_files/figure-html/unnamed-chunk-26-2.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="veteran-lung-cancer-coxph_files/figure-html/unnamed-chunk-26-3.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p><strong>Martingale Residuals for Spline Model</strong></p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb55"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Residuals vs linear predictor</span></span>
+<span id="cb55-2"><a href="#cb55-2" aria-hidden="true" tabindex="-1"></a>veteran<span class="sc">$</span>martingale_spline <span class="ot">&lt;-</span> <span class="fu">residuals</span>(cox_spline, <span class="at">type =</span> <span class="st">"martingale"</span>)</span>
+<span id="cb55-3"><a href="#cb55-3" aria-hidden="true" tabindex="-1"></a>veteran<span class="sc">$</span>linear_pred_spline <span class="ot">&lt;-</span> <span class="fu">predict</span>(cox_spline, <span class="at">type =</span> <span class="st">"lp"</span>)</span>
+<span id="cb55-4"><a href="#cb55-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb55-5"><a href="#cb55-5" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(veteran, <span class="fu">aes</span>(<span class="at">x =</span> linear_pred_spline, <span class="at">y =</span> martingale_spline, <span class="at">color =</span> trt)) <span class="sc">+</span></span>
+<span id="cb55-6"><a href="#cb55-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.6</span>) <span class="sc">+</span></span>
+<span id="cb55-7"><a href="#cb55-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> <span class="dv">0</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">color =</span> <span class="st">"grey30"</span>) <span class="sc">+</span></span>
+<span id="cb55-8"><a href="#cb55-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">13</span>) <span class="sc">+</span></span>
+<span id="cb55-9"><a href="#cb55-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb55-10"><a href="#cb55-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Martingale Residuals vs Linear Predictor</span><span class="sc">\n</span><span class="st">(Spline Model)"</span>,</span>
+<span id="cb55-11"><a href="#cb55-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Linear Predictor (Log Hazard)"</span>,</span>
+<span id="cb55-12"><a href="#cb55-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Martingale Residual"</span>,</span>
+<span id="cb55-13"><a href="#cb55-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">color =</span> <span class="st">"Treatment Group"</span></span>
+<span id="cb55-14"><a href="#cb55-14" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb55-15"><a href="#cb55-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"Control"</span> <span class="ot">=</span> <span class="st">"#A569BD"</span>, <span class="st">"Intervention"</span> <span class="ot">=</span> <span class="st">"#45B39D"</span>)) <span class="sc">+</span></span>
+<span id="cb55-16"><a href="#cb55-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">plot.title =</span> <span class="fu">element_text</span>(<span class="at">hjust =</span> <span class="fl">0.5</span>, <span class="at">face =</span> <span class="st">"bold"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="veteran-lung-cancer-coxph_files/figure-html/unnamed-chunk-27-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="model-comparison-linear-vs-spline-age-term" class="level2" data-number="7.3">
+<h2 data-number="7.3" class="anchored" data-anchor-id="model-comparison-linear-vs-spline-age-term"><span class="header-section-number">7.3</span> Model Comparison: Linear vs Spline Age Term</h2>
+<p>We now compare the original multivariable Cox model with age modeled linearly to the updated model using a spline transformation for age. This allows us to formally test whether the added flexibility of the spline significantly improves model fit.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb56"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Compare linear age model vs spline-transformed age model</span></span>
+<span id="cb56-2"><a href="#cb56-2" aria-hidden="true" tabindex="-1"></a><span class="fu">anova</span>(cox_multivariable, cox_spline, <span class="at">test =</span> <span class="st">"LRT"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Analysis of Deviance Table
+ Cox model: response is  Surv(time, status)
+ Model 1: ~ trt + age + prior
+ Model 2: ~ ns(age, df = 3) + trt + prior
+   loglik  Chisq Df Pr(&gt;|Chi|)  
+1 -504.90                       
+2 -500.95 7.9117  2    0.01914 *
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
+</div>
+</div>
+<p>A likelihood ratio test comparing a model with age modeled linearly to one using restricted cubic splines (df = 3) showed a statistically significant improvement in fit (χ² = 7.91, df = 2, p = 0.019). This suggests that the effect of age on survival is non-linear, and that modeling age with splines better captures its relationship with hazard.</p>
+<p><strong>Visualizing the Effect of Spline-Transformed Age</strong></p>
+<p>This section uses ‘termplot()’ to visualize how the hazard changes across age when modeled as a spline. This provides an intuitive look at the non-linear relationship.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Understanding ANOVA in Cox Regression">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-21-contents" aria-controls="callout-21" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Understanding ANOVA in Cox Regression
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-21" class="callout-21-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>In the context of <strong>Cox proportional hazards models</strong>, ANOVA isn’t used in the traditional sense (like comparing means). Instead, it’s a way of <strong>comparing nested models</strong> using their <strong>log-likelihoods</strong>.</p>
+<p>This is typically done using the <strong>Likelihood Ratio Test (LRT)</strong>, which answers the question:</p>
+<blockquote class="blockquote">
+<p><em>“Does the more complex model fit significantly better than the simpler one?”</em></p>
+</blockquote>
+<section id="what-the-output-shows" class="level3" data-number="7.3.1">
+<h3 data-number="7.3.1" class="anchored" data-anchor-id="what-the-output-shows"><span class="header-section-number">7.3.1</span> <strong>🔍 What the Output Shows:</strong></h3>
+<ul>
+<li><strong>Model 1:</strong> The <strong>simpler model</strong> (fewer terms or more constrained terms)</li>
+<li><strong>Model 2:</strong> The <strong>more complex model</strong> (extra variables or flexible terms, e.g., splines)</li>
+<li><strong>Log-likelihoods:</strong> How well each model fits the data (less negative = better)</li>
+<li><strong>Chisq:</strong> Computed as <code>2 × (LL₂ − LL₁)</code><br>
+</li>
+<li><strong>Degrees of freedom:</strong> Difference in number of parameters</li>
+<li><strong>p-value:</strong> Significance of improvement in fit</li>
+</ul>
+</section>
+<section id="how-to-interpret" class="level3" data-number="7.3.2">
+<h3 data-number="7.3.2" class="anchored" data-anchor-id="how-to-interpret"><span class="header-section-number">7.3.2</span> <strong>✅ How to Interpret:</strong></h3>
+<ul>
+<li><strong>p &lt; 0.05</strong> → The complex model fits significantly better → <strong>keep it</strong></li>
+<li><strong>p ≥ 0.05</strong> → No meaningful improvement → <strong>stick with the simpler model</strong></li>
+</ul>
+<p>This approach is especially useful for: - Deciding whether to model continuous variables <strong>non-linearly</strong> (e.g., with splines) - Evaluating whether new covariates <strong>add predictive value</strong> - Performing <strong>stepwise model refinement</strong></p>
+<p>📦 <strong>Takeaway:</strong><br>
+Use ANOVA/LRT in Cox regression to guide decisions about <strong>model complexity vs parsimony</strong>, balancing better fit with interpretability.</p>
+</section>
+</div>
+</div>
+</div>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb58"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb58-1"><a href="#cb58-1" aria-hidden="true" tabindex="-1"></a><span class="fu">termplot</span>(cox_spline, <span class="at">se =</span> <span class="cn">TRUE</span>, <span class="at">col.term =</span> <span class="st">"blue"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="veteran-lung-cancer-coxph_files/figure-html/unnamed-chunk-29-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="veteran-lung-cancer-coxph_files/figure-html/unnamed-chunk-29-2.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="veteran-lung-cancer-coxph_files/figure-html/unnamed-chunk-29-3.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>The term plots from the spline-based Cox model provide a visual assessment of each covariate’s partial effect on the log hazard:</p>
+<pre><code>Age (modeled using natural splines with 3 degrees of freedom) shows a non-linear relationship with the log hazard. The plot reveals a shallow U-shaped curve, suggesting a modest protective effect around age 55, with increased hazard at both younger and older extremes. However, the confidence bands are relatively wide, indicating some uncertainty in the effect.
+
+Treatment Group (trt) appears as two flat lines corresponding to the control and intervention groups. The overlap of the confidence bands with zero implies no statistically significant difference in log hazard between groups.
+
+Prior Treatment (prior) similarly shows a nearly flat effect line across both levels (0 and 1), with confidence intervals that comfortably include zero. This suggests no strong independent effect of prior treatment on survival.</code></pre>
+<p>These visualizations are consistent with the statistical output, reinforcing the conclusion that age shows the most complex effect, while treatment and prior therapy do not demonstrate significant associations with survival in this model.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="How to Interpret Term Plots in Cox Models">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-22-contents" aria-controls="callout-22" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+How to Interpret Term Plots in Cox Models
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-22" class="callout-22-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p><strong>Term plots</strong> visualize the <em>partial effect</em> of each covariate in a fitted model while holding other variables constant. They are especially helpful for interpreting transformations like splines.</p>
+<p><strong>🔹 What is a term plot?</strong><br>
+A term plot shows how the <strong>log hazard</strong> (on the y-axis) changes with a covariate (on the x-axis), after accounting for all other variables in the model.</p>
+<ul>
+<li>The <strong>blue line</strong> is the estimated partial effect of that variable.</li>
+<li>The <strong>dashed orange lines</strong> show the 95% confidence interval.</li>
+<li>The interpretation depends on the type of variable:</li>
+</ul>
+<p><strong>🔸 Continuous Variables (e.g., Age):</strong></p>
+<ul>
+<li>For <strong>linear terms</strong>, the blue line should be roughly straight.</li>
+<li>For <strong>splines</strong> or transformed terms:
+<ul>
+<li>A <em>curved</em> blue line indicates a non-linear relationship.</li>
+<li>Areas where the confidence band <strong>does not include 0</strong> suggest a statistically significant effect on the log hazard.</li>
+<li>Patterns like U-shapes, inflection points, or steep climbs reveal how risk evolves across the covariate range.</li>
+</ul></li>
+</ul>
+<p><strong>🔸 Binary Variables (e.g., Treatment, Prior Therapy):</strong></p>
+<ul>
+<li>These are shown as <strong>two horizontal segments</strong>:
+<ul>
+<li>One for each group (e.g., Control = 0, Intervention = 1).</li>
+<li>The <strong>difference between the two</strong> shows the log hazard shift due to that variable.</li>
+</ul></li>
+<li>If the confidence intervals <strong>include zero</strong>, there’s no strong evidence that the variable affects the hazard.</li>
+</ul>
+<p><strong>✅ Best Uses:</strong></p>
+<ul>
+<li>Confirming that spline-transformed terms behave as expected.</li>
+<li>Checking if a linear term should be transformed (e.g., age might be better modeled with splines).</li>
+<li>Double-checking whether binary variables have any meaningful effect.</li>
+</ul>
+<p>🧠 <em>Tip:</em> Term plots don’t replace statistical tests, but they <strong>visualize model estimates</strong> clearly and intuitively.</p>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="interaction-or-additive-effects" class="level1" data-number="8">
+<h1 data-number="8"><span class="header-section-number">8</span> 📈 Interaction or Additive Effects?</h1>
+</section>
+<section id="model-summary-interpretation" class="level1" data-number="9">
+<h1 data-number="9"><span class="header-section-number">9</span> 🧾 Model Summary &amp; Interpretation</h1>
+<section id="hazard-ratios" class="level2" data-number="9.1">
+<h2 data-number="9.1" class="anchored" data-anchor-id="hazard-ratios"><span class="header-section-number">9.1</span> 📌 Hazard Ratios</h2>
+</section>
+<section id="clinical-interpretation" class="level2" data-number="9.2">
+<h2 data-number="9.2" class="anchored" data-anchor-id="clinical-interpretation"><span class="header-section-number">9.2</span> 🧠 Clinical Interpretation</h2>
+</section>
+</section>
+<section id="conclusion" class="level1" data-number="10">
+<h1 data-number="10"><span class="header-section-number">10</span> 🧾 Conclusion</h1>
+</section>
+<section id="limitations" class="level1" data-number="11">
+<h1 data-number="11"><span class="header-section-number">11</span> 📌 Limitations</h1>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+        const codeEl = trigger.previousElementSibling.cloneNode(true);
+        for (const childEl of codeEl.children) {
+          if (isCodeAnnotation(childEl)) {
+            childEl.remove();
+          }
+        }
+        return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

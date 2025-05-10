@@ -1,5 +1,5 @@
 ---
-title: "Survival Analysis: Veteran Lung Cancer Patients"
+title: "Survival Analysis of Veterans with Advanced Lung Cancer: A Cox Proportional Hazards Approach"
 author: "Julian Chung"
 format:
   html:
@@ -9,44 +9,51 @@ format:
     theme: cosmo
 execute:
   echo: true
+  warning: false
+  message: false
 ---
 # 📘 Introduction
 
-This dataset originates from a clinical trial conducted by the Veterans Administration in the United States to compare the effectiveness of two chemotherapy regimens in treating advanced, inoperable lung cancer. Patients were randomized to receive either a standard treatment or a test treatment (an experimental chemotherapy protocol), and followed until death or censoring. The primary outcome was overall survival, measured in days from treatment initiation.
+This report presents a survival analysis of patients with advanced, inoperable lung cancer who participated in a randomized clinical trial conducted by the Veterans Administration in the United States. The objective of the study was to compare the effectiveness of a standard chemotherapy protocol versus a test (experimental) treatment in prolonging patient survival.
 
+Participants were followed until death or censoring, with overall survival time (in days from treatment initiation) as the primary outcome. This dataset, originally introduced in The Statistical Analysis of Failure Time Data by Kalbfleisch and Prentice (1980), has become a cornerstone in teaching survival analysis due to its manageable size, clear structure, and strong clinical relevance.
+
+Our analysis explores survival outcomes using both Kaplan-Meier estimation and Cox proportional hazards modeling, followed by diagnostic checks to assess model assumptions and potential improvements.
 The dataset contains information on:
 
-    Treatment group (Standard vs Test),
+# Setup and Data Import
 
-    Cell type (squamous, small cell, adenocarcinoma, or large cell),
-
-    Survival time and status,
-
-    Karnofsky performance score (a proxy for baseline health),
-
-    Time from diagnosis to study entry,
-
-    Patient age, and
-
-    Number of prior treatments received.
-
-The data is widely used in survival analysis teaching due to its realistic structure, meaningful clinical context, and manageable size.
-
-D Kalbfleisch and RL Prentice (1980), The Statistical Analysis of Failure Time Data. Wiley, New York.
-
-# 📦 Load Packages
+We begin by loading the necessary R packages and importing the veteran lung cancer dataset from the `survival` package.
 
 ```{r}
-library(survival)
-library(survminer)
-library(dplyr)
-library(ggplot2)
-library(broom)
-library(splines)
+# Load required libraries
+library(survival) # Core survival analysis tools
+library(survminer)  # Visualization and diagnostics
+library(dplyr)  # Data wrangling
+library(ggplot2)  # Plotting
+library(broom)  # Tidying model output
+library(splines) # Splines for flexible modeling
 
 ```
 
-# 🧬 Load & Inspect Data
+::: {.callout-tip title="Why These Packages?" collapse=true}
+
+- **`survival`**: Core package for survival analysis in R. Provides `Surv()` to construct survival objects and `coxph()` for Cox models.
+
+- **`survminer`**: High-level visualization tools for survival curves and diagnostics (e.g., `ggsurvplot()`, `ggcoxdiagnostics()`).
+
+- **`splines`**: Adds support for modeling non-linear relationships in covariates using **restricted cubic splines** (e.g., `ns()`).
+
+- **`ggplot2`**: Used to build layered, customizable plots — often integrated with `survminer`.
+
+- **`dplyr`**: Enables clean and readable data manipulation (e.g., `mutate()`, `filter()`).
+
+- **`broom`**: Tidies model outputs into data frames (useful for summaries, tables, and downstream analysis).
+
+:::
+
+
+Next, we load the dataset and apply a quick transformation to label the treatment group.
 
 ```{r}
 # Load the dataset
@@ -54,9 +61,32 @@ veteran <- survival::veteran %>%
   mutate(trt = factor(trt, levels = c(1, 2), labels = c("Control", "Intervention")))
 
 # Peek at the structure and summary
-glimpse(veteran)
-summary(veteran)
+# glimpse(veteran)
+# summary(veteran)
 ```
+
+::: {.callout-note title="Dataset Preview" collapse=true}
+We show the first few rows to get a sense of the data structure.
+```{r}
+head(veteran)
+```
+:::
+
+**Variable Summary:**
+
+We summarize the key variables in the dataset:
+
+| Variable   | Type    | Description                                                        | Notes                                                            |
+| ---------- | ------- | ------------------------------------------------------------------ | ---------------------------------------------------------------- |
+| `trt`      | Factor  | Treatment group: 1 = Standard, 2 = Test                            | Relabeled to `"Control"` and `"Intervention"`                    |
+| `celltype` | Factor  | Histologic type of lung cancer: squamous, small cell, adeno, large | Not used in this model, but useful in extended analyses          |
+| `time`     | Numeric | Survival time in days                                              | Outcome variable in the `Surv()` object                          |
+| `status`   | Numeric | Event indicator: 1 = died, 0 = censored                            | Used to define survival endpoint                                 |
+| `karno`    | Numeric | Karnofsky performance score (proxy for baseline health status)     | May affect prognosis; not modeled in current analysis            |
+| `diagtime` | Numeric | Time from diagnosis to study entry (in months)                     | Possibly useful in extended time-dependent models                |
+| `age`      | Numeric | Patient age (in years)                                             | Treated as **continuous**; **checked for linearity and splines** |
+| `prior`    | Numeric | Number of prior therapies (0 or 10)                                | Binary variable: 0 = none, 10 = prior treatment                  |
+
 
 # 📈 Kaplan-Meier Survival Curve
 
@@ -70,9 +100,14 @@ surv_obj <- Surv(time = veteran$time, event = veteran$status)
 km_fit <- survfit(surv_obj ~ trt, data = veteran)
 
 # View basic survival summary
-summary(km_fit)
+# summary(km_fit)
 
 ```
+
+::: {.callout-note title="Survival Summary Truncated for Clarity" collapse=true}
+The full Kaplan-Meier summary includes hundreds of time points. For readability, we display only the first few rows per treatment group.
+:::
+
 ```{r}
 # Name the treatment groups
 veteran <- survival::veteran %>%
@@ -116,7 +151,8 @@ ggsurvplot(
   )
 )
 ```
-### 🧠 Interpretation
+
+**Interpretation**
 
 The Kaplan-Meier plot shows survival curves for patients receiving standard vs test treatment.
 
@@ -245,8 +281,6 @@ cox.zph(cox_model)
 The proportional hazards assumption was assessed using Schoenfeld residuals via the cox.zph() function. The test for the treatment variable (trt) yielded a chi-square statistic of 3.54 with a p-value of 0.06, and the global test returned the same values (χ² = 3.54, df = 1, p = 0.06).
 
 Although the p-values are slightly above the conventional significance threshold of 0.05, they do not provide sufficient evidence to reject the null hypothesis that the proportional hazards assumption holds. As such, the Cox proportional hazards model is considered appropriate for this analysis, though the borderline result suggests caution and may warrant further inspection in more complex models.
-
-
 
 ## Schoenfeld Residuals Plot
 
