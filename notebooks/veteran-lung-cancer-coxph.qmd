@@ -49,11 +49,9 @@ library(splines) # Splines for flexible modeling
 - **`dplyr`**: Enables clean and readable data manipulation (e.g., `mutate()`, `filter()`).
 
 - **`broom`**: Tidies model outputs into data frames (useful for summaries, tables, and downstream analysis).
-
 :::
 
-
-Next, we load the dataset and apply a quick transformation to label the treatment group.
+Next, the dataset is loaded and a quick transformation applied to label the treatment and control groups.
 
 ```{r}
 # Load the dataset
@@ -74,7 +72,7 @@ head(veteran)
 
 **Variable Summary:**
 
-We summarize the key variables in the dataset:
+Below is a summary of the key variable in the dataset.
 
 | Variable   | Type    | Description                                                        | Notes                                                            |
 | ---------- | ------- | ------------------------------------------------------------------ | ---------------------------------------------------------------- |
@@ -86,7 +84,6 @@ We summarize the key variables in the dataset:
 | `diagtime` | Numeric | Time from diagnosis to study entry (in months)                     | Possibly useful in extended time-dependent models                |
 | `age`      | Numeric | Patient age (in years)                                             | Treated as **continuous**; **checked for linearity and splines** |
 | `prior`    | Numeric | Number of prior therapies (0 or 10)                                | Binary variable: 0 = none, 10 = prior treatment                  |
-
 
 # 📈 Kaplan-Meier Survival Curve
 
@@ -107,6 +104,28 @@ km_fit <- survfit(surv_obj ~ trt, data = veteran)
 ::: {.callout-note title="Survival Summary Truncated for Clarity" collapse=true}
 The full Kaplan-Meier summary includes hundreds of time points. For readability, we display only the first few rows per treatment group.
 :::
+
+::: {.callout-note title="Why Start with a Kaplan-Meier Curve?" collapse=true}
+
+The **Kaplan-Meier (KM) curve** is a fundamental starting point in survival analysis because it allows us to:
+
+- **Visualize survival patterns** over time,
+- Compare groups (e.g., treatment vs control) using log-rank tests,
+- And understand the *overall shape* and drop-off of survival before making model-based assumptions.
+
+The KM method is **non-parametric**, which means it does **not assume any specific distribution** for survival times. It simply calculates the probability of surviving past a given time point based on the observed data.
+
+This makes it ideal as a **descriptive tool** and as a way to **check for potential group differences** *before* moving on to more complex models.
+
+By contrast, the **Cox proportional hazards model** is a **semi-parametric** model. It assumes:
+- A baseline hazard function (unspecified),
+- And that covariates have a *multiplicative effect* on the hazard over time.
+
+This adds **power and flexibility**, but also introduces assumptions — like the **proportional hazards** assumption — that must be checked.
+
+✅ So we start with KM to understand the data and get a rough idea of group differences — without assuming too much — before fitting a Cox model.
+:::
+
 
 ```{r}
 # Name the treatment groups
@@ -188,7 +207,59 @@ This shows how many participatns in each treatment group are still alive and unc
 Visually, if the curves separate early and remain apart, it suggests a potential treatment effect.
 :::
 
-# 📊 Cox Proportional Hazards Model
+# Cox Proportional Hazards Model
+
+The Cox proportional hazards model is a regression technique for analysing survival data. Unlike the Kaplan-Meier estimator, which is non-parametric and descriptive, the Cox model allows us to quantify the effect of multiple covariates on the hazard of an event — in this case, death.
+
+This model assumes that each covariate has a multiplicative effect on the hazard and that this effect is constant over time (the proportional hazards assumption). By estimating hazard ratios, we can assess whether variables like treatment type, age, or prior therapy are independently associated with better or worse survival outcomes.
+
+In this section, we begin with a simple model including only treatment group, and later expand to a multivariable model that includes continuous and categorical covariates. Each model is followed by diagnostic checks to assess validity and guide model refinement.
+
+::: {.callout-note title="Understanding the Cox Proportional Hazards Model" collapse=true}
+
+The **Cox proportional hazards model** (often just called the *Cox model*) is a cornerstone of survival analysis, allowing us to investigate how multiple variables influence the **risk (hazard)** of an event over time — without needing to specify the baseline hazard function.
+
+**💡 What is a Hazard?**  
+The hazard is the **instantaneous risk of the event** (e.g., death) at a given time, given that the individual has survived up to that point. The Cox model expresses this as:
+
+> _h(t | X) = h₀(t) × exp(β₁X₁ + β₂X₂ + ... + βₖXₖ)_
+
+Where:
+- _h(t | X)_ is the hazard at time _t_ for a subject with covariates _X_,
+- _h₀(t)_ is the **baseline hazard** (unspecified),
+- _β_ are the **coefficients** estimating the effect of each covariate.
+
+**🔍 Why Use the Cox Model Instead of Kaplan-Meier?**
+
+| Kaplan-Meier                             | Cox Model                                        |
+|------------------------------------------|--------------------------------------------------|
+| Non-parametric (no assumptions)          | Semi-parametric (assumes proportional hazards)   |
+| Describes survival by **groups only**    | Models the **effect of variables**               |
+| Great for **initial exploration**        | Great for **inference and prediction**           |
+| Can't adjust for **confounders**         | Can include **multiple covariates**              |
+| Visual tool                              | Inferential and predictive tool                  |
+
+In practice, it's common to start with a **Kaplan-Meier plot** to visualize survival, then use a **Cox model** to quantify the effect of predictors and control for confounding.
+
+**📏 What Does "Proportional Hazards" Mean?**  
+The Cox model assumes that the hazard ratio between two individuals is **constant over time**.  
+For example, if a treatment reduces the hazard by 30%, it is assumed to reduce it by 30% at every point in time. This is the **proportional hazards assumption**, and it **must be checked** using diagnostic tools like **Schoenfeld residuals**.
+
+**📊 What the Model Produces:**  
+- **Coefficients (β):** Log hazard ratios
+- **exp(β):** Hazard ratios (HR), easier to interpret
+- **p-values:** From the Wald test, testing whether β ≠ 0
+- **Global tests:** Likelihood ratio, Score (logrank), Wald
+
+Example:
+- `HR = 1.50` → 50% higher hazard  
+- `HR = 0.70` → 30% lower hazard
+
+**🧠 Summary:**  
+The Cox model is a flexible, interpretable, and robust way to analyze the effect of variables on survival, especially when you want to **adjust for multiple covariates**. However, it does require checking assumptions and being thoughtful about variable selection and transformations (e.g., linearity for continuous variables).
+
+:::
+
 
 ```{r}
 # Fit the Cox Proportional Hazards model
@@ -262,9 +333,29 @@ The Cox-adjusted survival curves for the Control and Intervention groups are alm
 The survival curves for the Control and Intervention groups overlap almost entirely in this plot. This is because the Cox proportional hazards model found no significant difference between the two groups in terms of survival (hazard ratio ≈ 1, *p* = 0.922). As a result, the model-predicted curves are nearly identical. The faint visibility of the Control group line is due to it being directly behind the Intervention group line.
 :::
 
-# 🔎 Model Diagnostics
+# Model Diagnostics
+
+Before interpreting the results of a Cox proportional hazards model, it is essential to verify that the model's underlying assumptions hold. The Cox model assumes that the effect of each covariate on the hazard is constant over time — the so-called **proportional hazards assumption** — and that **continuous variables have a linear relationship with the log hazard**. Violations of these assumptions can lead to incorrect or misleading conclusions.
+
+In this section, we apply a series of **diagnostic tools** to assess the validity of our model:
+- **Schoenfeld residuals** to check the proportional hazards assumption.
+- **Martingale residuals** to detect non-linearity and outliers.
+- **Functional form checks** to evaluate whether continuous variables such as age are correctly specified.
+- Where necessary, we apply **transformations** (e.g., splines) to better model the relationship between covariates and survival outcomes.
+
+These diagnostics ensure that the model remains a **valid and reliable tool** for making inferences about survival and covariate effects.
 
 ## Checking the Proportional Hazards Assumption
+
+The central assumption of the Cox proportional hazards model is that the **hazard ratios remain constant over time** — that is, the relative risk between any two individuals does not vary as time progresses. This is known as the **proportional hazards (PH) assumption**, and verifying it is a crucial step in validating the model.
+
+To assess this assumption, we use **Schoenfeld residuals**, which examine the time-dependent behavior of covariate effects. If the residuals show a systematic trend over time, it suggests that the effect of a covariate may change — violating the PH assumption.
+
+We assess proportionality in two ways:
+- **Statistical tests**: We use the `cox.zph()` function to perform a global test and individual tests for each covariate. A p-value < 0.05 indicates evidence against proportional hazards.
+- **Visual inspection**: Plots of scaled Schoenfeld residuals with a smoothed line allow us to visually assess whether the covariate effects change over time.
+
+If either the test or the plots suggest deviation from proportionality, we may need to consider **time-varying effects**, stratification, or alternative modeling strategies.
 
 ```{r}
 # Test the PH assumption
@@ -284,33 +375,35 @@ Although the p-values are slightly above the conventional significance threshold
 
 ## Schoenfeld Residuals Plot
 
+We visualize the scaled Schoenfeld residuals for each covariate to assess whether their effects on the hazard function remain constant over time. A roughly horizontal smoothed line near zero with confidence bands overlapping zero suggests the proportional hazards assumption holds.
+
 ```{r}
 plot(cox.zph(cox_model))
 ```
 
 ::: {.callout-note title="What the Visual Diagnostic Shows" collapse="true"}
 
-The y-axis: Scaled Schoenfeld residuals for trt. If the proportional hazards assumption holds, these residuals should fluctuate randomly around zero.
+*The y-axis:* Scaled Schoenfeld residuals for trt. If the proportional hazards assumption holds, these residuals should fluctuate randomly around zero.
 
-The x-axis: Time (or transformed time).
+*The x-axis:* Time (or transformed time).
 
-The line: A smoothed spline fit (typically a loess curve) showing the trend of residuals over time.
+*The line:* A smoothed spline fit (typically a loess curve) showing the trend of residuals over time.
 
-The confidence band: Helps you assess whether the trend significantly deviates from horizontal (i.e., no time-dependent effect).
+*The confidence band:* Helps you assess whether the trend significantly deviates from horizontal (i.e., no time-dependent effect).
 
-A flat line (slope ≈ 0): Suggests the hazard ratio for trt does not change over time — good!
+*A flat line (slope ≈ 0):* Suggests the hazard ratio for trt does not change over time — good!
 
-A wavy or sloped line: Suggests potential violation of the proportional hazards assumption — this would back up a significant p-value.
+*A wavy or sloped line:* Suggests potential violation of the proportional hazards assumption — this would back up a significant p-value.
 
-x-axis (Time): Time since baseline (likely in days, from your dataset).
+*x-axis (Time):* Time since baseline (likely in days, from your dataset).
 
-y-axis (Beta(t) for trt): Time-varying estimate of the log hazard ratio for the treatment group (trt), based on Schoenfeld residuals.
+*y-axis (Beta(t) for trt):* Time-varying estimate of the log hazard ratio for the treatment group (trt), based on Schoenfeld residuals.
 
-The solid black line: A smoothed curve showing how the estimated coefficient for trt might change over time.
+*The solid black line:* A smoothed curve showing how the estimated coefficient for trt might change over time.
 
-Dashed lines: Approximate 95% confidence bands around that smoothed estimate.
+*Dashed lines:* Approximate 95% confidence bands around that smoothed estimate.
 
-Open circles: Residuals for each individual event — they don't need to follow a pattern, but their distribution can hint at model fit.
+*Open circles:* Residuals for each individual event — they don't need to follow a pattern, but their distribution can hint at model fit.
 
 If the solid line is roughly flat and within the dashed lines, the effect of treatment does not change with time, and the PH assumption is reasonably upheld.
 
@@ -325,6 +418,31 @@ In our case, the line is gently curved, but still well within the dashed boundar
 To assess whether the proportional hazards (PH) assumption holds for the treatment variable (trt), we examined Schoenfeld residuals using both statistical and graphical diagnostics. The global test for proportionality yielded a p-value of 0.06, indicating no statistically significant violation of the PH assumption at the conventional α = 0.05 level, though it approaches significance. The smoothed residual plot for trt shows a relatively stable trend over time, with the estimated log hazard ratio remaining within the 95% confidence bands across the follow-up period. While there is some minor curvature in the smoothed line, it does not suggest substantial deviation from proportionality. These findings support the use of the Cox proportional hazards model for analyzing the effect of treatment on survival in this dataset.
 
 ## Martingale Residuals (for Functional Form of Covariates)
+
+Martingale residuals are plotted against continuous covariates to assess whether the Cox model’s assumption of a linear relationship on the log-hazard scale holds. Non-random patterns or curvature may suggest the need for transformations, such as splines.
+
+::: {callout-note title="Understanding Martingale Residuals" collapse=true}
+
+**Martingale residuals** are used to assess whether the **functional form** of a continuous covariate is correctly specified in a Cox proportional hazards model.
+
+**🔍 What are they?**  
+Martingale residuals represent the difference between the **observed number of events** and the **expected number of events** under the fitted model for each subject.  
+They range from **–∞ to +1** and are **asymmetrically distributed**.
+
+**📊 Why do we use them?**  
+To check the **linearity assumption**: the Cox model assumes that the covariate has a **linear effect on the log hazard**. If this is not true (e.g. the effect increases or decreases non-linearly), the model may misestimate risk.
+
+**✅ What should you look for in the plot?**  
+You typically plot Martingale residuals **against a continuous covariate** (e.g. age). Then:
+
+- A **random scatter** around the horizontal line at 0 suggests linearity is reasonable.  
+- A **systematic curve** (e.g., U-shaped, S-shaped) suggests **non-linearity** and the need for transformations (e.g., log(age), age², splines).
+
+**🧠 Practical Tip:**  
+Martingale residuals are **not symmetric**, so smooth trends can be hard to detect visually. It's a good idea to pair this check with **`ggcoxfunctional()`** or use **splines** to model nonlinear effects more flexibly.
+
+:::
+
 
 ```{r}
 # Generate Martingale residuals
@@ -376,8 +494,6 @@ The Martingale Residuals vs Linear Predictor plot helps us check the fit of our 
 
 Martingale residuals were plotted against the linear predictor to assess model fit. As expected with a binary treatment variable, the plot showed two vertical bands of points corresponding to the Control and Intervention groups. The residuals appeared symmetrically distributed around zero within each group, with no obvious non-linear patterns or systematic bias. This suggests the model's functional form for the treatment variable is appropriate.
 
-## Functional Form of Covariates
-
 ::: {.callout-tip title="Why we haven't checked the functional form of covariates" collapse="true"}
 
 The Cox model assumes a linear relationship between continuous covariates and the log hazard. In our current model, only the treatment group (`trt`) is included, which is a categorical variable. 
@@ -389,6 +505,20 @@ For now, since our model does not include continuous covariates, this step is no
 :::
 
 ## Additional Covariates
+
+To refine our model and better explain variability in survival outcomes, we now introduce additional covariates. Specifically, we will examine age (a continuous variable) and prior treatment history (a binary variable) to assess their independent effects and contributions to the model.
+
+::: {.callout-note title="Why Add Covariates to the Cox Model?" collapse=true}
+
+Adding covariates to a Cox proportional hazards model allows us to **control for confounding**, improve **predictive accuracy**, and explore **independent associations** between predictors and survival time.
+
+- **Control for confounding:** Variables like age or prior treatment may influence both the outcome and the treatment assignment. Including them helps isolate the effect of the treatment variable.
+- **Improve model fit:** Additional predictors can increase the explanatory power of the model, helping to reduce residual variability.
+- **Estimate adjusted effects:** By controlling for other covariates, we can determine the *independent* effect of each variable on the hazard of the event.
+
+✅ When building survival models, it's important to choose covariates based on clinical relevance and theoretical justification—not just statistical significance.
+
+:::
 
 # 🔀 Multivariable Cox Regression
 
@@ -1097,7 +1227,6 @@ This approach is especially useful for:
 
 📦 **Takeaway:**  
 Use ANOVA/LRT in Cox regression to guide decisions about **model complexity vs parsimony**, balancing better fit with interpretability.
-
 :::
 
 
@@ -1148,9 +1277,7 @@ A term plot shows how the **log hazard** (on the y-axis) changes with a covariat
 - Double-checking whether binary variables have any meaningful effect.
 
 🧠 _Tip:_ Term plots don't replace statistical tests, but they **visualize model estimates** clearly and intuitively.
-
 :::
-
 
 # 📈 Interaction or Additive Effects?
 # 🧾 Model Summary & Interpretation
