@@ -159,7 +159,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <ul class="collapse">
   <li><a href="#univariable-models" id="toc-univariable-models" class="nav-link" data-scroll-target="#univariable-models"><span class="header-section-number">4.1</span> Univariable Models</a>
   <ul class="collapse">
-  <li><a href="#treatment-only" id="toc-treatment-only" class="nav-link" data-scroll-target="#treatment-only"><span class="header-section-number">4.1.1</span> Treatment Only</a></li>
+  <li><a href="#treatment-group-only" id="toc-treatment-group-only" class="nav-link" data-scroll-target="#treatment-group-only"><span class="header-section-number">4.1.1</span> Treatment Group Only</a></li>
   <li><a href="#continuous-variable-age" id="toc-continuous-variable-age" class="nav-link" data-scroll-target="#continuous-variable-age"><span class="header-section-number">4.1.2</span> Continuous Variable: Age</a></li>
   <li><a href="#binary-variable-prior-treatment" id="toc-binary-variable-prior-treatment" class="nav-link" data-scroll-target="#binary-variable-prior-treatment"><span class="header-section-number">4.1.3</span> Binary Variable: Prior Treatment</a></li>
   </ul></li>
@@ -170,8 +170,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#model-comparison-linear-vs-spline-age-term" id="toc-model-comparison-linear-vs-spline-age-term" class="nav-link" data-scroll-target="#model-comparison-linear-vs-spline-age-term"><span class="header-section-number">4.2.3</span> Model Comparison: Linear vs Spline Age Term</a></li>
   </ul></li>
   </ul></li>
-  <li><a href="#interaction-or-additive-effects" id="toc-interaction-or-additive-effects" class="nav-link" data-scroll-target="#interaction-or-additive-effects"><span class="header-section-number">5</span> Interaction or Additive Effects?</a></li>
-  <li><a href="#model-summary-interpretation" id="toc-model-summary-interpretation" class="nav-link" data-scroll-target="#model-summary-interpretation"><span class="header-section-number">6</span> Model Summary &amp; Interpretation</a></li>
+  <li><a href="#interaction-or-additive-effects" id="toc-interaction-or-additive-effects" class="nav-link" data-scroll-target="#interaction-or-additive-effects"><span class="header-section-number">5</span> Interaction or Additive Effects?</a>
+  <ul class="collapse">
+  <li><a href="#interaction-of-treatment-and-age" id="toc-interaction-of-treatment-and-age" class="nav-link" data-scroll-target="#interaction-of-treatment-and-age"><span class="header-section-number">5.1</span> Interaction of Treatment and Age</a></li>
+  <li><a href="#interaction-of-treatment-and-prior-therapy" id="toc-interaction-of-treatment-and-prior-therapy" class="nav-link" data-scroll-target="#interaction-of-treatment-and-prior-therapy"><span class="header-section-number">5.2</span> Interaction of Treatment and Prior Therapy</a></li>
+  </ul></li>
+  <li><a href="#final-model-summary-interpretation" id="toc-final-model-summary-interpretation" class="nav-link" data-scroll-target="#final-model-summary-interpretation"><span class="header-section-number">6</span> Final Model Summary &amp; Interpretation</a></li>
   <li><a href="#conclusion" id="toc-conclusion" class="nav-link" data-scroll-target="#conclusion"><span class="header-section-number">7</span> Conclusion</a></li>
   <li><a href="#limitations" id="toc-limitations" class="nav-link" data-scroll-target="#limitations"><span class="header-section-number">8</span> Limitations</a></li>
   </ul>
@@ -664,6 +668,8 @@ trt=Intervention 68       64     63.5   0.00394   0.00823
 
  Chisq= 0  on 1 degrees of freedom, p= 0.9 </code></pre>
 </div>
+</div>
+<div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Extract the p-value</span></span>
@@ -803,8 +809,8 @@ The Cox model is a flexible, interpretable, and robust way to analyze the effect
 <section id="univariable-models" class="level2" data-number="4.1">
 <h2 data-number="4.1" class="anchored" data-anchor-id="univariable-models"><span class="header-section-number">4.1</span> Univariable Models</h2>
 <p>In this section, we will fit a series of univariable Cox models to assess the effect of individual covariates on survival. This allows us to understand the contribution of each variable before moving on to multivariable models.</p>
-<section id="treatment-only" class="level3" data-number="4.1.1">
-<h3 data-number="4.1.1" class="anchored" data-anchor-id="treatment-only"><span class="header-section-number">4.1.1</span> Treatment Only</h3>
+<section id="treatment-group-only" class="level3" data-number="4.1.1">
+<h3 data-number="4.1.1" class="anchored" data-anchor-id="treatment-group-only"><span class="header-section-number">4.1.1</span> Treatment Group Only</h3>
 <p>We begin with a univariable Cox model that includes only the treatment variable (<code>trt</code>). This allows us to assess the effect of treatment on survival without adjusting for any other covariates.</p>
 <div class="cell">
 <details class="code-fold">
@@ -930,7 +936,7 @@ Interpretation of Cox Table
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="veteran-lung-cancer-coxph_files/figure-html/unnamed-chunk-9-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="veteran-lung-cancer-coxph_files/figure-html/unnamed-chunk-10-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -1036,7 +1042,7 @@ Understanding Chi-Squared and p-values in PH Assumption Testing
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="veteran-lung-cancer-coxph_files/figure-html/unnamed-chunk-11-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="veteran-lung-cancer-coxph_files/figure-html/unnamed-chunk-12-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -1133,7 +1139,7 @@ Martingale residuals are <strong>not symmetric</strong>, so smooth trends can be
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="veteran-lung-cancer-coxph_files/figure-html/unnamed-chunk-12-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="veteran-lung-cancer-coxph_files/figure-html/unnamed-chunk-13-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -1412,14 +1418,14 @@ Interpreting Schoenfeld Residuals
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="veteran-lung-cancer-coxph_files/figure-html/unnamed-chunk-15-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="veteran-lung-cancer-coxph_files/figure-html/unnamed-chunk-16-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="veteran-lung-cancer-coxph_files/figure-html/unnamed-chunk-15-2.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="veteran-lung-cancer-coxph_files/figure-html/unnamed-chunk-16-2.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -1486,7 +1492,7 @@ How to Interpret Schoenfeld Residual Plots
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="veteran-lung-cancer-coxph_files/figure-html/unnamed-chunk-16-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="veteran-lung-cancer-coxph_files/figure-html/unnamed-chunk-17-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -1530,7 +1536,7 @@ In that case, consider modeling age using splines or transformations (e.g., <cod
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="veteran-lung-cancer-coxph_files/figure-html/unnamed-chunk-17-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="veteran-lung-cancer-coxph_files/figure-html/unnamed-chunk-18-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -1652,14 +1658,14 @@ GLOBAL  6.06  2 0.048</code></pre>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="veteran-lung-cancer-coxph_files/figure-html/unnamed-chunk-20-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="veteran-lung-cancer-coxph_files/figure-html/unnamed-chunk-21-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="veteran-lung-cancer-coxph_files/figure-html/unnamed-chunk-20-2.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="veteran-lung-cancer-coxph_files/figure-html/unnamed-chunk-21-2.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -1692,7 +1698,7 @@ GLOBAL  6.06  2 0.048</code></pre>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="veteran-lung-cancer-coxph_files/figure-html/unnamed-chunk-21-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="veteran-lung-cancer-coxph_files/figure-html/unnamed-chunk-22-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -1880,21 +1886,21 @@ GLOBAL  8.80  3 0.032</code></pre>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="veteran-lung-cancer-coxph_files/figure-html/unnamed-chunk-24-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="veteran-lung-cancer-coxph_files/figure-html/unnamed-chunk-25-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="veteran-lung-cancer-coxph_files/figure-html/unnamed-chunk-24-2.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="veteran-lung-cancer-coxph_files/figure-html/unnamed-chunk-25-2.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="veteran-lung-cancer-coxph_files/figure-html/unnamed-chunk-24-3.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="veteran-lung-cancer-coxph_files/figure-html/unnamed-chunk-25-3.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -1932,7 +1938,7 @@ GLOBAL  8.80  3 0.032</code></pre>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="veteran-lung-cancer-coxph_files/figure-html/unnamed-chunk-25-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="veteran-lung-cancer-coxph_files/figure-html/unnamed-chunk-26-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -1983,7 +1989,7 @@ What This Plot Tells Us
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="veteran-lung-cancer-coxph_files/figure-html/unnamed-chunk-26-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="veteran-lung-cancer-coxph_files/figure-html/unnamed-chunk-27-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -2165,21 +2171,21 @@ GLOBAL           8.84  5 0.116</code></pre>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="veteran-lung-cancer-coxph_files/figure-html/unnamed-chunk-29-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="veteran-lung-cancer-coxph_files/figure-html/unnamed-chunk-30-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="veteran-lung-cancer-coxph_files/figure-html/unnamed-chunk-29-2.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="veteran-lung-cancer-coxph_files/figure-html/unnamed-chunk-30-2.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="veteran-lung-cancer-coxph_files/figure-html/unnamed-chunk-29-3.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="veteran-lung-cancer-coxph_files/figure-html/unnamed-chunk-30-3.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -2214,7 +2220,7 @@ GLOBAL           8.84  5 0.116</code></pre>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="veteran-lung-cancer-coxph_files/figure-html/unnamed-chunk-30-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="veteran-lung-cancer-coxph_files/figure-html/unnamed-chunk-31-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -2293,32 +2299,32 @@ Use ANOVA/LRT in Cox regression to guide decisions about <strong>model complexit
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="veteran-lung-cancer-coxph_files/figure-html/unnamed-chunk-32-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="veteran-lung-cancer-coxph_files/figure-html/unnamed-chunk-33-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="veteran-lung-cancer-coxph_files/figure-html/unnamed-chunk-32-2.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="veteran-lung-cancer-coxph_files/figure-html/unnamed-chunk-33-2.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="veteran-lung-cancer-coxph_files/figure-html/unnamed-chunk-32-3.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="veteran-lung-cancer-coxph_files/figure-html/unnamed-chunk-33-3.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 </div>
-<p>The term plots from the spline-based Cox model provide a visual assessment of each covariate’s partial effect on the log hazard:</p>
-<pre><code>Age (modeled using natural splines with 3 degrees of freedom) shows a non-linear relationship with the log hazard. The plot reveals a shallow U-shaped curve, suggesting a modest protective effect around age 55, with increased hazard at both younger and older extremes. However, the confidence bands are relatively wide, indicating some uncertainty in the effect.
-
-Treatment Group (trt) appears as two flat lines corresponding to the control and intervention groups. The overlap of the confidence bands with zero implies no statistically significant difference in log hazard between groups.
-
-Prior Treatment (prior) similarly shows a nearly flat effect line across both levels (0 and 1), with confidence intervals that comfortably include zero. This suggests no strong independent effect of prior treatment on survival.</code></pre>
-<p>These visualizations are consistent with the statistical output, reinforcing the conclusion that age shows the most complex effect, while treatment and prior therapy do not demonstrate significant associations with survival in this model.</p>
+<p>The term plots from the spline-based Cox proportional hazards model illustrate the partial effect of each covariate on the log hazard:</p>
+<ul>
+<li><p>Age (modeled using natural splines with 3 degrees of freedom) exhibits a non-linear association with the log hazard. The curve displays a shallow U-shape, with the lowest hazard around age 55, and a gradual increase in hazard at both younger and older ages. While the trend is suggestive, the wide confidence intervals—particularly at the distribution tails—indicate uncertainty in the precise shape of this relationship.</p></li>
+<li><p>Treatment Group (trt) is represented as a binary variable with two flat lines, one for each group. The narrow confidence intervals overlap with zero, implying no statistically significant difference in log hazard between the intervention and control arms in this model.</p></li>
+<li><p>Prior Treatment (prior) also shows a flat trend across the range of prior treatments, with confidence bands consistently containing zero. This suggests that the number of prior therapies does not contribute meaningfully to hazard estimation when adjusting for age and treatment.</p></li>
+</ul>
+<p>These visualizations support the statistical findings from the model summary. Age is the only covariate showing a potentially complex, non-linear effect, while treatment and prior exposure show no clear independent impact on survival in this cohort.</p>
 <div class="callout callout-style-default callout-note callout-titled" title="How to Interpret Term Plots in Cox Models">
 <div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-34-contents" aria-controls="callout-34" aria-expanded="false" aria-label="Toggle callout">
 <div class="callout-icon-container">
@@ -2373,9 +2379,282 @@ A term plot shows how the <strong>log hazard</strong> (on the y-axis) changes wi
 </section>
 <section id="interaction-or-additive-effects" class="level1" data-number="5">
 <h1 data-number="5"><span class="header-section-number">5</span> Interaction or Additive Effects?</h1>
+<p>In Cox regression, interaction terms allow us to test whether the effect of one covariate on the hazard changes depending on the level of another covariate. If significant, this suggests a departure from simple additivity and may require stratified or more complex modelling.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Understanding Interaction Effects in Cox Models">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-35-contents" aria-controls="callout-35" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Understanding Interaction Effects in Cox Models
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-35" class="callout-35-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>In regression models—including <strong>Cox proportional hazards models</strong>—an <em>interaction effect</em> tests whether the relationship between a covariate and the outcome changes depending on the level of another covariate.</p>
+<p>In practical terms, interaction terms allow us to ask:<br>
+&gt; <em>“Does the effect of Variable A on survival depend on Variable B?”</em></p>
+<p><em>Why Test for Interaction?</em></p>
+<ul>
+<li>To explore whether <strong>treatment effects vary across subgroups</strong> (e.g., age, gender, biomarker levels).</li>
+<li>To identify <strong>non-additive relationships</strong> that a main-effects-only model would miss.</li>
+<li>To <strong>refine risk stratification</strong> or support personalized approaches to care.</li>
+</ul>
+<p><em>What It Tells Us</em></p>
+<p>In the Cox model, including an interaction (e.g., <code>treatment * age</code>) allows the <strong>hazard ratio for treatment</strong> to vary at different values of age. If the interaction term is statistically significant, it suggests the <strong>effect of treatment is modified by age</strong>.</p>
+<p>This can reveal: - A treatment that works well in younger patients but poorly in older ones. - A covariate that only has an impact in the presence of another factor. - Complex survival dynamics that are <strong>hidden in simpler additive models</strong>.</p>
+<p><em>Interpreting Output</em></p>
+<ul>
+<li>A significant interaction coefficient indicates a <strong>departure from additivity</strong>.</li>
+<li>It’s essential to <strong>cautiously interpret main effects</strong> in the presence of interactions, as their meaning may be conditional.</li>
+<li>Visualization (e.g., stratified survival curves or effect plots) can aid interpretation.</li>
+</ul>
+<p><em>When to Use</em></p>
+<ul>
+<li>After fitting and interpreting a main-effects model.</li>
+<li>When clinical theory or prior evidence suggests effect modification.</li>
+<li>When residual plots or diagnostics hint at <strong>unexplained heterogeneity</strong>.</li>
+</ul>
+</div>
+</div>
+</div>
+<section id="interaction-of-treatment-and-age" class="level2" data-number="5.1">
+<h2 data-number="5.1" class="anchored" data-anchor-id="interaction-of-treatment-and-age"><span class="header-section-number">5.1</span> Interaction of Treatment and Age</h2>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb49"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Fit a cox model with interaction between treatment and age </span></span>
+<span id="cb49-2"><a href="#cb49-2" aria-hidden="true" tabindex="-1"></a>cox_interaction <span class="ot">&lt;-</span> <span class="fu">coxph</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> trt <span class="sc">*</span> <span class="fu">ns</span>(age, <span class="at">df =</span> <span class="dv">3</span>) <span class="sc">+</span> prior, <span class="at">data =</span> veteran)</span>
+<span id="cb49-3"><a href="#cb49-3" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(cox_interaction)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Call:
+coxph(formula = Surv(time, status) ~ trt * ns(age, df = 3) + 
+    prior, data = veteran)
+
+  n= 137, number of events= 128 
+
+                                     coef exp(coef) se(coef)      z Pr(&gt;|z|)  
+trtIntervention                   1.73222   5.65321  0.75308  2.300   0.0214 *
+ns(age, df = 3)1                  0.03919   1.03997  0.44791  0.087   0.9303  
+ns(age, df = 3)2                  0.37614   1.45666  1.44593  0.260   0.7948  
+ns(age, df = 3)3                  0.82507   2.28205  0.99671  0.828   0.4078  
+prior                            -0.01055   0.98950  0.02089 -0.505   0.6134  
+trtIntervention:ns(age, df = 3)1 -0.12095   0.88608  0.71003 -0.170   0.8647  
+trtIntervention:ns(age, df = 3)2 -4.14241   0.01588  1.98843 -2.083   0.0372 *
+trtIntervention:ns(age, df = 3)3 -0.08986   0.91406  1.28652 -0.070   0.9443  
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+                                 exp(coef) exp(-coef) lower .95 upper .95
+trtIntervention                    5.65321     0.1769 1.2920266   24.7354
+ns(age, df = 3)1                   1.03997     0.9616 0.4322778    2.5019
+ns(age, df = 3)2                   1.45666     0.6865 0.0856215   24.7818
+ns(age, df = 3)3                   2.28205     0.4382 0.3235341   16.0964
+prior                              0.98950     1.0106 0.9498124    1.0309
+trtIntervention:ns(age, df = 3)1   0.88608     1.1286 0.2203410    3.5633
+trtIntervention:ns(age, df = 3)2   0.01588    62.9546 0.0003224    0.7826
+trtIntervention:ns(age, df = 3)3   0.91406     1.0940 0.0734321   11.3779
+
+Concordance= 0.569  (se = 0.029 )
+Likelihood ratio test= 14.65  on 8 df,   p=0.07
+Wald test            = 15.79  on 8 df,   p=0.05
+Score (logrank) test = 16.63  on 8 df,   p=0.03</code></pre>
+</div>
+</div>
+<p>We tested for interaction between treatment group and age (modeled using natural splines with 3 degrees of freedom) to explore whether the effect of treatment on survival varied across age groups. The interaction model revealed a statistically significant interaction for the second spline basis term (p = 0.037), suggesting a possible age-dependent treatment effect.</p>
+<p>The overall Wald test for the model approached significance (p = 0.05), while the likelihood ratio test was marginal (p = 0.07), indicating that the model with interaction terms may provide a better fit than the additive model. These findings suggest that the benefit (or lack thereof) of treatment may differ depending on patient age, warranting further exploration or stratified modelling.</p>
+<p><strong>Schoenfeld Residuals for Interaction Model</strong></p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb51"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Test proportional hazards assumption for the interaction model</span></span>
+<span id="cb51-2"><a href="#cb51-2" aria-hidden="true" tabindex="-1"></a><span class="fu">cox.zph</span>(cox_interaction)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>                    chisq df    p
+trt                  1.39  1 0.24
+ns(age, df = 3)      3.90  3 0.27
+prior                2.42  1 0.12
+trt:ns(age, df = 3)  5.37  3 0.15
+GLOBAL               8.94  8 0.35</code></pre>
+</div>
+</div>
+<p>The Schoenfeld residual test was used to assess whether the proportional hazards assumption holds for each covariate and interaction term in the model.</p>
+<ul>
+<li><p>trt: χ² = 1.39, p = 0.24 → No evidence of time-varying effects for treatment group.</p></li>
+<li><p>ns(age, df = 3): χ² = 3.90, p = 0.27 → The spline-transformed age term shows no strong time dependency.</p></li>
+<li><p>prior: χ² = 2.42, p = 0.12 → Also not statistically significant.</p></li>
+<li><p>trt × ns(age, df = 3): χ² = 5.37, p = 0.15 → The interaction between age and treatment shows no significant violation of proportionality either.</p></li>
+<li><p>GLOBAL test: χ² = 8.94 on 8 df, p = 0.35 → The model as a whole satisfies the PH assumption.</p></li>
+</ul>
+<p>There is no strong evidence that the proportional hazards assumption is violated in this interaction model. The covariate effects, including the interaction, appear stable over time.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb53"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Visual check of Schoenfeld residuals for interaction model</span></span>
+<span id="cb53-2"><a href="#cb53-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">cox.zph</span>(cox_interaction))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="veteran-lung-cancer-coxph_files/figure-html/unnamed-chunk-36-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="veteran-lung-cancer-coxph_files/figure-html/unnamed-chunk-36-2.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="veteran-lung-cancer-coxph_files/figure-html/unnamed-chunk-36-3.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="veteran-lung-cancer-coxph_files/figure-html/unnamed-chunk-36-4.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>The global test using cox.zph() indicated no significant violation of the PH assumption (χ² = 8.94, df = 8, p = 0.35). Individual covariate tests also returned non-significant p-values, suggesting that the estimated hazard ratios remain approximately constant over time.</p>
+<p>Visual inspection of the Schoenfeld residual plots supported this conclusion. The smoothed curves for treatment, age (spline terms), prior treatment, and their interaction remained relatively flat and within their 95% confidence bands. While a few outliers were present—particularly in the treatment and age components—these did not indicate strong evidence of non-proportionality.</p>
+<p>Taken together, these results suggest that the proportional hazards assumption is reasonably met for all terms in the interaction model.</p>
+<p><strong>Martingale Residuals for Interaction Model</strong></p>
+<p>The Martingale residuals from the interaction model were plotted against the linear predictor (log hazard) to assess model fit and identify any potential patterns or outliers.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb54"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Residuals vs linear predictor</span></span>
+<span id="cb54-2"><a href="#cb54-2" aria-hidden="true" tabindex="-1"></a>veteran<span class="sc">$</span>martingale_interaction <span class="ot">&lt;-</span> <span class="fu">residuals</span>(cox_interaction, <span class="at">type =</span> <span class="st">"martingale"</span>)</span>
+<span id="cb54-3"><a href="#cb54-3" aria-hidden="true" tabindex="-1"></a>veteran<span class="sc">$</span>linear_pred_interaction <span class="ot">&lt;-</span> <span class="fu">predict</span>(cox_interaction, <span class="at">type =</span> <span class="st">"lp"</span>)</span>
+<span id="cb54-4"><a href="#cb54-4" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(veteran, <span class="fu">aes</span>(<span class="at">x =</span> linear_pred_interaction, <span class="at">y =</span> martingale_interaction, <span class="at">color =</span> trt)) <span class="sc">+</span></span>
+<span id="cb54-5"><a href="#cb54-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.6</span>) <span class="sc">+</span></span>
+<span id="cb54-6"><a href="#cb54-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> <span class="dv">0</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">color =</span> <span class="st">"grey30"</span>) <span class="sc">+</span></span>
+<span id="cb54-7"><a href="#cb54-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">13</span>) <span class="sc">+</span></span>
+<span id="cb54-8"><a href="#cb54-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb54-9"><a href="#cb54-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Martingale Residuals vs Linear Predictor</span><span class="sc">\n</span><span class="st">(Interaction Model)"</span>,</span>
+<span id="cb54-10"><a href="#cb54-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Linear Predictor (Log Hazard)"</span>,</span>
+<span id="cb54-11"><a href="#cb54-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Martingale Residual"</span>,</span>
+<span id="cb54-12"><a href="#cb54-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">color =</span> <span class="st">"Treatment Group"</span></span>
+<span id="cb54-13"><a href="#cb54-13" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb54-14"><a href="#cb54-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"Control"</span> <span class="ot">=</span> <span class="st">"#A569BD"</span>, <span class="st">"Intervention"</span> <span class="ot">=</span> <span class="st">"#45B39D"</span>)) <span class="sc">+</span></span>
+<span id="cb54-15"><a href="#cb54-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">plot.title =</span> <span class="fu">element_text</span>(<span class="at">hjust =</span> <span class="fl">0.5</span>, <span class="at">face =</span> <span class="st">"bold"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="veteran-lung-cancer-coxph_files/figure-html/unnamed-chunk-37-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>The Martingale residuals plot from the interaction model reveals a concentration of predicted log hazard values for the control group between 0.5 and 1.0, whereas predictions for the intervention group span a wider range. This may reflect the influence of the age-by-treatment interaction term, which adds complexity primarily for patients receiving the intervention. The residuals themselves are randomly scattered around zero, suggesting that the functional form of the covariates is appropriately specified and that no major nonlinearity remains unaccounted for.</p>
+<p><strong>Deviance Residuals for Interaction Model</strong></p>
+<p>Deviance residuals were generated to further assess the model fit and identify any potential outliers or influential observations.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Understanding Deviance Residuals in Cox Models">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-36-contents" aria-controls="callout-36" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Understanding Deviance Residuals in Cox Models
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-36" class="callout-36-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p><strong>Deviance residuals</strong> are a type of diagnostic measure used to assess how well a Cox proportional hazards model fits the observed survival data. Each deviance residual reflects the discrepancy between the observed outcome (event or censoring) and what the model predicts for an individual, after accounting for all covariates.</p>
+<p>🔍 Why we use them: - <strong>Outlier detection</strong>: Large residuals (positive or negative) may indicate subjects whose survival times were poorly predicted by the model. - <strong>Model fit check</strong>: If residuals cluster systematically or display non-random patterns when plotted against the linear predictor, it may suggest issues such as: - Mis-specification of functional form (e.g., nonlinear effects not properly captured), - Omitted interactions or variables, - Violation of model assumptions.</p>
+<p>📊 How to interpret: - Deviance residuals are approximately normally distributed around 0. - Values far from zero may indicate poor fit for specific observations. - A balanced, symmetrical scatter around the horizontal axis suggests a well-fitting model.</p>
+<p>🧠 When to use: - After fitting a Cox model, especially when refining the covariate structure. - In combination with <strong>martingale</strong> and <strong>Schoenfeld residuals</strong> to build a comprehensive diagnostic view. - Before finalizing your model, particularly if you are considering transformations or interactions.</p>
+<p>💡 Bonus tip: Unlike martingale residuals, deviance residuals are <strong>symmetrically distributed</strong> and therefore better suited for identifying both under- and over-predictions, making them particularly useful for graphical diagnostics.</p>
+</div>
+</div>
+</div>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb55"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Deviance residuals</span></span>
+<span id="cb55-2"><a href="#cb55-2" aria-hidden="true" tabindex="-1"></a>veteran<span class="sc">$</span>deviance_interaction <span class="ot">&lt;-</span> <span class="fu">residuals</span>(cox_interaction, <span class="at">type =</span> <span class="st">"deviance"</span>)</span>
+<span id="cb55-3"><a href="#cb55-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot deviance residuals</span></span>
+<span id="cb55-4"><a href="#cb55-4" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(veteran, <span class="fu">aes</span>(<span class="at">x =</span> linear_pred_interaction, <span class="at">y =</span> deviance_interaction, <span class="at">color =</span> trt)) <span class="sc">+</span></span>
+<span id="cb55-5"><a href="#cb55-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">position =</span> <span class="fu">position_jitter</span>(<span class="at">width =</span> <span class="fl">0.1</span>), <span class="at">alpha =</span> <span class="fl">0.6</span>) <span class="sc">+</span> <span class="co"># Adding jitter to avoid overlap</span></span>
+<span id="cb55-6"><a href="#cb55-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> <span class="dv">0</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">color =</span> <span class="st">"grey30"</span>) <span class="sc">+</span></span>
+<span id="cb55-7"><a href="#cb55-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">13</span>) <span class="sc">+</span></span>
+<span id="cb55-8"><a href="#cb55-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb55-9"><a href="#cb55-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Deviance Residuals vs Linear Predictor</span><span class="sc">\n</span><span class="st">(Interaction Model)"</span>,</span>
+<span id="cb55-10"><a href="#cb55-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Linear Predictor (Log Hazard)"</span>,</span>
+<span id="cb55-11"><a href="#cb55-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Deviance Residual"</span>,</span>
+<span id="cb55-12"><a href="#cb55-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">color =</span> <span class="st">"Treatment Group"</span></span>
+<span id="cb55-13"><a href="#cb55-13" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb55-14"><a href="#cb55-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"Control"</span> <span class="ot">=</span> <span class="st">"#A569BD"</span>, <span class="st">"Intervention"</span> <span class="ot">=</span> <span class="st">"#45B39D"</span>)) <span class="sc">+</span></span>
+<span id="cb55-15"><a href="#cb55-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">plot.title =</span> <span class="fu">element_text</span>(<span class="at">hjust =</span> <span class="fl">0.5</span>, <span class="at">face =</span> <span class="st">"bold"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="veteran-lung-cancer-coxph_files/figure-html/unnamed-chunk-38-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>The deviance residual plot provides a diagnostic check on the adequacy of the Cox proportional hazards model that includes an interaction between treatment and age. In this plot, residuals are symmetrically distributed around zero with no discernible curvature or trend, suggesting that the model fits the data reasonably well.</p>
+<p>Notably, the intervention group shows a broader range of linear predictor values (i.e., estimated log hazard), indicating greater variability in predicted risk compared to the control group, which clusters tightly between 0.5 and 1.0. Despite this asymmetry in predictor spread, the vertical dispersion of residuals remains balanced, and no strong outliers or patterns emerge. This supports the appropriateness of the interaction model and suggests no serious violations of model assumptions related to functional form or influential observations.</p>
+<p>Overall, the deviance residuals confirm that the model adequately captures the observed survival data, with no clear evidence of misfit or heteroscedasticity.</p>
 </section>
-<section id="model-summary-interpretation" class="level1" data-number="6">
-<h1 data-number="6"><span class="header-section-number">6</span> Model Summary &amp; Interpretation</h1>
+<section id="interaction-of-treatment-and-prior-therapy" class="level2" data-number="5.2">
+<h2 data-number="5.2" class="anchored" data-anchor-id="interaction-of-treatment-and-prior-therapy"><span class="header-section-number">5.2</span> Interaction of Treatment and Prior Therapy</h2>
+<p>Prior treatments might alter a patient’s response to new therapies (e.g., due to resistance, immune suppression, or cumulative toxicity).</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb56"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Fit a cox model with interaction between treatment and prior therapy</span></span>
+<span id="cb56-2"><a href="#cb56-2" aria-hidden="true" tabindex="-1"></a>cox_interaction_prior <span class="ot">&lt;-</span> <span class="fu">coxph</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> trt <span class="sc">*</span> prior <span class="sc">+</span> <span class="fu">ns</span>(age, <span class="at">df =</span> <span class="dv">3</span>), <span class="at">data =</span> veteran)</span>
+<span id="cb56-3"><a href="#cb56-3" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(cox_interaction_prior)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Call:
+coxph(formula = Surv(time, status) ~ trt * prior + ns(age, df = 3), 
+    data = veteran)
+
+  n= 137, number of events= 128 
+
+                          coef exp(coef) se(coef)      z Pr(&gt;|z|)
+trtIntervention        0.26788   1.30720  0.22118  1.211    0.226
+prior                  0.02017   1.02038  0.02739  0.737    0.461
+ns(age, df = 3)1      -0.07645   0.92640  0.34494 -0.222    0.825
+ns(age, df = 3)2      -1.44497   0.23575  1.00657 -1.436    0.151
+ns(age, df = 3)3       0.88992   2.43494  0.61682  1.443    0.149
+trtIntervention:prior -0.06206   0.93982  0.04149 -1.496    0.135
+
+                      exp(coef) exp(-coef) lower .95 upper .95
+trtIntervention          1.3072     0.7650   0.84736     2.017
+prior                    1.0204     0.9800   0.96705     1.077
+ns(age, df = 3)1         0.9264     1.0794   0.47118     1.821
+ns(age, df = 3)2         0.2358     4.2417   0.03278     1.695
+ns(age, df = 3)3         2.4349     0.4107   0.72686     8.157
+trtIntervention:prior    0.9398     1.0640   0.86642     1.019
+
+Concordance= 0.561  (se = 0.03 )
+Likelihood ratio test= 11.26  on 6 df,   p=0.08
+Wald test            = 11.23  on 6 df,   p=0.08
+Score (logrank) test = 11.51  on 6 df,   p=0.07</code></pre>
+</div>
+</div>
+<p>A Cox proportional hazards model including an interaction between treatment and prior therapy was fit to assess potential effect modification. The interaction term (trt × prior) yielded a hazard ratio of 0.94 (95% CI: 0.87–1.02, p = 0.135), suggesting that the effect of treatment may be slightly attenuated in patients who had prior therapy, although this did not reach statistical significance. Model-level tests (LR, Wald, and Score) were borderline (p = 0.07–0.08), indicating weak evidence that the interaction model may offer improved fit. These findings suggest a potential interaction worth exploring in larger or more powered studies, but are not conclusive in this sample.</p>
+</section>
+</section>
+<section id="final-model-summary-interpretation" class="level1" data-number="6">
+<h1 data-number="6"><span class="header-section-number">6</span> Final Model Summary &amp; Interpretation</h1>
 </section>
 <section id="conclusion" class="level1" data-number="7">
 <h1 data-number="7"><span class="header-section-number">7</span> Conclusion</h1>

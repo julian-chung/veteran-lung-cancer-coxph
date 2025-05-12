@@ -224,10 +224,11 @@ In the context of **Cox proportional hazards analysis**, the log-rank test is of
 # Perform the log-rank test
 log_rank_test <- survdiff(surv_obj ~ trt, data = veteran)
 log_rank_test
+```
 
+```{r}
 # Extract the p-value
 1 - pchisq(log_rank_test$chisq, df = length(log_rank_test$n) - 1)
-
 ```
 
 A log-rank test was performed to compare survival distributions between the control and intervention treatment groups. The test yielded a chi-square statistic of 0.008 with 1 degree of freedom, resulting in a p-value of 0.93. This indicates no statistically significant difference in survival between the two treatment arms. The observed and expected number of events (deaths) were nearly identical in both groups, further supporting the conclusion that survival outcomes did not differ meaningfully between treatments in this sample.
@@ -331,7 +332,7 @@ The Cox model is a flexible, interpretable, and robust way to analyze the effect
 
 In this section, we will fit a series of univariable Cox models to assess the effect of individual covariates on survival. This allows us to understand the contribution of each variable before moving on to multivariable models.
 
-### Treatment Only
+### Treatment Group Only
 
 We begin with a univariable Cox model that includes only the treatment variable (`trt`). This allows us to assess the effect of treatment on survival without adjusting for any other covariates.
 
@@ -1346,15 +1347,15 @@ Use ANOVA/LRT in Cox regression to guide decisions about **model complexity vs p
 termplot(cox_spline, se = TRUE, col.term = "blue")
 ```
 
-The term plots from the spline-based Cox model provide a visual assessment of each covariate's partial effect on the log hazard:
+The term plots from the spline-based Cox proportional hazards model illustrate the partial effect of each covariate on the log hazard:
 
-    Age (modeled using natural splines with 3 degrees of freedom) shows a non-linear relationship with the log hazard. The plot reveals a shallow U-shaped curve, suggesting a modest protective effect around age 55, with increased hazard at both younger and older extremes. However, the confidence bands are relatively wide, indicating some uncertainty in the effect.
+- Age (modeled using natural splines with 3 degrees of freedom) exhibits a non-linear association with the log hazard. The curve displays a shallow U-shape, with the lowest hazard around age 55, and a gradual increase in hazard at both younger and older ages. While the trend is suggestive, the wide confidence intervals—particularly at the distribution tails—indicate uncertainty in the precise shape of this relationship.
 
-    Treatment Group (trt) appears as two flat lines corresponding to the control and intervention groups. The overlap of the confidence bands with zero implies no statistically significant difference in log hazard between groups.
+- Treatment Group (trt) is represented as a binary variable with two flat lines, one for each group. The narrow confidence intervals overlap with zero, implying no statistically significant difference in log hazard between the intervention and control arms in this model.
 
-    Prior Treatment (prior) similarly shows a nearly flat effect line across both levels (0 and 1), with confidence intervals that comfortably include zero. This suggests no strong independent effect of prior treatment on survival.
+- Prior Treatment (prior) also shows a flat trend across the range of prior treatments, with confidence bands consistently containing zero. This suggests that the number of prior therapies does not contribute meaningfully to hazard estimation when adjusting for age and treatment.
 
-These visualizations are consistent with the statistical output, reinforcing the conclusion that age shows the most complex effect, while treatment and prior therapy do not demonstrate significant associations with survival in this model.
+These visualizations support the statistical findings from the model summary. Age is the only covariate showing a potentially complex, non-linear effect, while treatment and prior exposure show no clear independent impact on survival in this cohort.
 
 ::: {.callout-note title="How to Interpret Term Plots in Cox Models" collapse="true"}
 
@@ -1392,7 +1393,179 @@ A term plot shows how the **log hazard** (on the y-axis) changes with a covariat
 :::
 
 # Interaction or Additive Effects?
-# Model Summary & Interpretation
+
+In Cox regression, interaction terms allow us to test whether the effect of one covariate on the hazard changes depending on the level of another covariate. If significant, this suggests a departure from simple additivity and may require stratified or more complex modelling. 
+
+::: {.callout-note title="Understanding Interaction Effects in Cox Models" collapse=true}
+
+In regression models—including **Cox proportional hazards models**—an *interaction effect* tests whether the relationship between a covariate and the outcome changes depending on the level of another covariate.
+
+In practical terms, interaction terms allow us to ask:  
+> *“Does the effect of Variable A on survival depend on Variable B?”*
+
+*Why Test for Interaction?*
+
+- To explore whether **treatment effects vary across subgroups** (e.g., age, gender, biomarker levels).
+- To identify **non-additive relationships** that a main-effects-only model would miss.
+- To **refine risk stratification** or support personalized approaches to care.
+
+*What It Tells Us*
+
+In the Cox model, including an interaction (e.g., `treatment * age`) allows the **hazard ratio for treatment** to vary at different values of age. If the interaction term is statistically significant, it suggests the **effect of treatment is modified by age**.
+
+This can reveal:
+- A treatment that works well in younger patients but poorly in older ones.
+- A covariate that only has an impact in the presence of another factor.
+- Complex survival dynamics that are **hidden in simpler additive models**.
+
+*Interpreting Output*
+
+- A significant interaction coefficient indicates a **departure from additivity**.
+- It's essential to **cautiously interpret main effects** in the presence of interactions, as their meaning may be conditional.
+- Visualization (e.g., stratified survival curves or effect plots) can aid interpretation.
+
+*When to Use*
+
+- After fitting and interpreting a main-effects model.
+- When clinical theory or prior evidence suggests effect modification.
+- When residual plots or diagnostics hint at **unexplained heterogeneity**.
+
+:::
+
+## Interaction of Treatment and Age
+
+```{r}
+# Fit a cox model with interaction between treatment and age 
+cox_interaction <- coxph(Surv(time, status) ~ trt * ns(age, df = 3) + prior, data = veteran)
+summary(cox_interaction)
+```
+
+We tested for interaction between treatment group and age (modeled using natural splines with 3 degrees of freedom) to explore whether the effect of treatment on survival varied across age groups. The interaction model revealed a statistically significant interaction for the second spline basis term (p = 0.037), suggesting a possible age-dependent treatment effect.
+
+The overall Wald test for the model approached significance (p = 0.05), while the likelihood ratio test was marginal (p = 0.07), indicating that the model with interaction terms may provide a better fit than the additive model. These findings suggest that the benefit (or lack thereof) of treatment may differ depending on patient age, warranting further exploration or stratified modelling.
+
+**Schoenfeld Residuals for Interaction Model**
+
+```{r}
+# Test proportional hazards assumption for the interaction model
+cox.zph(cox_interaction)
+```
+
+The Schoenfeld residual test was used to assess whether the proportional hazards assumption holds for each covariate and interaction term in the model.
+
+- trt: χ² = 1.39, p = 0.24 → No evidence of time-varying effects for treatment group.
+
+- ns(age, df = 3): χ² = 3.90, p = 0.27 → The spline-transformed age term shows no strong time dependency.
+
+- prior: χ² = 2.42, p = 0.12 → Also not statistically significant.
+
+- trt × ns(age, df = 3): χ² = 5.37, p = 0.15 → The interaction between age and treatment shows no significant violation of proportionality either.
+
+- GLOBAL test: χ² = 8.94 on 8 df, p = 0.35 → The model as a whole satisfies the PH assumption.
+
+There is no strong evidence that the proportional hazards assumption is violated in this interaction model. The covariate effects, including the interaction, appear stable over time.
+
+```{r}
+# Visual check of Schoenfeld residuals for interaction model
+plot(cox.zph(cox_interaction))
+```
+
+The global test using cox.zph() indicated no significant violation of the PH assumption (χ² = 8.94, df = 8, p = 0.35). Individual covariate tests also returned non-significant p-values, suggesting that the estimated hazard ratios remain approximately constant over time.
+
+Visual inspection of the Schoenfeld residual plots supported this conclusion. The smoothed curves for treatment, age (spline terms), prior treatment, and their interaction remained relatively flat and within their 95% confidence bands. While a few outliers were present—particularly in the treatment and age components—these did not indicate strong evidence of non-proportionality.
+
+Taken together, these results suggest that the proportional hazards assumption is reasonably met for all terms in the interaction model.
+
+**Martingale Residuals for Interaction Model**
+
+The Martingale residuals from the interaction model were plotted against the linear predictor (log hazard) to assess model fit and identify any potential patterns or outliers.
+
+```{r}
+# Residuals vs linear predictor
+veteran$martingale_interaction <- residuals(cox_interaction, type = "martingale")
+veteran$linear_pred_interaction <- predict(cox_interaction, type = "lp")
+ggplot(veteran, aes(x = linear_pred_interaction, y = martingale_interaction, color = trt)) +
+  geom_point(alpha = 0.6) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "grey30") +
+  theme_minimal(base_size = 13) +
+  labs(
+    title = "Martingale Residuals vs Linear Predictor\n(Interaction Model)",
+    x = "Linear Predictor (Log Hazard)",
+    y = "Martingale Residual",
+    color = "Treatment Group"
+  ) +
+  scale_color_manual(values = c("Control" = "#A569BD", "Intervention" = "#45B39D")) +
+  theme(plot.title = element_text(hjust = 0.5, face = "bold"))
+```
+
+The Martingale residuals plot from the interaction model reveals a concentration of predicted log hazard values for the control group between 0.5 and 1.0, whereas predictions for the intervention group span a wider range. This may reflect the influence of the age-by-treatment interaction term, which adds complexity primarily for patients receiving the intervention. The residuals themselves are randomly scattered around zero, suggesting that the functional form of the covariates is appropriately specified and that no major nonlinearity remains unaccounted for.
+
+**Deviance Residuals for Interaction Model**
+
+Deviance residuals were generated to further assess the model fit and identify any potential outliers or influential observations.
+
+::: {.callout-note title="Understanding Deviance Residuals in Cox Models" collapse=true}
+
+**Deviance residuals** are a type of diagnostic measure used to assess how well a Cox proportional hazards model fits the observed survival data. Each deviance residual reflects the discrepancy between the observed outcome (event or censoring) and what the model predicts for an individual, after accounting for all covariates.
+
+🔍 Why we use them:
+- **Outlier detection**: Large residuals (positive or negative) may indicate subjects whose survival times were poorly predicted by the model.
+- **Model fit check**: If residuals cluster systematically or display non-random patterns when plotted against the linear predictor, it may suggest issues such as:
+  - Mis-specification of functional form (e.g., nonlinear effects not properly captured),
+  - Omitted interactions or variables,
+  - Violation of model assumptions.
+
+📊 How to interpret:
+- Deviance residuals are approximately normally distributed around 0.
+- Values far from zero may indicate poor fit for specific observations.
+- A balanced, symmetrical scatter around the horizontal axis suggests a well-fitting model.
+
+🧠 When to use:
+- After fitting a Cox model, especially when refining the covariate structure.
+- In combination with **martingale** and **Schoenfeld residuals** to build a comprehensive diagnostic view.
+- Before finalizing your model, particularly if you are considering transformations or interactions.
+
+💡 Bonus tip:
+Unlike martingale residuals, deviance residuals are **symmetrically distributed** and therefore better suited for identifying both under- and over-predictions, making them particularly useful for graphical diagnostics.
+
+:::
+
+```{r}
+# Deviance residuals
+veteran$deviance_interaction <- residuals(cox_interaction, type = "deviance")
+# Plot deviance residuals
+ggplot(veteran, aes(x = linear_pred_interaction, y = deviance_interaction, color = trt)) +
+  geom_point(position = position_jitter(width = 0.1), alpha = 0.6) + # Adding jitter to avoid overlap
+  geom_hline(yintercept = 0, linetype = "dashed", color = "grey30") +
+  theme_minimal(base_size = 13) +
+  labs(
+    title = "Deviance Residuals vs Linear Predictor\n(Interaction Model)",
+    x = "Linear Predictor (Log Hazard)",
+    y = "Deviance Residual",
+    color = "Treatment Group"
+  ) +
+  scale_color_manual(values = c("Control" = "#A569BD", "Intervention" = "#45B39D")) +
+  theme(plot.title = element_text(hjust = 0.5, face = "bold"))
+```
+
+The deviance residual plot provides a diagnostic check on the adequacy of the Cox proportional hazards model that includes an interaction between treatment and age. In this plot, residuals are symmetrically distributed around zero with no discernible curvature or trend, suggesting that the model fits the data reasonably well.
+
+Notably, the intervention group shows a broader range of linear predictor values (i.e., estimated log hazard), indicating greater variability in predicted risk compared to the control group, which clusters tightly between 0.5 and 1.0. Despite this asymmetry in predictor spread, the vertical dispersion of residuals remains balanced, and no strong outliers or patterns emerge. This supports the appropriateness of the interaction model and suggests no serious violations of model assumptions related to functional form or influential observations.
+
+Overall, the deviance residuals confirm that the model adequately captures the observed survival data, with no clear evidence of misfit or heteroscedasticity.
+
+## Interaction of Treatment and Prior Therapy
+
+Prior treatments might alter a patient’s response to new therapies (e.g., due to resistance, immune suppression, or cumulative toxicity).
+
+```{r}
+# Fit a cox model with interaction between treatment and prior therapy
+cox_interaction_prior <- coxph(Surv(time, status) ~ trt * prior + ns(age, df = 3), data = veteran)
+summary(cox_interaction_prior)
+```
+
+A Cox proportional hazards model including an interaction between treatment and prior therapy was fit to assess potential effect modification. The interaction term (trt × prior) yielded a hazard ratio of 0.94 (95% CI: 0.87–1.02, p = 0.135), suggesting that the effect of treatment may be slightly attenuated in patients who had prior therapy, although this did not reach statistical significance. Model-level tests (LR, Wald, and Score) were borderline (p = 0.07–0.08), indicating weak evidence that the interaction model may offer improved fit. These findings suggest a potential interaction worth exploring in larger or more powered studies, but are not conclusive in this sample.
+
+# Final Model Summary & Interpretation
 # Conclusion
 # Limitations
-
