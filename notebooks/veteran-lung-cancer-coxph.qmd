@@ -2300,6 +2300,7 @@ cox_interaction_prior <- coxph(Surv(time, status) ~ trt * prior + ns(age, df = 3
 summary(cox_interaction_prior)
 ```
 
+
 A Cox proportional hazards model including an interaction between treatment and prior therapy was fitted to assess potential effect modification. The interaction term (trt × prior) yielded a hazard ratio of 0.94 (95% CI: 0.87–1.02, p = 0.135), suggesting that the effect of treatment may be modestly attenuated in patients who had received prior therapy. However, this association did not reach statistical significance. Model-level tests (Likelihood Ratio, Wald, and Score) were borderline (p = 0.07–0.08), indicating weak evidence that the inclusion of an interaction term may improve model fit. While these findings are not conclusive in this sample, they raise the possibility of effect modification that could be explored further in larger, more adequately powered studies.
 
 **Schoenfeld Residuals for Interaction with Prior Therapy**
