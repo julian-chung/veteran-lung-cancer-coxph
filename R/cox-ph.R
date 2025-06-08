@@ -352,3 +352,39 @@ ggplot(veteran, aes(x = linear_pred_interaction_prior, y = deviance_interaction_
   ) +
   scale_color_manual(values = c("Control" = "#A569BD", "Intervention" = "#45B39D")) +
   theme(plot.title = element_text(hjust = 0.5, face = "bold"))
+
+# Potential next steps:
+
+# 1. AIC and BIC for model comparison
+AIC(cox_model, cox_multivariable, cox_spline, cox_interaction, cox_interaction_prior)
+BIC(cox_model, cox_multivariable, cox_spline, cox_interaction, cox_interaction_prior)
+
+# 2. Influence diagnostics (e.g., dfbeta, dffit)
+# Example: DFBETA plots for the main multivariable model
+ggcoxdiagnostics(cox_multivariable, type = "dfbeta", linear.predictions = FALSE, ggtheme = theme_minimal())
+
+# 3. Cox-Snell residuals for overall model fit
+# Calculate Cox-Snell residuals
+veteran$coxsnell <- -log(survfit(cox_multivariable)$surv)
+# Plot Nelson-Aalen cumulative hazard vs Cox-Snell residuals
+library(survival)
+na_fit <- survfit(Surv(veteran$coxsnell, veteran$status) ~ 1)
+plot(na_fit$time, -log(na_fit$surv), type = "s",
+     xlab = "Cox-Snell Residuals", ylab = "Cumulative Hazard",
+     main = "Cox-Snell Residuals Plot")
+abline(0, 1, col = "red", lty = 2)
+
+# 4. Baseline hazard estimation and plotting
+basehaz_df <- basehaz(cox_multivariable, centered = FALSE)
+plot(basehaz_df$time, basehaz_df$hazard, type = "l",
+     xlab = "Time", ylab = "Baseline Cumulative Hazard",
+     main = "Baseline Cumulative Hazard Function")
+
+# 5. Use broom package to tidy model output for reporting
+# Example: Tidy summary of the multivariable model
+library(broom)
+tidy_cox <- tidy(cox_multivariable, exponentiate = TRUE, conf.int = TRUE)
+print(tidy_cox)
+
+# 6. Session info for reproducibility
+sessionInfo()
