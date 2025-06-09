@@ -2,6 +2,10 @@
 if (!requireNamespace("renv", quietly = TRUE)) {
   install.packages("renv")
 }
+
+# Optionally set a CRAN mirror to avoid prompts in non-interactive sessions
+# options(repos = c(CRAN = "https://cloud.r-project.org"))
+
 renv::init()
 
 # List of required packages with their purposes

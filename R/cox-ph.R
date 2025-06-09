@@ -386,5 +386,5 @@ library(broom)
 tidy_cox <- tidy(cox_multivariable, exponentiate = TRUE, conf.int = TRUE)
 print(tidy_cox)
 
-# 6. Session info for reproducibility
+# 7. Session info for reproducibility
 sessionInfo()

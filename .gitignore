@@ -4,21 +4,40 @@
 .Rproj.user/
 
 # Ignore the renv project infra, except the lockfile
+# renv.lock should be tracked, the !renv.lock line ensures this
+# if any broader rule might accidentally ignore it.
 renv/*
 !renv/activate.R
 !renv/settings.json
-
-# Allow tracking of the renv lockfile
 !renv.lock
 
 # macOS system files
 .DS_Store
 .AppleDouble
 .LSOverride
+._* # Resource fork files
+.Spotlight-V100 # Spotlight index
+.Trashes # Trash folder
 
-# macOS Finder tags and thumbnails
-._*
-.Spotlight-V100
-.Trashes
+# Windows system files
+Thumbs.db # Image thumbnail cache
+ehthumbs.db # Video thumbnail cache
+Desktop.ini # Folder customization
+$RECYCLE.BIN/ # Recycle bin
 
-/.quarto/
+# IDE / Editor specific
+.vscode/ # VS Code editor specific settings/cache
+
+# Quarto
+/.quarto/ # Quarto project-specific cache and output
+# If you have other Quarto output formats you don't want to track (e.g., _site for websites)
+# _site/
+
+# Common output directories (if you generate files here and don't want to track them)
+# output/
+# figures/
+# tables/
+# data/derived/ # Or similar for processed data you don't track
+
+# Log files
+*.log

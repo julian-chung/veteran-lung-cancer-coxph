@@ -2317,8 +2317,22 @@ Two extended models were fit to explore potential effect modification: one inclu
 
 When comparing these interaction models to the simpler additive model (trt + prior + spline-transformed age), neither interaction offered substantial improvement in model fit or interpretability. Residual diagnostics also did not reveal meaningful deviations. As such, the additive model remains a strong candidate for final interpretation.
 
-
 # Final Model Selection and Interpretation
+
+After evaluating a series of Cox proportional hazards models—including univariable, multivariable, and interaction models, the additive multivariable model with treatment group, prior therapy, and age modeled using restricted cubic splines, was selected as the final model for interpretation.
+
+Rationale for Model Selection:
+
+Interaction terms (treatment × age, treatment × prior therapy) were explored but did not provide substantial or statistically significant improvement in model fit, as indicated by likelihood ratio tests and residual diagnostics.
+Residual analyses (Martingale and deviance residuals) and proportional hazards tests showed no strong evidence of model misfit or violation of assumptions in the additive model.
+Model parsimony and interpretability: The additive model is simpler, easier to interpret, and adequately captures the observed data structure without unnecessary complexity.
+Interpretation of the Final Model:
+
+Treatment group: There was no statistically significant difference in survival between the intervention and control arms after adjusting for age and prior therapy (hazard ratio ≈ 1, p > 0.6).
+Age: Modeled flexibly with splines, age did not show a strong or consistent association with hazard, and the effect was not statistically significant.
+Prior therapy: Similarly, prior treatment was not a significant predictor of survival in this cohort.
+
+Overall, the final model suggests that, in this dataset, neither the experimental treatment, age, nor prior therapy were independently associated with improved or worsened survival among veterans with advanced lung cancer. The model fits the data well, satisfies key assumptions, and provides a robust basis for interpretation, though the lack of significant findings may reflect limited sample size or underlying clinical similarities between groups.
 
 # Conclusion
 
