@@ -4,23 +4,33 @@ import shutil
 
 def strip_callouts(input_path):
     """
-    Strips callout blocks from a Quarto document and creates two files:
-    - %filename%-report.qmd: Clean version without callouts
-    - %filename%-teaching.qmd: Original file with callouts preserved
+    Strips callout blocks from a Quarto document.
+    It creates two files:
+    - %output_base%-teaching.qmd: Original file content with callouts preserved.
+    - %output_base%-report.qmd: Clean version without callouts.
+    %output_base% is derived from the input filename by removing a '-working' suffix if present.
     """
     # Get the base path and filename without extension
     base_dir = os.path.dirname(input_path)
     filename = os.path.basename(input_path)
     filename_noext = os.path.splitext(filename)[0]
     
-    # Define output paths
-    teaching_path = os.path.join(base_dir, f"{filename_noext}-teaching.qmd")
-    report_path = os.path.join(base_dir, f"{filename_noext}-report.qmd")
+    # Determine the base for output filenames
+    # If filename_noext ends with "-working", remove it for the output base
+    output_filename_base = filename_noext
+    if filename_noext.endswith("-working"):
+        output_filename_base = filename_noext[:-len("-working")]
+    
+    # Define output paths using the potentially modified base
+    teaching_path = os.path.join(base_dir, f"{output_filename_base}-teaching.qmd")
+    report_path = os.path.join(base_dir, f"{output_filename_base}-report.qmd")
     
     # First, copy the original file to the teaching version
+    # The teaching file will have the new name but content from the original input_path
     shutil.copy2(input_path, teaching_path)
     
     # Now process the file to remove callouts
+    # Read from the original input_path for stripping, not the teaching_path
     with open(input_path, 'r', encoding='utf-8') as f:
         lines = f.readlines()
 
@@ -46,10 +56,16 @@ def strip_callouts(input_path):
     with open(report_path, 'w', encoding='utf-8') as f:
         f.writelines(output_lines)
 
-    print(f"✅ Original file copied to: {teaching_path}")
-    print(f"✅ Stripped file saved as: {report_path}")
+    print(f"✅ Teaching version (original content) saved as: {teaching_path}")
+    print(f"✅ Stripped report version saved as: {report_path}")
 
 # Example usage
 if __name__ == "__main__":
-    input_qmd = "notebooks/veteran-lung-cancer-coxph.qmd"
-    strip_callouts(input_qmd)
+    # Adjust this to your target file name
+    input_qmd = "notebooks/veteran-lung-cancer-coxph-working.qmd" 
+    # Ensure this input file exists at the specified path relative to where you run the script
+    if os.path.exists(input_qmd):
+        strip_callouts(input_qmd)
+    else:
+        print(f"Error: Input file not found at {input_qmd}")
+        print(f"Current working directory: {os.getcwd()}")

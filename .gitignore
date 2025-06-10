@@ -1,43 +1,70 @@
-# RStudio junk
+# ======================================
+# OS-generated files (macOS, Windows, Linux)
+# ======================================
+.DS_Store
+.AppleDouble
+.LSOverride
+._*                  # Resource fork files
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+Icon?
+.nfs*
+
+# ======================================
+# Editor / IDE files
+# ======================================
+.vscode/
+*.sublime-*
+
+# ======================================
+# RStudio / R
+# ======================================
+.Rproj.user/
 .Rhistory
 .RData
-.Rproj.user/
+.Ruserdata
 
-# Ignore the renv project infra, except the lockfile
-# renv.lock should be tracked, the !renv.lock line ensures this
-# if any broader rule might accidentally ignore it.
-renv/*
+# R Project & Environment
+.Renviron
+
+# renv infrastructure (except lockfile)
+renv/
 !renv/activate.R
 !renv/settings.json
 !renv.lock
 
-# macOS system files
-.DS_Store
-.AppleDouble
-.LSOverride
-._* # Resource fork files
-.Spotlight-V100 # Spotlight index
-.Trashes # Trash folder
+# ======================================
+# Python
+# ======================================
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
 
-# Windows system files
-Thumbs.db # Image thumbnail cache
-ehthumbs.db # Video thumbnail cache
-Desktop.ini # Folder customization
-$RECYCLE.BIN/ # Recycle bin
-
-# IDE / Editor specific
-.vscode/ # VS Code editor specific settings/cache
-
+# ======================================
 # Quarto
-/.quarto/ # Quarto project-specific cache and output
-# If you have other Quarto output formats you don't want to track (e.g., _site for websites)
-# _site/
+# ======================================
+.quarto/             # Quarto build cache
+_site/               # Quarto site output
+*.nb.html            # Quarto-generated notebook outputs
+*.qmd~               # Temp swap files
 
-# Common output directories (if you generate files here and don't want to track them)
-# output/
-# figures/
-# tables/
-# data/derived/ # Or similar for processed data you don't track
-
-# Log files
+# ======================================
+# Output / Reports / Artifacts (custom)
+# ======================================
+output/
+data/derived/
+figures/
+tables/
+logs/
 *.log
+*.aux
+*.out
+*.toc
+*.bbl
+*.blg
