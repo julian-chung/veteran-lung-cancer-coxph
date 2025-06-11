@@ -388,3 +388,87 @@ print(tidy_cox)
 
 # 7. Session info for reproducibility
 sessionInfo()
+
+# Additional Covariates to Include:
+# Karnoff score and cell type
+
+# Stepwise inclusion of Karnofsky score and cell type, with diagnostics
+
+# 1. Karnofsky score only
+cox_karno <- coxph(Surv(time, status) ~ karno, data = veteran)
+summary(cox_karno)
+
+# Schoenfeld residuals (PH assumption)
+cox_zph_karno <- cox.zph(cox_karno)
+print(cox_zph_karno)
+plot(cox_zph_karno)
+
+# Martingale residuals
+veteran$martingale_karno <- residuals(cox_karno, type = "martingale")
+ggplot(veteran, aes(x = karno, y = martingale_karno)) +
+  geom_point(alpha = 0.6) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "grey30") +
+  theme_minimal() +
+  labs(title = "Martingale Residuals vs Karnofsky Score", x = "Karnofsky Score", y = "Martingale Residual")
+
+# Functional form check
+ggcoxfunctional(cox_karno, data = veteran)
+
+# 2. Cell type only
+cox_celltype <- coxph(Surv(time, status) ~ celltype, data = veteran)
+summary(cox_celltype)
+
+# Schoenfeld residuals
+cox_zph_celltype <- cox.zph(cox_celltype)
+print(cox_zph_celltype)
+plot(cox_zph_celltype)
+
+# Martingale residuals
+veteran$martingale_celltype <- residuals(cox_celltype, type = "martingale")
+ggplot(veteran, aes(x = as.numeric(celltype), y = martingale_celltype, color = celltype)) +
+  geom_point(alpha = 0.6) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "grey30") +
+  theme_minimal() +
+  labs(title = "Martingale Residuals vs Cell Type", x = "Cell Type (numeric)", y = "Martingale Residual")
+
+# 3. Karnofsky score + cell type
+cox_karno_celltype <- coxph(Surv(time, status) ~ karno + celltype, data = veteran)
+summary(cox_karno_celltype)
+
+# Schoenfeld residuals
+cox_zph_karno_celltype <- cox.zph(cox_karno_celltype)
+print(cox_zph_karno_celltype)
+plot(cox_zph_karno_celltype)
+
+# Martingale residuals
+veteran$martingale_karno_celltype <- residuals(cox_karno_celltype, type = "martingale")
+veteran$linear_pred_karno_celltype <- predict(cox_karno_celltype, type = "lp")
+ggplot(veteran, aes(x = linear_pred_karno_celltype, y = martingale_karno_celltype, color = celltype)) +
+  geom_point(alpha = 0.6) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "grey30") +
+  theme_minimal() +
+  labs(title = "Martingale Residuals vs Linear Predictor (Karno + Cell Type)",
+       x = "Linear Predictor", y = "Martingale Residual")
+
+# 4. Karnofsky score + cell type + age (splines) + prior + trt
+cox_full <- coxph(Surv(time, status) ~ trt + prior + ns(age, df = 3) + karno + celltype, data = veteran)
+summary(cox_full)
+
+# Schoenfeld residuals
+cox_zph_full <- cox.zph(cox_full)
+print(cox_zph_full)
+plot(cox_zph_full)
+
+# Martingale residuals
+veteran$martingale_full <- residuals(cox_full, type = "martingale")
+veteran$linear_pred_full <- predict(cox_full, type = "lp")
+ggplot(veteran, aes(x = linear_pred_full, y = martingale_full, color = celltype)) +
+  geom_point(alpha = 0.6) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "grey30") +
+  theme_minimal() +
+  labs(title = "Martingale Residuals vs Linear Predictor (Full Model)",
+       x = "Linear Predictor", y = "Martingale Residual")
+
+# Functional form check for Karnofsky in the full model
+ggcoxfunctional(cox_full, data = veteran, covariate = "karno")
+
