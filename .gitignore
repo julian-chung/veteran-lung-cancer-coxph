@@ -4,7 +4,7 @@
 .DS_Store
 .AppleDouble
 .LSOverride
-._*                  # Resource fork files
+._*         
 .Spotlight-V100
 .Trashes
 ehthumbs.db
@@ -49,10 +49,10 @@ __pycache__/
 # ======================================
 # Quarto
 # ======================================
-.quarto/             # Quarto build cache
-_site/               # Quarto site output
-*.nb.html            # Quarto-generated notebook outputs
-*.qmd~               # Temp swap files
+.quarto/             
+_site/               
+*.nb.html            
+*.qmd~             
 
 # ======================================
 # Output / Reports / Artifacts (custom)
