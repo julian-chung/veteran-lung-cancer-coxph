@@ -1291,6 +1291,38 @@
       "Maintainer": "Richard Iannone <rich@posit.co>",
       "Repository": "CRAN"
     },
+    "forestmodel": {
+      "Package": "forestmodel",
+      "Version": "0.6.2",
+      "Source": "Repository",
+      "Encoding": "UTF-8",
+      "Type": "Package",
+      "Title": "Forest Plots from Regression Models",
+      "Date": "2020-07-19",
+      "Author": "Nick Kennedy <r@nick-kennedy.com>",
+      "Maintainer": "Nick Kennedy <r@nick-kennedy.com>",
+      "Description": "Produces forest plots using 'ggplot2' from models produced by functions such as stats::lm(), stats::glm() and survival::coxph().",
+      "License": "GPL-2",
+      "LazyData": "TRUE",
+      "Depends": [
+        "R (>= 3.3.0)",
+        "ggplot2 (>= 3.1.0)"
+      ],
+      "Imports": [
+        "dplyr (>= 0.8.0)",
+        "broom (>= 0.5.0)",
+        "rlang (>= 0.3.0)",
+        "tibble (>= 1.4.2)"
+      ],
+      "Suggests": [
+        "survival",
+        "metafor",
+        "labelled"
+      ],
+      "RoxygenNote": "7.1.0",
+      "NeedsCompilation": "no",
+      "Repository": "CRAN"
+    },
     "fs": {
       "Package": "fs",
       "Version": "1.6.6",

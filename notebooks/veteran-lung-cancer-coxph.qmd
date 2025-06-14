@@ -49,6 +49,7 @@ library(dplyr)  # Data wrangling
 library(ggplot2)  # Plotting
 library(broom)  # Tidying model output
 library(splines) # Splines for flexible modeling
+library(forestmodel) # Forest plots for Cox models
 
 ```
 
@@ -2014,6 +2015,141 @@ Overall model performance was strong, with a concordance index of 0.735, indicat
 library(forestmodel)
 forest_model(cox_karno_and_cell)
 ```
+
+*Survival Curves by Karnofsky Score*
+
+```{r}
+# Plot survival curves stratified by Karnofsky score
+# Bin Karnofsky scores into 3 groups
+veteran$karno_group <- cut(veteran$karno, 
+                           breaks = c(0, 50, 70, 100),
+                           labels = c("Low (≤50)", "Medium (51–70)", "High (>70)"),
+                           right = TRUE)
+
+# Fit Kaplan-Meier survival model by Karnofsky group
+km_karno <- survfit(Surv(time, status) ~ karno_group, data = veteran)
+
+# Plot using ggsurvplot
+ggsurvplot(km_karno,
+           data = veteran,
+           risk.table = TRUE,
+           pval = TRUE,
+           conf.int = FALSE,
+           legend.title = "Karnofsky Group",
+           legend.labs = c("Low (≤50)", "Medium (51–70)", "High (>70)"),
+           palette = c("firebrick", "steelblue", "darkgreen"),
+           xlab = "Time (days)",
+           ylab = "Survival Probability",
+           title = "Kaplan-Meier Survival by Karnofsky Score Group")
+
+```
+
+*Survival Curves by Cell Type*
+
+```{r}
+# Create Kaplan-Meier curves by cell type
+km_cell <- survfit(Surv(time, status) ~ celltype, data = veteran)
+
+# Plot the survival curves
+ggsurvplot(km_cell,
+           data = veteran,
+           risk.table = TRUE,         # Show risk table
+           pval = TRUE,               # Show log-rank p-value
+           conf.int = FALSE,          # Hide confidence intervals if cluttered
+           legend.title = "Cell Type",
+           legend.labs = levels(factor(veteran$celltype)),
+           palette = "Dark2",         # Choose a nice palette
+           xlab = "Time (days)",
+           ylab = "Survival Probability",
+           title = "Kaplan-Meier Survival by Cell Type")
+
+```
+
+*Combined Plot of Survival Curves*
+
+
+
+```{r}
+# For Cell Type
+km_cell <- survfit(Surv(time, status) ~ celltype, data = veteran)
+plot_cell <- ggsurvplot(km_cell,
+                        data = veteran,
+                        risk.table = TRUE,
+                        pval = TRUE,
+                        conf.int = FALSE,
+                        legend.title = "Cell Type",
+                        palette = "Dark2",
+                        xlab = "Time (days)",
+                        ylab = "Survival Probability",
+                        title = "Survival by Cell Type")
+
+# For Karnofsky Score Group
+km_karno <- survfit(Surv(time, status) ~ karno_group, data = veteran)
+plot_karno <- ggsurvplot(km_karno,
+                         data = veteran,
+                         risk.table = TRUE,
+                         pval = TRUE,
+                         conf.int = FALSE,
+                         legend.title = "Karnofsky Score",
+                         palette = c("firebrick", "steelblue", "darkgreen"),
+                         xlab = "Time (days)",
+                         ylab = "Survival Probability",
+                         title = "Survival by Karnofsky Group")
+# Combine the two plots
+
+combined_plot <- arrange_ggsurvplots(list(plot_cell, plot_karno),
+                                     ncol = 2, nrow = 1)
+combined_plot
+```
+
+*Check Proportional Hazards Assumption for Final Model*
+
+```{r}
+# Test proportional hazards assumption for the final model
+cox_zph_final <- cox.zph(cox_karno_and_cell)
+print(cox_zph_final)
+```
+
+*Plot Schoenfeld Residuals for Final Model*
+
+```{r}
+# Visual check of Schoenfeld residuals for final model
+plot(cox_zph_final)
+```
+*Plot Martingale Residuals for Final Model*
+```{r}
+# Generate Martingale residuals for the final model
+veteran$martingale_final <- residuals(cox_karno_and_cell, type = "martingale")
+veteran$linear_pred_final <- predict(cox_karno_and_cell, type = "lp")
+ggplot(veteran, aes(x = linear_pred_final, y = martingale_final, color = trt)) +
+  geom_point(alpha = 0.6) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "grey30") +
+  theme_minimal(base_size = 13) +
+  labs(
+    title = "Martingale Residuals vs Linear Predictor\n(Final Model)",
+    x = "Linear Predictor (Log Hazard)",
+    y = "Martingale Residual",
+    color = "Treatment Group"
+  ) +
+  scale_color_manual(values = c("Control" = "#A569BD", "Intervention" = "#45B39D")) +
+  theme(plot.title = element_text(hjust = 0.5, face = "bold"))
+```
+
+*Check Functional Form of Karnofsky Score*
+
+```{r}
+# Refit a univariable model with Karnofsky score for functional form check
+cox_karno_for_form_check <- coxph(Surv(time, status) ~ karno, data = veteran)
+# Plot functional form using ggcoxfunctional
+ggcoxfunctional(
+  fit = cox_karno_for_form_check,
+  data = veteran,
+  point.col = "#E74C3C",
+  ggtheme = theme_minimal(base_size = 13),
+  title = "Functional Form Check: Karnofsky Score"
+)
+```
+
 
 
 # Interaction or Additive Effects?
