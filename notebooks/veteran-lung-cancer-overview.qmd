@@ -1,207 +1,68 @@
 ---
-title: "veteran-lung-cancer-overview"
-format: html
+title: "Veteran Lung Cancer Survival Analysis: Overview"
+format:
+  html:
+    toc: true
+    theme: cosmo
+execute:
+  warning: false
+  message: false
 ---
 
 ```{r setup, include=FALSE}
-# packages
 library(survival)
-library(survminer)   # ggforest
+library(survminer)
 library(dplyr)
 library(forcats)
 library(broom)
 library(purrr)
 library(ggplot2)
-library(ranger)
+library(splines)
 library(glue)
+library(ggfortify)
 
-# Load dataset explicitly from survival package
-veteran <- survival::veteran
-```
-
-# Introduction
-
-Survival analysis is a branch of statistics designed to model the time until an event of interest occurs — most often death, relapse, or system failure. Unlike standard regression methods, it can account for censoring (when the event hasn’t occurred by the end of observation) and produces estimates that describe both the probability of survival over time and the influence of predictors on that time. This makes it invaluable in clinical trials, epidemiology, and engineering reliability studies.
-
-The Veteran dataset comes from a randomized clinical trial conducted by the U.S. Veterans Administration to compare a standard chemotherapy regimen with an experimental treatment for advanced, inoperable lung cancer. It includes information on patient demographics, disease characteristics, treatment allocation, and survival time, making it a compact but rich teaching dataset for survival modelling.
-
-This page provides a high-level overview of the analysis, including key descriptive statistics, primary survival estimates, and major findings from Cox proportional hazards models.
-
-The project is organised into three parts:
-
-Summary — the page you’re currently reading; a quick reference with key numbers and visualisations.
-
-Full Report — a detailed, step-by-step account of the entire analysis, methods, and results.
-
-Teaching & Learning Reference — a theory-heavy companion that explains the statistical reasoning behind each step, serving as both a technical appendix and a reusable “cheat sheet” for future survival analyses.
-
-In the sections that follow, we start with a concise study overview describing the dataset and patient population. We then highlight the main survival patterns using Kaplan–Meier curves, followed by key hazard ratio estimates from Cox proportional hazards models. The goal is to give you, at a glance, the most important findings of the analysis — with the full technical detail available in the accompanying report and reference materials.
-
-# Study Overview
-
-This dataset records information from 137 male patients with advanced, inoperable lung cancer who were enrolled in a randomised controlled trial conducted by the U.S. Veterans Administration. Participants were allocated to receive either a standard chemotherapy protocol or an experimental regimen, with the primary aim of assessing whether the new treatment improved survival.
-
-Key study characteristics:
-
-    Population: 137 male patients, predominantly older adults.
-
-    Condition: Advanced, inoperable lung cancer (various histological subtypes).
-
-    Intervention: Standard chemotherapy vs experimental chemotherapy.
-
-    Primary Outcome: Time from treatment initiation to death, measured in days.
-
-    Follow-up: All patients were followed until death or censoring.
-
-Additional recorded variables include Karnofsky performance score (a measure of functional status), age at diagnosis, time from diagnosis to randomisation, tumour cell type, and whether patients had received prior therapy.
-
-This combination of survival time, treatment allocation, and clinically relevant covariates makes the Veteran dataset an ideal teaching resource for exploring survival analysis techniques such as Kaplan–Meier estimation, Cox proportional hazards modelling, and assumption diagnostics.
-
-# Key Descriptive Statistics
-
-```{r key-descriptive-stats, collapse=TRUE}
-# Load and clean dataset
-veteran2 <- veteran %>%
+# Cleaned dataset with factor labels used throughout
+veteran2 <- survival::veteran %>%
   mutate(
     trt      = factor(trt, levels = c(1, 2), labels = c("Standard", "Experimental")),
     celltype = factor(celltype, levels = c("squamous", "smallcell", "adeno", "large"),
                       labels = c("Squamous", "Small cell", "Adenocarcinoma", "Large cell")),
     prior    = factor(prior, levels = c(0, 10), labels = c("No", "Yes"))
   )
-
-# Counts by treatment group
-group_counts <- veteran2 %>%
-  count(trt, name = "n")
-
-# Age & Karnofsky summaries
-age_summary <- summary(veteran2$age)
-karno_summary <- summary(veteran2$karno)
-
-# Cell type distribution
-celltype_dist <- prop.table(table(veteran2$celltype)) * 100
-
-# Prior therapy proportion
-prior_dist <- prop.table(table(veteran2$prior)) * 100
-
-# Kaplan–Meier medians by group
-km_fit <- survfit(Surv(time, status) ~ trt, data = veteran2)
-km_meds <- surv_median(km_fit)
-
-# Log-rank test
-logrank <- survdiff(Surv(time, status) ~ trt, data = veteran2)
-logrank_p <- 1 - pchisq(logrank$chisq, length(logrank$n) - 1)
-
-# Event breakdown
-events <- sum(veteran2$status == 1)
-censored <- sum(veteran2$status == 0)
-
-# Print results
-cat("\n**Sample size:**", nrow(veteran2), "patients\n")
-cat("Treatment groups:\n")
-print(group_counts)
-
-cat("\nMedian age:", round(age_summary[["Median"]]), 
-    "years (IQR:", age_summary[["1st Qu."]], "-", age_summary[["3rd Qu."]], ")\n")
-
-cat("Median Karnofsky score:", round(karno_summary[["Median"]]), 
-    "(IQR:", karno_summary[["1st Qu."]], "-", karno_summary[["3rd Qu."]], ")\n")
-
-cat("\nCell type distribution (%):\n")
-print(round(celltype_dist, 1))
-
-cat("\nPrior therapy (%):\n")
-print(round(prior_dist, 1))
-
-cat("\nMedian survival (days):\n")
-print(km_meds)
-
-cat("\nLog-rank p-value:", signif(logrank_p, 3), "\n")
-
-cat("\nDeaths:", events, "(", round(events / nrow(veteran2) * 100, 1), "%)\n")
-cat("Censored:", censored, "(", round(censored / nrow(veteran2) * 100, 1), "%)\n")
-
-# Overall
-km_all <- survfit(Surv(time, status) ~ 1, data = veteran)
-overall <- surv_median(km_all)
-
-# By treatment (1=Standard, 2=Experimental)
-vet2 <- within(veteran, trt <- factor(trt, levels = c(1,2), labels = c("Standard","Experimental")))
-km_by <- survfit(Surv(time, status) ~ trt, data = vet2)
-byarm  <- surv_median(km_by)
-
-# Nicely formatted output
-print(overall)
-print(byarm)
 ```
-# Key Descriptive Statistics Summary
 
-    Sample size: 137 patients
+# Introduction
 
-    Treatment groups: Standard = 69, Experimental = 68
+Survival analysis models the time until an event of interest occurs — most
+often death, relapse, or system failure. Unlike standard regression, it
+accounts for censoring (patients still alive at study end) and estimates both
+the probability of survival over time and the influence of covariates on that
+time.
 
-Baseline characteristics
+This analysis uses the Veterans Administration lung cancer trial dataset
+(Kalbfleisch & Prentice, 1980): 137 male patients with advanced, inoperable
+lung cancer randomised to standard vs experimental chemotherapy. It is a
+well-established teaching dataset for survival modelling — compact,
+clinically relevant, and rich enough to illustrate the full Cox PH workflow.
 
-    Median age: 62 years (IQR: 51–66)
+The project is organised into three parts:
 
-    Median Karnofsky score: 60 (IQR: 40–75)
+- **Overview** — this page; key numbers and visualisations at a glance.
+- **Full Report** — step-by-step analysis, model building, and diagnostics.
+- **Teaching & Learning Reference** — statistical theory, code explanations,
+  and a reusable reference for future survival analyses.
 
-    Cell type distribution: Squamous 25.5%, Small cell 35.0%, Adenocarcinoma 19.7%, Large cell 19.7%
+# Study Overview
 
-    Prior therapy: 29.2% “Yes” (70.8% “No”)
+```{r descriptive-stats}
+# KM medians overall and by arm
+km_all <- survfit(Surv(time, status) ~ 1,   data = veteran2)
+km_by  <- survfit(Surv(time, status) ~ trt, data = veteran2)
+overall <- surv_median(km_all)
+byarm   <- surv_median(km_by)
 
-Survival outcomes
-
-    Log-rank test: p = 0.928 (no evidence of a difference between treatment arms)
-
-    Median survival (all / by arm): [insert from KM table below]
-
-Event status
-
-    Deaths: 128 (93.4%)
-
-    Censored: 9 (6.6%)
-
-
-```{r key-stats-bullets, collapse=TRUE}
-# Data (explicit to be bulletproof)
-v2 <- veteran %>%
-  mutate(
-    trt      = factor(trt, levels = c(1, 2), labels = c("Standard", "Experimental")),
-    celltype = factor(celltype, levels = c("squamous","smallcell","adeno","large"),
-                      labels = c("Squamous","Small cell","Adenocarcinoma","Large cell")),
-    prior    = factor(prior, levels = c(0, 10), labels = c("No","Yes"))
-  )
-
-# N and group counts
-n_total <- nrow(v2)
-n_by_trt <- v2 %>% count(trt, name = "n")
-n_std <- n_by_trt$n[n_by_trt$trt == "Standard"]
-n_exp <- n_by_trt$n[n_by_trt$trt == "Experimental"]
-
-# Age & Karnofsky medians + IQR
-q_age   <- quantile(v2$age,    probs = c(0.25, 0.5, 0.75), na.rm = TRUE)
-q_karno <- quantile(v2$karno,  probs = c(0.25, 0.5, 0.75), na.rm = TRUE)
-med_age    <- round(q_age[2]);    iqr_age_l <- round(q_age[1]);    iqr_age_u <- round(q_age[3])
-med_karno  <- round(q_karno[2]);  iqr_kar_l <- round(q_karno[1]);  iqr_kar_u <- round(q_karno[3])
-
-# Cell type distribution (%)
-cell_pct <- round(100 * prop.table(table(v2$celltype)), 1)
-cell_lines <- paste0(names(cell_pct), " (", cell_pct, "%)")
-cell_line  <- paste(cell_lines, collapse = ", ")
-
-# Prior therapy (% Yes / No)
-prior_pct <- round(100 * prop.table(table(v2$prior)), 1)
-prior_yes <- unname(prior_pct["Yes"])
-prior_no  <- unname(prior_pct["No"])
-
-# KM medians (overall + by arm) with 95% CI
-km_all  <- survfit(Surv(time, status) ~ 1,  data = v2)
-overall <- surv_median(km_all)  # columns: median, lower, upper
-med_all <- round(overall$median);  ci_all_l <- round(overall$lower);  ci_all_u <- round(overall$upper)
-
-km_by  <- survfit(Surv(time, status) ~ trt, data = v2)
-byarm  <- surv_median(km_by)
-# rows are by trt strata in level order (Standard, Experimental)
+med_all   <- round(overall$median)
+ci_all_l  <- round(overall$lower);  ci_all_u  <- round(overall$upper)
 med_std   <- round(byarm$median[byarm$strata == "trt=Standard"])
 ci_std_l  <- round(byarm$lower [byarm$strata == "trt=Standard"])
 ci_std_u  <- round(byarm$upper [byarm$strata == "trt=Standard"])
@@ -209,143 +70,164 @@ med_exp   <- round(byarm$median[byarm$strata == "trt=Experimental"])
 ci_exp_l  <- round(byarm$lower [byarm$strata == "trt=Experimental"])
 ci_exp_u  <- round(byarm$upper [byarm$strata == "trt=Experimental"])
 
-# Log-rank test
-lr <- survdiff(Surv(time, status) ~ trt, data = v2)
+# Baseline summaries
+n_total   <- nrow(veteran2)
+n_by_trt  <- veteran2 %>% count(trt, name = "n")
+n_std_n   <- n_by_trt$n[n_by_trt$trt == "Standard"]
+n_exp_n   <- n_by_trt$n[n_by_trt$trt == "Experimental"]
+
+q_age   <- quantile(veteran2$age,   probs = c(0.25, 0.5, 0.75))
+q_karno <- quantile(veteran2$karno, probs = c(0.25, 0.5, 0.75))
+med_age   <- round(q_age[2]);   iqr_age_l <- round(q_age[1]);   iqr_age_u <- round(q_age[3])
+med_karno <- round(q_karno[2]); iqr_kar_l <- round(q_karno[1]); iqr_kar_u <- round(q_karno[3])
+
+cell_pct  <- round(100 * prop.table(table(veteran2$celltype)), 1)
+prior_pct <- round(100 * prop.table(table(veteran2$prior)),    1)
+prior_yes <- unname(prior_pct["Yes"])
+
+lr   <- survdiff(Surv(time, status) ~ trt, data = veteran2)
 lr_p <- signif(1 - pchisq(lr$chisq, length(lr$n) - 1), 3)
 
-# Event breakdown
-deaths   <- sum(v2$status == 1)
-censored <- sum(v2$status == 0)
-deaths_pct   <- round(100 * deaths   / n_total, 1)
-censored_pct <- round(100 * censored / n_total, 1)
+deaths      <- sum(veteran2$status == 1)
+censored    <- sum(veteran2$status == 0)
+deaths_pct  <- round(100 * deaths   / n_total, 1)
+cens_pct    <- round(100 * censored / n_total, 1)
 
-# ---- Print Markdown bullets ----
 cat(glue("
-- **Sample size:** {n_total} patients  
-- **Treatment groups:** Standard = **{n_std}**, Experimental = **{n_exp}**
+**Study population**
+- {n_total} male patients; Standard = **{n_std_n}**, Experimental = **{n_exp_n}**
+- Median age: **{med_age}** years (IQR: {iqr_age_l}–{iqr_age_u})
+- Median Karnofsky score: **{med_karno}** (IQR: {iqr_kar_l}–{iqr_kar_u})
+- Cell type: Squamous {cell_pct['Squamous']}%, Small cell {cell_pct['Small cell']}%,
+  Adenocarcinoma {cell_pct['Adenocarcinoma']}%, Large cell {cell_pct['Large cell']}%
+- Prior therapy: **{prior_yes}%** yes
 
-**Baseline characteristics**  
-- **Median age:** **{med_age}** years (IQR: **{iqr_age_l}–{iqr_age_u}**)  
-- **Median Karnofsky score:** **{med_karno}** (IQR: **{iqr_kar_l}–{iqr_kar_u}**)  
-- **Cell type distribution:** {cell_line}  
-- **Prior therapy:** **{prior_yes}%** \"Yes\" (**{prior_no}%** \"No\")
+**Survival outcomes**
+- Median survival (all): **{med_all}** days (95% CI: {ci_all_l}–{ci_all_u})
+- Standard arm: **{med_std}** days (95% CI: {ci_std_l}–{ci_std_u})
+- Experimental arm: **{med_exp}** days (95% CI: {ci_exp_l}–{ci_exp_u})
+- Log-rank *p* = **{lr_p}**
 
-**Survival outcomes**  
-- **Median survival (all patients):** **{med_all}** days (95% CI: **{ci_all_l}–{ci_all_u}**)  
-- **By treatment group:**  
-  - **Standard:** **{med_std}** days (95% CI: **{ci_std_l}–{ci_std_u}**)  
-  - **Experimental:** **{med_exp}** days (95% CI: **{ci_exp_l}–{ci_exp_u}**)  
-- **Log-rank test:** *p* = **{lr_p}**  
-
-**Event status**  
-- **Deaths:** **{deaths}** ({deaths_pct}%)  
-- **Censored:** **{censored}** ({censored_pct}%)
+**Events**
+- Deaths: **{deaths}** ({deaths_pct}%) | Censored: **{censored}** ({cens_pct}%)
 "))
 ```
 
+# Plot 1 — Survival by Treatment Group
 
-```{r}
-# factor housekeeping to get nice labels
-veteran2 <- veteran %>%
-  mutate(
-    trt      = factor(trt, levels = c(1, 2), labels = c("Standard", "Experimental")),
-    celltype = factor(celltype, levels = c("squamous","smallcell","adeno","large"),
-                      labels = c("Squamous","Small cell","Adeno","Large")),
-    prior    = factor(prior, levels = c(0, 10), labels = c("No","Yes"))
-  )
+The primary question of the trial: does the experimental regimen improve
+survival over standard chemotherapy?
 
-# multivariable Cox model (tweak as per your analysis)
-cox_multi <- coxph(Surv(time, status) ~ trt + celltype + karno + age + diagtime + prior,
-                   data = veteran2)
+```{r km-treatment, fig.width=8, fig.height=6}
+ggsurvplot(
+  km_by,
+  data        = veteran2,
+  risk.table  = TRUE,
+  pval        = TRUE,
+  conf.int    = TRUE,
+  palette     = c("#2E86AB", "#E84855"),
+  legend.title = "Treatment",
+  xlab        = "Time (days)",
+  ylab        = "Survival probability",
+  title       = "Kaplan–Meier Survival Curves by Treatment Arm",
+  ggtheme     = theme_minimal(base_size = 13)
+)
+```
 
-# publishable forest plot
-ggforest(
-  cox_multi, data = veteran2,
-  main = "Hazard Ratios (Cox PH): Veteran Lung Cancer Trial",
-  fontsize = 0.9,
-  noDigits = 2,
-  refLabel = "Reference"
+The survival curves for the two treatment arms overlap almost entirely
+throughout follow-up. The log-rank test confirms no statistically significant
+difference (p = `r lr_p`). The experimental chemotherapy did not improve
+survival in this cohort.
+
+# Plot 2 — Survival by Karnofsky Performance Score
+
+Karnofsky score — a measure of physical functional status scored 0–100 — is
+the dominant prognostic factor in this dataset and in oncology more broadly.
+
+```{r km-karnofsky, fig.width=8, fig.height=6}
+veteran2$karno_group <- cut(
+  veteran2$karno,
+  breaks = c(0, 50, 70, 100),
+  labels = c("Low (≤50)", "Medium (51–70)", "High (>70)"),
+  right  = TRUE
 )
 
+km_karno <- survfit(Surv(time, status) ~ karno_group, data = veteran2)
+
+ggsurvplot(
+  km_karno,
+  data         = veteran2,
+  risk.table   = TRUE,
+  pval         = TRUE,
+  conf.int     = FALSE,
+  palette      = c("#E84855", "#F4A259", "#2E86AB"),
+  legend.title = "Karnofsky group",
+  legend.labs  = c("Low (≤50)", "Medium (51–70)", "High (>70)"),
+  xlab         = "Time (days)",
+  ylab         = "Survival probability",
+  title        = "Kaplan–Meier Survival Curves by Karnofsky Score Group",
+  ggtheme      = theme_minimal(base_size = 13)
+)
 ```
 
-```{r}
+The separation between groups is striking: patients with high functional status
+survived substantially longer than those in the low group. This gradient
+persists and is highly significant, foreshadowing Karnofsky score's dominance
+in the multivariable model.
 
-# choose covariates to scan (you can add/remove)
-covars <- c("trt","celltype","karno","age","diagtime","prior")
+# Plot 3 — Final Cox Model: Adjusted Hazard Ratios
 
-uni_df <- map_dfr(covars, function(v) {
-  f <- as.formula(paste0("Surv(time, status) ~ ", v))
-  fit <- coxph(f, data = veteran2)
-  broom::tidy(fit, exponentiate = TRUE, conf.int = TRUE) %>%
-    mutate(term_group = v)
-})
+The final Cox proportional hazards model adjusts simultaneously for treatment
+group, prior therapy, age (modeled with a natural cubic spline), Karnofsky
+score, and cell type.
 
-# pretty labels
-uni_df <- uni_df %>%
-  mutate(
-    pretty = case_when(
-      term == "trtExperimental" ~ "Treatment: Experimental vs Standard",
-      term == "priorYes"        ~ "Prior therapy: Yes vs No",
-      grepl("celltype", term)   ~ sub("celltype", "Cell type: ", term),
-      term == "karno"           ~ "Karnofsky (per point)",
-      term == "age"             ~ "Age (per year)",
-      term == "diagtime"        ~ "Months to randomization (per month)",
-      TRUE ~ term
-    )
-  )
+```{r cox-forest, fig.width=9, fig.height=6}
+cox_final <- coxph(
+  Surv(time, status) ~ trt + prior + ns(age, df = 3) + karno + celltype,
+  data = veteran2
+)
 
-ggplot(uni_df, aes(x = forcats::fct_rev(pretty), y = estimate)) +
-  geom_point() +
-  geom_errorbar(aes(ymin = conf.low, ymax = conf.high), width = 0) +
-  geom_hline(yintercept = 1, linetype = 2) +
-  coord_flip() +
-  labs(
-    x = NULL, y = "Hazard Ratio (95% CI)",
-    title = "Univariable Cox Models"
-  ) +
-  theme_minimal(base_size = 12)
-
+ggforest(
+  cox_final,
+  data      = veteran2,
+  main      = "Adjusted Hazard Ratios — Final Cox PH Model",
+  fontsize  = 0.9,
+  noDigits  = 2,
+  refLabel  = "Reference"
+)
 ```
 
-```{r}
+Karnofsky score (HR = 0.97 per point, p < 0.001) and cell type are the
+dominant predictors. Adenocarcinoma and small cell carcinoma carry
+substantially higher hazard than squamous cell (HR ≈ 3.3 and 2.2
+respectively). Treatment group remains non-significant after adjustment
+(HR ≈ 1.4, p = 0.097). The model concordance is 0.735 — a marked improvement
+over a treatment-only model (concordance ≈ 0.51).
 
-multi_tidy <- broom::tidy(cox_multi, exponentiate = TRUE, conf.int = TRUE) %>%
-  mutate(
-    pretty = case_when(
-      term == "trtExperimental" ~ "Treatment: Experimental",
-      term == "priorYes"        ~ "Prior therapy: Yes",
-      grepl("celltype", term)   ~ sub("celltype", "Cell type: ", term),
-      term == "karno"           ~ "Karnofsky (per point)",
-      term == "age"             ~ "Age (per year)",
-      term == "diagtime"        ~ "Months to randomization (per month)",
-      TRUE ~ term
-    )
-  )
+# Plot 4 — Aalen Additive Model: Time-Varying Effects
 
-ggplot(multi_tidy, aes(x = forcats::fct_rev(pretty), y = estimate)) +
-  geom_point(size = 2) +
-  geom_errorbar(aes(ymin = conf.low, ymax = conf.high), width = 0) +
-  geom_hline(yintercept = 1, linetype = 2) +
-  coord_flip() +
+The Cox model assumes that each covariate's effect is constant over time
+(proportional hazards). The Aalen additive model relaxes this assumption,
+estimating cumulative covariate effects as a function of follow-up time. A
+steep, consistent slope indicates a strong, stable effect; a flat or erratic
+line suggests little or no independent contribution.
+
+```{r aalen, fig.width=10, fig.height=8}
+aa_fit <- aareg(
+  Surv(time, status) ~ trt + celltype + karno + age + prior,
+  data = veteran2
+)
+
+autoplot(aa_fit) +
   theme_minimal(base_size = 12) +
-  labs(
-    x = NULL, y = "Adjusted Hazard Ratio (95% CI)",
-    title = "Multivariable Cox Model"
-  )
-
+  labs(title = "Aalen Additive Model: Cumulative Regression Functions")
 ```
 
-```{r}
-
-# KM (overall)
-km_fit  <- survfit(Surv(time, status) ~ 1, data = veteran2)
-# Cox baseline survival
-cox_fit <- survfit(cox_multi)  # from the model above
-# Random forest survival
-rf_fit  <- ranger(Surv(time, status) ~ trt + celltype + karno + age + diagtime + prior,
-                  data = veteran2, mtry = 3, splitrule = "logrank", num.trees = 1000)
-
-# build a combined df like the article, then ggplot the three curves
-# (structure mirrors the RViews code)
-```
+The Aalen plots reinforce the Cox model findings from a different methodological
+angle. Karnofsky score shows the steepest, most consistent negative slope —
+confirming its role as the strongest and most stable predictor of survival.
+Cell type subtypes (particularly small cell and adenocarcinoma) show clear
+positive slopes relative to the intercept. Treatment group and prior therapy
+show flat trajectories close to zero, consistent with their non-significant
+status in the Cox model. The convergence of two distinct modelling approaches
+on the same substantive conclusions strengthens confidence in the findings.

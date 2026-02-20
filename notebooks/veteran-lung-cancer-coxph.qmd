@@ -2102,7 +2102,7 @@ combined_plot <- arrange_ggsurvplots(list(plot_cell, plot_karno),
 combined_plot
 ```
 
-*Check Proportional Hazards Assumption for Final Model*
+**Proportional Hazards Assumption: Formal Test**
 
 ```{r}
 # Test proportional hazards assumption for the final model
@@ -2110,13 +2110,32 @@ cox_zph_final <- cox.zph(cox_karno_and_cell)
 print(cox_zph_final)
 ```
 
-*Plot Schoenfeld Residuals for Final Model*
+The proportional hazards assumption was assessed for the full multivariable
+model using Schoenfeld residuals via `cox.zph()`. None of the individual
+covariates — including the spline terms for age, Karnofsky score, cell type
+categories, treatment group, and prior therapy — reached statistical
+significance, and the global test was non-significant. This provides no
+compelling evidence against the proportional hazards assumption for any term
+in the model.
+
+**Schoenfeld Residuals: Visual Check**
 
 ```{r}
 # Visual check of Schoenfeld residuals for final model
 plot(cox_zph_final)
 ```
-*Plot Martingale Residuals for Final Model*
+
+Visual inspection of the Schoenfeld residual plots supports the formal test
+results. The smoothed trend lines for each covariate remain broadly flat
+across the follow-up period, with no systematic drift upward or downward over
+time. Confidence bands are wide — reflecting the modest sample size — but the
+observed trends do not suggest meaningful time-varying effects for any
+predictor. Taken together, the statistical and visual evidence supports the
+conclusion that the proportional hazards assumption is reasonably satisfied in
+the final model.
+
+**Martingale Residuals: Overall Model Fit**
+
 ```{r}
 # Generate Martingale residuals for the final model
 veteran$martingale_final <- residuals(cox_karno_and_cell, type = "martingale")
@@ -2135,7 +2154,19 @@ ggplot(veteran, aes(x = linear_pred_final, y = martingale_final, color = trt)) +
   theme(plot.title = element_text(hjust = 0.5, face = "bold"))
 ```
 
-*Check Functional Form of Karnofsky Score*
+The Martingale residuals plotted against the linear predictor show random
+scatter around zero with no systematic curvature or directional trend,
+supporting adequate overall model specification. Compared to the earlier
+model with only treatment, age, and prior therapy, the linear predictor now
+spans a much wider range (approximately −2 to 1.5), reflecting the stronger
+prognostic signal captured by Karnofsky score and cell type. The two
+treatment groups overlap substantially across this range, consistent with
+the non-significant treatment effect observed in the model. A small number
+of points show larger negative residuals, representing patients who survived
+considerably longer than the model predicted — a pattern common in datasets
+with high event rates and limited censoring.
+
+**Functional Form Check: Karnofsky Score**
 
 ```{r}
 # Refit a univariable model with Karnofsky score for functional form check
@@ -2149,6 +2180,25 @@ ggcoxfunctional(
   title = "Functional Form Check: Karnofsky Score"
 )
 ```
+
+The Martingale residual plot for Karnofsky score shows a broadly linear and
+decreasing trend — as Karnofsky score increases, the residuals decline,
+indicating that higher functional status is associated with lower observed
+hazard relative to a null model. The relationship is reasonably well-captured
+by a linear term, with no strong U-shaped or threshold pattern that would
+require a spline transformation. This supports modeling Karnofsky score as a
+continuous linear predictor in the final model.
+
+::: {.callout-tip title="Functional Form: Karno vs Age" collapse="true"}
+Recall that the functional form check for age revealed a U-shaped curve,
+leading us to apply a natural cubic spline (`ns(age, df = 3)`). In contrast,
+Karnofsky score shows a monotonically decreasing relationship with the
+Martingale residuals — consistent with a linear dose-response on the log
+hazard scale. This is clinically intuitive: each additional point of
+functional status confers a roughly proportional survival benefit, rather
+than a threshold or non-monotonic effect. Not every continuous covariate
+requires a spline; the functional form check tells us which ones do.
+:::
 
 
 
@@ -2504,21 +2554,158 @@ When comparing these interaction models to the simpler additive model (trt + pri
 
 # Final Model Selection and Interpretation
 
-After evaluating a series of Cox proportional hazards models—including univariable, multivariable, and interaction models, the additive multivariable model with treatment group, prior therapy, and age modeled using restricted cubic splines, was selected as the final model for interpretation.
+After evaluating a sequence of Cox proportional hazards models — from
+univariable models for each covariate individually, through multivariable
+models of increasing complexity, to interaction models — the final selected
+model is:
 
-Rationale for Model Selection:
+$$\text{trt} + \text{prior} + ns(\text{age}, df=3) + \text{karno} + \text{celltype}$$
 
-Interaction terms (treatment × age, treatment × prior therapy) were explored but did not provide substantial or statistically significant improvement in model fit, as indicated by likelihood ratio tests and residual diagnostics.
-Residual analyses (Martingale and deviance residuals) and proportional hazards tests showed no strong evidence of model misfit or violation of assumptions in the additive model.
-Model parsimony and interpretability: The additive model is simpler, easier to interpret, and adequately captures the observed data structure without unnecessary complexity.
-Interpretation of the Final Model:
+**Rationale for Model Selection**
 
-Treatment group: There was no statistically significant difference in survival between the intervention and control arms after adjusting for age and prior therapy (hazard ratio ≈ 1, p > 0.6).
-Age: Modeled flexibly with splines, age did not show a strong or consistent association with hazard, and the effect was not statistically significant.
-Prior therapy: Similarly, prior treatment was not a significant predictor of survival in this cohort.
+The model-building process was guided by a combination of clinical reasoning,
+statistical evidence, and diagnostic checking:
 
-Overall, the final model suggests that, in this dataset, neither the experimental treatment, age, nor prior therapy were independently associated with improved or worsened survival among veterans with advanced lung cancer. The model fits the data well, satisfies key assumptions, and provides a robust basis for interpretation, though the lack of significant findings may reflect limited sample size or underlying clinical similarities between groups.
+-   **Karnofsky score and cell type** were included on clinical grounds from
+    the outset of multivariate modelling. Karnofsky performance score is the
+    dominant prognostic factor in oncology; cell type defines biologically
+    distinct lung cancer subtypes with very different natural histories.
+    Both were confirmed as strong independent predictors (karno: HR = 0.966
+    per point, p < 0.001; small cell vs squamous: HR = 2.21, p = 0.003;
+    adenocarcinoma vs squamous: HR = 3.30, p < 0.001).
+
+-   **Age** was retained and modeled using a natural cubic spline (df = 3)
+    following a formal functional form check that revealed a non-linear
+    relationship with the log hazard. A likelihood ratio test confirmed the
+    spline specification provided a significantly better fit than a linear age
+    term (χ² = 7.91, df = 2, p = 0.019).
+
+-   **Prior therapy** was retained as a standard adjustment covariate in the
+    RCT context, even though it did not reach statistical significance
+    (HR = 1.01, p = 0.658). Its inclusion is clinically justified and its
+    presence does not meaningfully alter the estimates of other predictors.
+
+-   **Interaction terms** (treatment × age, treatment × prior therapy) were
+    explored. The treatment × age interaction showed a statistically
+    significant term (Wald p = 0.05), but the overall model-level improvement
+    was marginal and the interaction did not substantially change substantive
+    conclusions. The treatment × prior therapy interaction was non-significant
+    (p = 0.135). Neither interaction was retained in the final model on grounds
+    of parsimony and interpretability.
+
+-   **`diagtime`** (months from diagnosis to randomisation) was not included.
+    It was non-significant in this dataset and its clinical interpretation as
+    a predictor is ambiguous in this context.
+
+**Interpretation of the Final Model**
+
+-   **Treatment group:** The experimental chemotherapy regimen was not
+    associated with improved survival compared to standard treatment, after
+    adjusting for all other covariates (HR = 1.40, 95% CI: 0.94–2.09,
+    p = 0.097). This null finding is consistent with the log-rank test
+    (p = 0.928) and aligns with the historical record — this trial did not
+    establish a benefit for the experimental arm.
+
+-   **Karnofsky score:** Each 1-point increase in performance status was
+    associated with a 3.4% reduction in the hazard of death (HR = 0.966,
+    95% CI: 0.955–0.977, p < 0.001). This is the strongest predictor in the
+    model by a considerable margin, consistent with its established role as
+    the leading prognostic factor in oncology.
+
+-   **Cell type:** Compared to squamous cell carcinoma (the reference
+    category), patients with small cell carcinoma faced a 2.2-fold increased
+    hazard (HR = 2.21, p = 0.003), and adenocarcinoma patients faced a
+    3.3-fold increased hazard (HR = 3.30, p < 0.001). Large cell carcinoma
+    was not significantly different from squamous (HR = 1.40, p = 0.233).
+
+-   **Age:** The spline-transformed age term showed evidence of a non-linear
+    association with survival, with the second spline term reaching
+    significance (HR = 0.098, p = 0.025). The overall age effect was
+    contextually modest and difficult to summarise as a single number —
+    a characteristic of spline-modelled relationships.
+
+-   **Prior therapy:** Not a significant predictor in the adjusted model
+    (HR = 1.01, p = 0.658).
+
+**Overall Model Performance**
+
+The final model achieved a concordance index of 0.735, a substantial
+improvement over the earlier model using only treatment, age, and prior therapy
+(concordance ≈ 0.55). The likelihood ratio, Wald, and score tests were all
+highly significant (p < 0.001), confirming that the model provides meaningful
+improvement over a null (intercept-only) model. Proportional hazards
+diagnostics showed no evidence of assumption violations.
 
 # Conclusion
 
+This analysis examined survival outcomes among 137 male veterans with advanced,
+inoperable lung cancer enrolled in a randomised controlled trial comparing
+standard chemotherapy to an experimental regimen. A series of Cox proportional
+hazards models were fitted, with progressive inclusion of clinical covariates,
+functional form testing, and diagnostic checking.
+
+The primary finding is that the experimental treatment did not improve survival
+relative to standard chemotherapy (HR = 1.40, 95% CI: 0.94–2.09, p = 0.097),
+consistent with the unadjusted log-rank test (p = 0.928). This null result is
+robust across model specifications and is not an artefact of inadequate
+adjustment.
+
+The two dominant prognostic factors in this cohort were Karnofsky performance
+score and tumour cell type — variables that reflect how well patients were
+functioning at baseline and the biological character of their disease. A
+10-point increase in Karnofsky score was associated with a roughly 29%
+reduction in the hazard of death; adenocarcinoma and small cell carcinoma
+conferred substantially higher hazard than squamous cell carcinoma. These
+findings align with decades of oncological literature and underscore the
+primacy of functional status and histology in lung cancer prognosis.
+
+Age, modeled with a natural cubic spline to account for non-linearity, showed
+some evidence of a non-monotonic association with survival, though its overall
+contribution was modest. Prior therapy was not independently associated with
+survival in the adjusted model.
+
+The final model demonstrated good discrimination (concordance = 0.735),
+satisfied proportional hazards assumptions, and showed no major evidence of
+misspecification in residual diagnostics.
+
 # Limitations
+
+Several limitations of this analysis warrant acknowledgement:
+
+**Sample size and generalisability.** The dataset comprises 137 patients from
+a single trial, which constrains statistical power for detecting modest
+treatment effects and limits the precision of subgroup estimates (e.g.,
+hazard ratios by cell type). The small cell carcinoma and adenocarcinoma
+groups in particular have relatively few patients, making their hazard ratio
+estimates less stable than those for squamous cell carcinoma.
+
+**All-male cohort.** All participants were male veterans. Lung cancer biology,
+treatment response, and prognosis differ between sexes, so findings cannot be
+assumed to generalise to female patients.
+
+**Historical data.** The trial was conducted in the 1970s–80s. Chemotherapy
+regimens, supportive care standards, and diagnostic criteria have changed
+substantially since then. Neither the experimental treatment nor the standard
+regimen reflects current clinical practice, and the trial predates targeted
+therapy, immunotherapy, and modern platinum-based regimens.
+
+**Event rate and censoring.** With 128 deaths among 137 patients (93.4%),
+this dataset has very limited censoring. While this provides statistical
+power, it leaves little room for assessing time-to-event heterogeneity and
+means survival estimates at longer time points are based on very few
+at-risk individuals.
+
+**No external validation.** Model performance (concordance = 0.735) was
+assessed on the same data used to fit the model. Without an independent
+validation cohort, this estimate is likely optimistic and should be
+interpreted with caution.
+
+**Residual confounding.** Although the model adjusts for the available
+covariates, unmeasured factors — such as comorbidities, disease stage at
+diagnosis, smoking history, or treatment compliance — may confound the
+observed associations.
+
+**Interaction exploration was limited.** Only two interaction terms were
+tested (treatment × age, treatment × prior therapy). It is possible that
+clinically meaningful interactions exist between other covariates (e.g.,
+treatment × cell type) that were not explored.

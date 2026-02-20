@@ -4,7 +4,7 @@
 .DS_Store
 .AppleDouble
 .LSOverride
-._*         
+._*
 .Spotlight-V100
 .Trashes
 ehthumbs.db
@@ -49,10 +49,10 @@ __pycache__/
 # ======================================
 # Quarto
 # ======================================
-.quarto/             
-_site/               
-*.nb.html            
-*.qmd~             
+.quarto/
+_site/
+*.nb.html
+*.qmd~
 
 # ======================================
 # Output / Reports / Artifacts (custom)
@@ -68,3 +68,6 @@ logs/
 *.toc
 *.bbl
 *.blg
+
+/.quarto/
+**/*.quarto_ipynb

@@ -3,50 +3,40 @@ title: "Veteran Lung Cancer Survival Analysis"
 format: html
 ---
 
-# 👋 Welcome
+This project applies survival analysis to a Veterans Administration randomised
+controlled trial comparing standard vs experimental chemotherapy in patients
+with advanced, inoperable lung cancer. It uses Kaplan–Meier estimation, Cox
+proportional hazards modelling, spline transformations, interaction testing,
+and the Aalen additive model — all implemented in R with `survival`,
+`survminer`, and `ggplot2`, rendered via Quarto.
 
-This site showcases a survival analysis project based on a Veterans Administration clinical trial investigating treatment outcomes in patients with advanced lung cancer.
-
-It includes **two versions** of the same core analysis — one for public-facing presentation, and one built as a **teaching notebook and personal reference**.
+The project is organised into three parts:
 
 ---
 
-## 📘 Teaching Notebook
+## Overview
 
-> _“Teach it to remember it.”_
+A concise summary of the dataset, key survival estimates, and the main model
+findings — four plots that tell the full story at a glance.
 
-This version of the report includes **collapsible callout sections** explaining:
+👉 [Open Overview »](notebooks/veteran-lung-cancer-overview.html)
 
-- The theory behind each step (e.g., proportional hazards, residuals)
-- Practical notes on survival analysis in R
-- Code snippets and diagnostics used in the modeling process
+---
 
-The goal is to create a **reusable reference** — something I can revisit when refreshing my skills, and something that reflects a deep understanding of the methods.
+## Full Report
+
+A complete step-by-step analysis: exploratory survival analysis, model
+building, functional form checking, spline transformations, interaction
+testing, diagnostics, and final model interpretation.
+
+👉 [Open Full Report »](notebooks/veteran-lung-cancer-coxph-report.html)
+
+---
+
+## Teaching & Learning Reference
+
+The same analysis with collapsible callout sections explaining the statistical
+reasoning behind each step — theory, assumptions, code decisions, and
+diagnostics. A reusable reference for future survival analyses.
 
 👉 [Open Teaching Notebook »](notebooks/veteran-lung-cancer-coxph.html)
-
----
-
-## 📄 Final Report
-
-This is a **clean, styled version of the report** — stripped of callouts and teaching notes — suitable for:
-
-- Demonstrating applied survival analysis skills
-- Portfolio inclusion
-
----
-
-## 🛠️ About This Project
-
-Built in R using `survival`, `survminer`, and `ggplot2`, this project walks through:
-
-- Exploratory Kaplan-Meier analysis
-- Cox proportional hazards modeling
-- Model diagnostics and residuals
-- Spline transformations and interaction effects
-
-All rendered using **Quarto** for seamless publishing and reproducibility.
-
----
-
-_TL;DR: One notebook teaches, one notebook impresses._

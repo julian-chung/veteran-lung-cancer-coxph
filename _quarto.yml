@@ -8,10 +8,12 @@ website:
     left:
       - href: index.qmd
         text: Home
+      - href: notebooks/veteran-lung-cancer-overview.qmd
+        text: Overview
+      - href: notebooks/veteran-lung-cancer-coxph-report.qmd
+        text: Report
       - href: notebooks/veteran-lung-cancer-coxph.qmd
         text: Teaching Notebook
-      - href: notebooks/veteran-lung-cancer-report.qmd
-        text: Report  # Placeholder for the final version
 
 format:
   html:

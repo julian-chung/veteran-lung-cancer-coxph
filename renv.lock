@@ -1,6 +1,6 @@
 {
   "R": {
-    "Version": "4.5.1",
+    "Version": "4.5.2",
     "Repositories": [
       {
         "Name": "CRAN",
@@ -1437,6 +1437,69 @@
       "NeedsCompilation": "no",
       "Author": "Hadley Wickham [aut, cre] (ORCID: <https://orcid.org/0000-0003-4757-117X>), Max Kuhn [aut], Davis Vaughan [aut], Posit Software, PBC [cph, fnd] (ROR: <https://ror.org/03wc8by49>)",
       "Maintainer": "Hadley Wickham <hadley@posit.co>",
+      "Repository": "CRAN"
+    },
+    "ggfortify": {
+      "Package": "ggfortify",
+      "Version": "0.4.19",
+      "Source": "Repository",
+      "Type": "Package",
+      "Title": "Data Visualization Tools for Statistical Analysis Results",
+      "Date": "2025-07-26",
+      "Authors@R": "c( person(\"Masaaki\", \"Horikoshi\", role = c(\"aut\"), email = \"sinhrks@gmail.com\"), person(\"Yuan\", \"Tang\", role = c(\"aut\", \"cre\"), email = \"terrytangyuan@gmail.com\", comment = c(ORCID = \"0000-0001-5243-233X\")), person(\"Austin\", \"Dickey\", role = c(\"ctb\")), person(\"Matthias\", \"Grenié\", role = c(\"ctb\")), person(\"Ryan\", \"Thompson\", role = c(\"ctb\")), person(\"Luciano\", \"Selzer\", role = c(\"ctb\")), person(\"Dario\", \"Strbenac\", role = c(\"ctb\")), person(\"Kirill\", \"Voronin\", role = c(\"ctb\")), person(\"Damir\", \"Pulatov\", role = c(\"ctb\")) )",
+      "Maintainer": "Yuan Tang <terrytangyuan@gmail.com>",
+      "URL": "https://github.com/sinhrks/ggfortify",
+      "BugReports": "https://github.com/sinhrks/ggfortify/issues",
+      "Encoding": "UTF-8",
+      "Description": "Unified plotting tools for statistics commonly used, such as GLM, time series, PCA families, clustering and survival analysis. The package offers a single plotting interface for these analysis results and plots in a unified style using 'ggplot2'.",
+      "License": "MIT + file LICENSE",
+      "Depends": [
+        "methods",
+        "ggplot2 (>= 2.0.0)"
+      ],
+      "Imports": [
+        "dplyr (>= 0.3)",
+        "tidyr",
+        "gridExtra",
+        "grid",
+        "scales",
+        "stringr",
+        "tibble"
+      ],
+      "Suggests": [
+        "testthat",
+        "cluster",
+        "changepoint",
+        "fGarch",
+        "forecast",
+        "ggrepel",
+        "glmnet",
+        "grDevices",
+        "KFAS",
+        "knitr",
+        "lintr",
+        "mapdata",
+        "markdown",
+        "MASS",
+        "MSwM",
+        "nlme",
+        "raster",
+        "ROCR",
+        "sp",
+        "stats",
+        "strucchange",
+        "survival",
+        "timeSeries",
+        "tseries",
+        "utils",
+        "vars",
+        "xts",
+        "zoo",
+        "lfda"
+      ],
+      "RoxygenNote": "7.3.2",
+      "NeedsCompilation": "no",
+      "Author": "Masaaki Horikoshi [aut], Yuan Tang [aut, cre] (ORCID: <https://orcid.org/0000-0001-5243-233X>), Austin Dickey [ctb], Matthias Grenié [ctb], Ryan Thompson [ctb], Luciano Selzer [ctb], Dario Strbenac [ctb], Kirill Voronin [ctb], Damir Pulatov [ctb]",
       "Repository": "CRAN"
     },
     "ggplot2": {
@@ -2961,40 +3024,6 @@
       "NeedsCompilation": "yes",
       "VignetteBuilder": "R.rsp",
       "Author": "Roger Koenker [cre, aut], Stephen Portnoy [ctb] (Contributions to Censored QR code), Pin Tian Ng [ctb] (Contributions to Sparse QR code), Blaise Melly [ctb] (Contributions to preprocessing code), Achim Zeileis [ctb] (Contributions to dynrq code essentially identical to his dynlm code), Philip Grosjean [ctb] (Contributions to nlrq code), Cleve Moler [ctb] (author of several linpack routines), Yousef Saad [ctb] (author of sparskit2), Victor Chernozhukov [ctb] (contributions to extreme value inference code), Ivan Fernandez-Val [ctb] (contributions to extreme value inference code), Martin Maechler [ctb] (tweaks (src/chlfct.f, 'tiny','Large'), <https://orcid.org/0000-0002-8685-9910>), Brian D Ripley [trl, ctb] (Initial (2001) R port from S (to my everlasting shame -- how could I have been so slow to adopt R!) and for numerous other suggestions and useful advice)"
-    },
-    "ranger": {
-      "Package": "ranger",
-      "Version": "0.17.0",
-      "Source": "Repository",
-      "Type": "Package",
-      "Title": "A Fast Implementation of Random Forests",
-      "Date": "2024-11-08",
-      "Authors@R": "c( person(\"Marvin N.\", \"Wright\", email = \"cran@wrig.de\", role = c(\"aut\", \"cre\")), person(\"Stefan\", \"Wager\", role = \"ctb\"), person(\"Philipp\", \"Probst\", role = \"ctb\"))",
-      "Description": "A fast implementation of Random Forests, particularly suited for high dimensional data. Ensembles of classification, regression, survival and probability prediction trees are supported. Data from genome-wide association studies can be analyzed efficiently. In addition to data frames, datasets of class 'gwaa.data' (R package 'GenABEL') and 'dgCMatrix' (R package 'Matrix')  can be directly analyzed.",
-      "License": "GPL-3",
-      "Imports": [
-        "Rcpp (>= 0.11.2)",
-        "Matrix"
-      ],
-      "LinkingTo": [
-        "Rcpp",
-        "RcppEigen"
-      ],
-      "Depends": [
-        "R (>= 3.1)"
-      ],
-      "Suggests": [
-        "survival",
-        "testthat"
-      ],
-      "Encoding": "UTF-8",
-      "RoxygenNote": "7.3.2",
-      "URL": "https://imbs-hl.github.io/ranger/, https://github.com/imbs-hl/ranger",
-      "BugReports": "https://github.com/imbs-hl/ranger/issues",
-      "NeedsCompilation": "yes",
-      "Author": "Marvin N. Wright [aut, cre], Stefan Wager [ctb], Philipp Probst [ctb]",
-      "Maintainer": "Marvin N. Wright <cran@wrig.de>",
-      "Repository": "CRAN"
     },
     "rappdirs": {
       "Package": "rappdirs",

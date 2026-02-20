@@ -1,474 +1,439 @@
-# Load required libraries
-library(survival) # Core survival analysis tools
-library(survminer)  # Visualization and diagnostics
-library(dplyr)  # Data wrangling
-library(ggplot2)  # Plotting
-library(broom)  # Tidying model output
-library(splines) # Splines for flexible modeling
+# =============================================================================
+# Veteran Lung Cancer Survival Analysis — Reference Script
+# =============================================================================
+# All R code from the analysis notebooks in executable form.
+# Use this for quick reference without scrolling through prose.
+#
+# Source notebooks:
+#   notebooks/veteran-lung-cancer-coxph.qmd       (full analysis)
+#   notebooks/veteran-lung-cancer-overview.qmd    (summary visualisations)
+#
+# Final model: trt + prior + ns(age, df=3) + karno + celltype
+# =============================================================================
 
-# Load the dataset
+
+# ---- 1. Libraries ------------------------------------------------------------
+
+library(survival)     # Surv(), coxph(), survfit(), aareg()
+library(survminer)    # ggsurvplot(), ggforest(), ggcoxfunctional(), ggadjustedcurves()
+library(dplyr)        # data wrangling
+library(forcats)      # factor helpers
+library(broom)        # tidy model output
+library(purrr)        # map_dfr for univariable loop
+library(ggplot2)      # plotting
+library(splines)      # ns() for natural cubic splines
+library(glue)         # glue() for inline stats output
+library(forestmodel)  # forest_model() for Cox forest plots
+library(ggfortify)    # autoplot() for Aalen model
+
+
+# ---- 2. Data -----------------------------------------------------------------
+
+# Used in full analysis (teaching notebook)
+# trt: Control / Intervention
 veteran <- survival::veteran %>%
   mutate(trt = factor(trt,
                       levels = c(1, 2),
                       labels = c("Control", "Intervention")))
 
-# Peek at the structure and summary
-# glimpse(veteran)
-# summary(veteran)
+# Used in overview (all variables fully labelled)
+# trt: Standard / Experimental
+veteran2 <- survival::veteran %>%
+  mutate(
+    trt      = factor(trt, levels = c(1, 2), labels = c("Standard", "Experimental")),
+    celltype = factor(celltype, levels = c("squamous", "smallcell", "adeno", "large"),
+                      labels = c("Squamous", "Small cell", "Adenocarcinoma", "Large cell")),
+    prior    = factor(prior, levels = c(0, 10), labels = c("No", "Yes"))
+  )
 
-head(veteran)
 
-# Create the survival object
+# ---- 3. Exploratory: Kaplan-Meier & Log-rank ---------------------------------
+
 surv_obj <- Surv(time = veteran$time, event = veteran$status)
 
-# Fit Kaplan-Meier curve stratified by treatment
 km_fit <- survfit(surv_obj ~ trt, data = veteran)
-
-# View basic survival summary
-# summary(km_fit)
-
-# View basic survival summary
 summary(km_fit)
 
-# Plot the KM curve
 ggsurvplot(
   km_fit,
-  data = veteran,
-  conf.int = TRUE,
-  pval = TRUE,
-  pval.size = 4,
-  risk.table = TRUE,
+  data             = veteran,
+  conf.int         = TRUE,
+  pval             = TRUE,
+  pval.size        = 4,
+  risk.table       = TRUE,
   risk.table.title = "Number at Risk",
-  risk.table.col = "strata",
-  risk.table.y.text.col = TRUE,
-  risk.table.fontsize = 4,
-  legend.title = "Treatment Group",
-  legend.labs = c("Control", "Intervention"),
-  xlab = "Time (days)",
-  ylab = "Survival Probability",
-  palette = c("#A569BD", "#45B39D"),
-  title = "Kaplan-Meier Survival Curve: VA Lung Cancer Trial",
-  ggtheme = theme_minimal(base_size = 13) +
-    theme(
-      legend.position = "top",
-      plot.title = element_text(hjust = 0.5, face = "bold"),
-      panel.grid.major = element_line(color = "grey80", linewidth = 0.4),
-      panel.grid.minor = element_line(color = "grey90", linewidth = 0.2)
-    ),
-  tables.theme = theme(  # Trying to tweak the risk table
-    axis.text.y = element_text(size = 10, margin = margin(r = 12), lineheight = 2)
-  )
+  risk.table.col   = "strata",
+  legend.title     = "Treatment Group",
+  legend.labs      = c("Control", "Intervention"),
+  xlab             = "Time (days)",
+  ylab             = "Survival Probability",
+  palette          = c("#A569BD", "#45B39D"),
+  title            = "Kaplan-Meier Survival Curve: VA Lung Cancer Trial",
+  ggtheme          = theme_minimal(base_size = 13)
 )
 
-# Perform the log-rank test
+# Log-rank test
 log_rank_test <- survdiff(surv_obj ~ trt, data = veteran)
 log_rank_test
-
-# Extract the p-value
 1 - pchisq(log_rank_test$chisq, df = length(log_rank_test$n) - 1)
 
-# Fit the Cox Proportional Hazards model
-cox_model <- coxph(surv_obj ~ trt, data = veteran) # Where trt is a binary treatment variable with levels Control and Intervention
 
-# Summarize the model
+# ---- 4. Univariable Cox Models -----------------------------------------------
+
+# Treatment only
+cox_model <- coxph(surv_obj ~ trt, data = veteran)
 summary(cox_model)
 
-# Use ggadjustedcurves for plotting adjusted survival curves directly from the Cox model
 ggadjustedcurves(
-  cox_model,                     # The fitted Cox model
-  data = veteran,                # The original data used to fit the model
-  variable = "trt",              # The variable to plot adjusted curves for
-  method = "average",            # Method for adjusting (average effect of other covariates)
-  conf.int = TRUE,
-  legend.labs = c("Control", "Intervention"),
+  cox_model,
+  data         = veteran,
+  variable     = "trt",
+  method       = "average",
+  conf.int     = TRUE,
+  legend.labs  = c("Control", "Intervention"),
   legend.title = "Treatment Group",
-  risk.table = TRUE,             # Include the risk table
-  risk.table.title = "Number at Risk",
-  xlab = "Time (days)",
-  ylab = "Adjusted Survival Probability",
-  title = "Cox Model Adjusted Survival Curves",
-  palette = c("#A569BD", "#45B39D"),
-  ggtheme = theme_minimal(base_size = 13) +
-    theme(
-      legend.position = "top",
-      plot.title = element_text(hjust = 0.5, face = "bold"),
-      panel.grid.major = element_line(color = "grey80", linewidth = 0.4),
-      panel.grid.minor = element_line(color = "grey90", linewidth = 0.2)
-    ),
-  tables.theme = theme(
-    axis.text.y = element_text(size = 10, margin = margin(r = 12), lineheight = 2)
-  )
+  xlab         = "Time (days)",
+  ylab         = "Adjusted Survival Probability",
+  palette      = c("#A569BD", "#45B39D"),
+  ggtheme      = theme_minimal(base_size = 13)
 )
 
-# Test the PH assumption
+# PH assumption
 cox.zph(cox_model)
-
 plot(cox.zph(cox_model))
 
-# Generate Martingale residuals
-martingale_resid <- residuals(cox_model, type = "martingale")
-
-# Add residuals to your data
-veteran$martingale <- martingale_resid
-
-# Plot residuals against a continuous covariate (e.g., time or another variable)
-# Here we plot against the linear predictor for simplicity
+# Martingale residuals
+veteran$martingale  <- residuals(cox_model, type = "martingale")
 veteran$linear_pred <- predict(cox_model, type = "lp")
 
 ggplot(veteran, aes(x = linear_pred, y = martingale, color = trt)) +
   geom_point(alpha = 0.6) +
   geom_hline(yintercept = 0, linetype = "dashed", color = "grey30") +
-  theme_minimal(base_size = 13) +
-  labs(
-    title = "Martingale Residuals vs Linear Predictor",
-    x = "Linear Predictor (Log Hazard)",
-    y = "Martingale Residual",
-    color = "Treatment Group"
-  ) +
   scale_color_manual(values = c("Control" = "#A569BD", "Intervention" = "#45B39D")) +
-  theme(plot.title = element_text(hjust = 0.5, face = "bold"))
+  labs(title = "Martingale Residuals vs Linear Predictor",
+       x = "Linear Predictor (Log Hazard)", y = "Martingale Residual",
+       color = "Treatment Group") +
+  theme_minimal(base_size = 13)
 
+
+# ---- 5. Model Building: Age & Prior ------------------------------------------
+
+# trt + age
 cox_age <- coxph(Surv(time, status) ~ trt + age, data = veteran)
 summary(cox_age)
 
-# Test proportional hazards assumption for the model including age
 cox_zph_age <- cox.zph(cox_age)
 print(cox_zph_age)
-
-# Visual check
 plot(cox_zph_age)
 
-# Generate Martingale residuals
-veteran$martingale_age <- residuals(cox_age, type = "martingale")
-
-# Generate linear predictor
+veteran$martingale_age  <- residuals(cox_age, type = "martingale")
 veteran$linear_pred_age <- predict(cox_age, type = "lp")
 
-# Plot residuals against age
 ggplot(veteran, aes(x = age, y = martingale_age, color = trt)) +
   geom_point(alpha = 0.6) +
   geom_hline(yintercept = 0, linetype = "dashed", color = "grey30") +
-  theme_minimal(base_size = 13) +
-  labs(
-    title = "Martingale Residuals vs Age",
-    x = "Age (years)",
-    y = "Martingale Residual",
-    color = "Treatment Group"
-  ) +
   scale_color_manual(values = c("Control" = "#A569BD", "Intervention" = "#45B39D")) +
-  theme(plot.title = element_text(hjust = 0.5, face = "bold"))
+  labs(title = "Martingale Residuals vs Age",
+       x = "Age (years)", y = "Martingale Residual", color = "Treatment Group") +
+  theme_minimal(base_size = 13)
 
-# Fit a univariable Cox model to assess functional form of age
-cox_age_only <- coxph(Surv(time, status) ~ age, data = veteran)
-
-# Check the functional form visually using Martingale residuals
-ggcoxfunctional(cox_age_only, data = veteran)
-
-# Fit the Cox model including prior treatment
+# trt + prior
 cox_prior <- coxph(Surv(time, status) ~ trt + prior, data = veteran)
 summary(cox_prior)
 
-# Test proportional hazards assumption for the model including prior treatment
 cox_zph_prior <- cox.zph(cox_prior)
 print(cox_zph_prior)
-
-# Visual check
 plot(cox_zph_prior)
 
-# Generate Martingale residuals
-veteran$martingale_prior <- residuals(cox_prior, type = "martingale")
-# Generate linear predictor
+veteran$martingale_prior  <- residuals(cox_prior, type = "martingale")
 veteran$linear_pred_prior <- predict(cox_prior, type = "lp")
-# Plot residuals against prior treatment
-ggplot(veteran, aes(x = prior, y = martingale_prior, color = trt)) +
-  geom_point(alpha = 0.6) +
-  geom_hline(yintercept = 0, linetype = "dashed", color = "grey30") +
-  theme_minimal(base_size = 13) +
-  labs(
-    title = "Martingale Residuals vs Prior Treatment",
-    x = "Prior Treatment (0 = No, 1 = Yes)",
-    y = "Martingale Residual",
-    color = "Treatment Group"
-  ) +
-  scale_color_manual(values = c("Control" = "#A569BD", "Intervention" = "#45B39D")) +
-  theme(plot.title = element_text(hjust = 0.5, face = "bold")) +
-  geom_point(position = position_jitter(width = 0.1), alpha = 0.6) # Adding jitter to avoid overlap
 
-# Fit the multivariable Cox model including age and prior treatment
+ggplot(veteran, aes(x = prior, y = martingale_prior, color = trt)) +
+  geom_point(position = position_jitter(width = 0.1), alpha = 0.6) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "grey30") +
+  scale_color_manual(values = c("Control" = "#A569BD", "Intervention" = "#45B39D")) +
+  labs(title = "Martingale Residuals vs Prior Treatment",
+       x = "Prior Treatment", y = "Martingale Residual", color = "Treatment Group") +
+  theme_minimal(base_size = 13)
+
+# trt + age + prior
 cox_multivariable <- coxph(Surv(time, status) ~ trt + age + prior, data = veteran)
 summary(cox_multivariable)
 
-# Test proportional hazards assumption for the multivariable model
 cox_zph_multivariable <- cox.zph(cox_multivariable)
 print(cox_zph_multivariable)
-
-# Visual check
 plot(cox_zph_multivariable)
 
-# Generate Martingale residuals
-veteran$martingale_multivariable <- residuals(cox_multivariable, type = "martingale")
-# Generate linear predictor
+veteran$martingale_multivariable  <- residuals(cox_multivariable, type = "martingale")
 veteran$linear_pred_multivariable <- predict(cox_multivariable, type = "lp")
-# Plot residuals against linear predictor
+
 ggplot(veteran, aes(x = linear_pred_multivariable, y = martingale_multivariable, color = trt)) +
   geom_point(alpha = 0.6) +
   geom_hline(yintercept = 0, linetype = "dashed", color = "grey30") +
-  theme_minimal(base_size = 13) +
-  labs(
-    title = "Martingale Residuals vs Linear Predictor\n(Multivariable Model)",
-    x = "Linear Predictor (Log Hazard)",
-    y = "Martingale Residual",
-    color = "Treatment Group"
-  ) +
   scale_color_manual(values = c("Control" = "#A569BD", "Intervention" = "#45B39D")) +
-  theme(plot.title = element_text(hjust = 0.5, face = "bold"))
+  labs(title = "Martingale Residuals vs Linear Predictor (Multivariable Model)",
+       x = "Linear Predictor (Log Hazard)", y = "Martingale Residual",
+       color = "Treatment Group") +
+  theme_minimal(base_size = 13)
 
-# Refit a univariable model with age (again, for functional form check)
+
+# ---- 6. Functional Form Check: Age ------------------------------------------
+
+cox_age_only <- coxph(Surv(time, status) ~ age, data = veteran)
+ggcoxfunctional(cox_age_only, data = veteran)
+
 cox_age_for_form_check <- coxph(Surv(time, status) ~ age, data = veteran)
-
-# Plot functional form using ggcoxfunctional
 ggcoxfunctional(
-  fit = cox_age_for_form_check,
-  data = veteran,
+  fit       = cox_age_for_form_check,
+  data      = veteran,
   point.col = "#E74C3C",
-  ggtheme = theme_minimal(base_size = 13),
-  title = "Functional Form Check: Age"
+  ggtheme   = theme_minimal(base_size = 13),
+  title     = "Functional Form Check: Age"
 )
+# U-shaped curve -> non-linear -> use splines
 
-# Fit a Cox model with restricted cubic splines for age
+
+# ---- 7. Spline Model & Comparison --------------------------------------------
+
 cox_spline <- coxph(Surv(time, status) ~ ns(age, df = 3) + trt + prior, data = veteran)
 summary(cox_spline)
 
-# Test proportional hazards assumption for the spline model
 cox.zph(cox_spline)
-
-# Visual check of Schoenfeld residuals for spline model
 plot(cox.zph(cox_spline))
 
-# Residuals vs linear predictor
-veteran$martingale_spline <- residuals(cox_spline, type = "martingale")
+veteran$martingale_spline  <- residuals(cox_spline, type = "martingale")
 veteran$linear_pred_spline <- predict(cox_spline, type = "lp")
 
 ggplot(veteran, aes(x = linear_pred_spline, y = martingale_spline, color = trt)) +
   geom_point(alpha = 0.6) +
   geom_hline(yintercept = 0, linetype = "dashed", color = "grey30") +
-  theme_minimal(base_size = 13) +
-  labs(
-    title = "Martingale Residuals vs Linear Predictor\n(Spline Model)",
-    x = "Linear Predictor (Log Hazard)",
-    y = "Martingale Residual",
-    color = "Treatment Group"
-  ) +
   scale_color_manual(values = c("Control" = "#A569BD", "Intervention" = "#45B39D")) +
-  theme(plot.title = element_text(hjust = 0.5, face = "bold"))
+  labs(title = "Martingale Residuals vs Linear Predictor (Spline Model)",
+       x = "Linear Predictor (Log Hazard)", y = "Martingale Residual",
+       color = "Treatment Group") +
+  theme_minimal(base_size = 13)
 
-# Compare linear age model vs spline-transformed age model
+# LRT: linear age vs spline age (chi2 = 7.91, df = 2, p = 0.019 -> spline wins)
 anova(cox_multivariable, cox_spline, test = "LRT")
 
 termplot(cox_spline, se = TRUE, col.term = "blue")
 
-# Fit a cox model with interaction between treatment and age
-cox_interaction <- coxph(Surv(time, status) ~ trt * ns(age, df = 3) + prior, data = veteran)
+
+# ---- 8. Extended Model: + Karnofsky + Cell Type ------------------------------
+
+cox_karno_and_cell <- coxph(
+  Surv(time, status) ~ ns(age, df = 3) + trt + prior + karno + celltype,
+  data = veteran
+)
+summary(cox_karno_and_cell)
+# Concordance: 0.735 (vs 0.559 for spline-only model)
+
+forest_model(cox_karno_and_cell)
+
+# KM by Karnofsky group
+veteran$karno_group <- cut(veteran$karno,
+                           breaks = c(0, 50, 70, 100),
+                           labels = c("Low (≤50)", "Medium (51–70)", "High (>70)"),
+                           right  = TRUE)
+
+km_karno <- survfit(Surv(time, status) ~ karno_group, data = veteran)
+
+ggsurvplot(km_karno,
+           data         = veteran,
+           risk.table   = TRUE,
+           pval         = TRUE,
+           conf.int     = FALSE,
+           legend.title = "Karnofsky Group",
+           legend.labs  = c("Low (≤50)", "Medium (51–70)", "High (>70)"),
+           palette      = c("firebrick", "steelblue", "darkgreen"),
+           xlab         = "Time (days)",
+           ylab         = "Survival Probability",
+           title        = "Kaplan-Meier Survival by Karnofsky Score Group")
+
+# KM by cell type
+km_cell <- survfit(Surv(time, status) ~ celltype, data = veteran)
+
+ggsurvplot(km_cell,
+           data         = veteran,
+           risk.table   = TRUE,
+           pval         = TRUE,
+           conf.int     = FALSE,
+           legend.title = "Cell Type",
+           legend.labs  = levels(factor(veteran$celltype)),
+           palette      = "Dark2",
+           xlab         = "Time (days)",
+           ylab         = "Survival Probability",
+           title        = "Kaplan-Meier Survival by Cell Type")
+
+# Combined side-by-side
+plot_cell  <- ggsurvplot(km_cell,  data = veteran, risk.table = TRUE, pval = TRUE,
+                         conf.int = FALSE, legend.title = "Cell Type",
+                         palette = "Dark2", title = "Survival by Cell Type")
+plot_karno <- ggsurvplot(km_karno, data = veteran, risk.table = TRUE, pval = TRUE,
+                         conf.int = FALSE, legend.title = "Karnofsky Score",
+                         palette = c("firebrick", "steelblue", "darkgreen"),
+                         title = "Survival by Karnofsky Group")
+arrange_ggsurvplots(list(plot_cell, plot_karno), ncol = 2, nrow = 1)
+
+
+# ---- 9. Final Model Diagnostics ----------------------------------------------
+
+cox_zph_final <- cox.zph(cox_karno_and_cell)
+print(cox_zph_final)
+plot(cox_zph_final)
+
+veteran$martingale_final  <- residuals(cox_karno_and_cell, type = "martingale")
+veteran$linear_pred_final <- predict(cox_karno_and_cell, type = "lp")
+
+ggplot(veteran, aes(x = linear_pred_final, y = martingale_final, color = trt)) +
+  geom_point(alpha = 0.6) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "grey30") +
+  scale_color_manual(values = c("Control" = "#A569BD", "Intervention" = "#45B39D")) +
+  labs(title = "Martingale Residuals vs Linear Predictor (Final Model)",
+       x = "Linear Predictor (Log Hazard)", y = "Martingale Residual",
+       color = "Treatment Group") +
+  theme_minimal(base_size = 13)
+
+# Functional form check: Karnofsky (linear is fine — no spline needed)
+cox_karno_for_form_check <- coxph(Surv(time, status) ~ karno, data = veteran)
+ggcoxfunctional(
+  fit       = cox_karno_for_form_check,
+  data      = veteran,
+  point.col = "#E74C3C",
+  ggtheme   = theme_minimal(base_size = 13),
+  title     = "Functional Form Check: Karnofsky Score"
+)
+
+
+# ---- 10. Interaction Models --------------------------------------------------
+
+# trt x age (spline)
+cox_interaction <- coxph(Surv(time, status) ~ trt * ns(age, df = 3) + prior,
+                         data = veteran)
 summary(cox_interaction)
-
-# Test proportional hazards assumption for the interaction model
 cox.zph(cox_interaction)
-
-# Visual check of Schoenfeld residuals for interaction model
 plot(cox.zph(cox_interaction))
 
-# Residuals vs linear predictor
-veteran$martingale_interaction <- residuals(cox_interaction, type = "martingale")
+veteran$martingale_interaction  <- residuals(cox_interaction, type = "martingale")
 veteran$linear_pred_interaction <- predict(cox_interaction, type = "lp")
+veteran$deviance_interaction    <- residuals(cox_interaction, type = "deviance")
+
 ggplot(veteran, aes(x = linear_pred_interaction, y = martingale_interaction, color = trt)) +
   geom_point(alpha = 0.6) +
   geom_hline(yintercept = 0, linetype = "dashed", color = "grey30") +
-  theme_minimal(base_size = 13) +
-  labs(
-    title = "Martingale Residuals vs Linear Predictor\n(Interaction Model)",
-    x = "Linear Predictor (Log Hazard)",
-    y = "Martingale Residual",
-    color = "Treatment Group"
-  ) +
   scale_color_manual(values = c("Control" = "#A569BD", "Intervention" = "#45B39D")) +
-  theme(plot.title = element_text(hjust = 0.5, face = "bold"))
+  labs(title = "Martingale Residuals (Interaction: trt x age)",
+       x = "Linear Predictor", y = "Martingale Residual", color = "Treatment Group") +
+  theme_minimal(base_size = 13)
 
-# Deviance residuals
-veteran$deviance_interaction <- residuals(cox_interaction, type = "deviance")
-# Plot deviance residuals
 ggplot(veteran, aes(x = linear_pred_interaction, y = deviance_interaction, color = trt)) +
-  geom_point(position = position_jitter(width = 0.1), alpha = 0.6) + # Adding jitter to avoid overlap
+  geom_point(position = position_jitter(width = 0.1), alpha = 0.6) +
   geom_hline(yintercept = 0, linetype = "dashed", color = "grey30") +
-  theme_minimal(base_size = 13) +
-  labs(
-    title = "Deviance Residuals vs Linear Predictor\n(Interaction Model)",
-    x = "Linear Predictor (Log Hazard)",
-    y = "Deviance Residual",
-    color = "Treatment Group"
-  ) +
   scale_color_manual(values = c("Control" = "#A569BD", "Intervention" = "#45B39D")) +
-  theme(plot.title = element_text(hjust = 0.5, face = "bold"))
+  labs(title = "Deviance Residuals (Interaction: trt x age)",
+       x = "Linear Predictor", y = "Deviance Residual", color = "Treatment Group") +
+  theme_minimal(base_size = 13)
 
-# Fit a cox model with interaction between treatment and prior therapy
-cox_interaction_prior <- coxph(Surv(time, status) ~ trt * prior + ns(age, df = 3), data = veteran)
+# trt x prior
+cox_interaction_prior <- coxph(Surv(time, status) ~ trt * prior + ns(age, df = 3),
+                               data = veteran)
 summary(cox_interaction_prior)
-
-# Test proportional hazards assumption for the interaction with prior therapy
 cox.zph(cox_interaction_prior)
-
-# Visual check of Schoenfeld residuals for interaction with prior therapy
 plot(cox.zph(cox_interaction_prior))
 
-# Residuals vs linear predictor
-veteran$martingale_interaction_prior <- residuals(cox_interaction_prior, type = "martingale")
+veteran$martingale_interaction_prior  <- residuals(cox_interaction_prior, type = "martingale")
 veteran$linear_pred_interaction_prior <- predict(cox_interaction_prior, type = "lp")
+veteran$deviance_interaction_prior    <- residuals(cox_interaction_prior, type = "deviance")
 
 ggplot(veteran, aes(x = linear_pred_interaction_prior, y = martingale_interaction_prior, color = trt)) +
   geom_point(alpha = 0.6) +
   geom_hline(yintercept = 0, linetype = "dashed", color = "grey30") +
-  theme_minimal(base_size = 13) +
-  labs(
-    title = "Martingale Residuals vs Linear Predictor\n(Interaction with Prior Therapy)",
-    x = "Linear Predictor (Log Hazard)",
-    y = "Martingale Residual",
-    color = "Treatment Group"
-  ) +
   scale_color_manual(values = c("Control" = "#A569BD", "Intervention" = "#45B39D")) +
-  theme(plot.title = element_text(hjust = 0.5, face = "bold"))
+  labs(title = "Martingale Residuals (Interaction: trt x prior)",
+       x = "Linear Predictor", y = "Martingale Residual", color = "Treatment Group") +
+  theme_minimal(base_size = 13)
 
-# Deviance residuals
-veteran$deviance_interaction_prior <- residuals(cox_interaction_prior, type = "deviance")
-
-# Plot deviance residuals
 ggplot(veteran, aes(x = linear_pred_interaction_prior, y = deviance_interaction_prior, color = trt)) +
-  geom_point(position = position_jitter(width = 0.1), alpha = 0.6) + # Adding jitter to avoid overlap
+  geom_point(position = position_jitter(width = 0.1), alpha = 0.6) +
   geom_hline(yintercept = 0, linetype = "dashed", color = "grey30") +
-  theme_minimal(base_size = 13) +
-  labs(
-    title = "Deviance Residuals vs Linear Predictor\n(Interaction with Prior Therapy)",
-    x = "Linear Predictor (Log Hazard)",
-    y = "Deviance Residual",
-    color = "Treatment Group"
-  ) +
   scale_color_manual(values = c("Control" = "#A569BD", "Intervention" = "#45B39D")) +
-  theme(plot.title = element_text(hjust = 0.5, face = "bold"))
+  labs(title = "Deviance Residuals (Interaction: trt x prior)",
+       x = "Linear Predictor", y = "Deviance Residual", color = "Treatment Group") +
+  theme_minimal(base_size = 13)
 
-# Potential next steps:
 
-# 1. AIC and BIC for model comparison
-AIC(cox_model, cox_multivariable, cox_spline, cox_interaction, cox_interaction_prior)
-BIC(cox_model, cox_multivariable, cox_spline, cox_interaction, cox_interaction_prior)
+# ---- 11. Overview: Summary Visualisations (veteran2) -------------------------
+# Uses veteran2 — fully labelled dataset (Standard/Experimental, all factors set)
 
-# 2. Influence diagnostics (e.g., dfbeta, dffit)
-# Example: DFBETA plots for the main multivariable model
-ggcoxdiagnostics(cox_multivariable, type = "dfbeta", linear.predictions = FALSE, ggtheme = theme_minimal())
+# KM medians
+km_all <- survfit(Surv(time, status) ~ 1,   data = veteran2)
+km_by  <- survfit(Surv(time, status) ~ trt, data = veteran2)
+surv_median(km_all)
+surv_median(km_by)
 
-# 3. Cox-Snell residuals for overall model fit
-# Calculate Cox-Snell residuals
-veteran$coxsnell <- -log(survfit(cox_multivariable)$surv)
-# Plot Nelson-Aalen cumulative hazard vs Cox-Snell residuals
-library(survival)
-na_fit <- survfit(Surv(veteran$coxsnell, veteran$status) ~ 1)
-plot(na_fit$time, -log(na_fit$surv), type = "s",
-     xlab = "Cox-Snell Residuals", ylab = "Cumulative Hazard",
-     main = "Cox-Snell Residuals Plot")
-abline(0, 1, col = "red", lty = 2)
+lr   <- survdiff(Surv(time, status) ~ trt, data = veteran2)
+lr_p <- signif(1 - pchisq(lr$chisq, length(lr$n) - 1), 3)
 
-# 4. Baseline hazard estimation and plotting
-basehaz_df <- basehaz(cox_multivariable, centered = FALSE)
-plot(basehaz_df$time, basehaz_df$hazard, type = "l",
-     xlab = "Time", ylab = "Baseline Cumulative Hazard",
-     main = "Baseline Cumulative Hazard Function")
+# KM by treatment
+ggsurvplot(
+  km_by,
+  data         = veteran2,
+  risk.table   = TRUE,
+  pval         = TRUE,
+  conf.int     = TRUE,
+  palette      = c("#2E86AB", "#E84855"),
+  legend.title = "Treatment",
+  xlab         = "Time (days)",
+  ylab         = "Survival probability",
+  title        = "Kaplan-Meier Survival Curves by Treatment Arm",
+  ggtheme      = theme_minimal(base_size = 13)
+)
 
-# 5. Use broom package to tidy model output for reporting
-# Example: Tidy summary of the multivariable model
-library(broom)
-tidy_cox <- tidy(cox_multivariable, exponentiate = TRUE, conf.int = TRUE)
-print(tidy_cox)
+# KM by Karnofsky group
+veteran2$karno_group <- cut(veteran2$karno,
+                            breaks = c(0, 50, 70, 100),
+                            labels = c("Low (≤50)", "Medium (51–70)", "High (>70)"),
+                            right  = TRUE)
 
-# 7. Session info for reproducibility
-sessionInfo()
+km_karno2 <- survfit(Surv(time, status) ~ karno_group, data = veteran2)
 
-# Additional Covariates to Include:
-# Karnoff score and cell type
+ggsurvplot(
+  km_karno2,
+  data         = veteran2,
+  risk.table   = TRUE,
+  pval         = TRUE,
+  conf.int     = FALSE,
+  palette      = c("#E84855", "#F4A259", "#2E86AB"),
+  legend.title = "Karnofsky group",
+  legend.labs  = c("Low (≤50)", "Medium (51–70)", "High (>70)"),
+  xlab         = "Time (days)",
+  ylab         = "Survival probability",
+  title        = "Kaplan-Meier Survival Curves by Karnofsky Score Group",
+  ggtheme      = theme_minimal(base_size = 13)
+)
 
-# Stepwise inclusion of Karnofsky score and cell type, with diagnostics
+# Final Cox model forest plot
+cox_final <- coxph(
+  Surv(time, status) ~ trt + prior + ns(age, df = 3) + karno + celltype,
+  data = veteran2
+)
 
-# 1. Karnofsky score only
-cox_karno <- coxph(Surv(time, status) ~ karno, data = veteran)
-summary(cox_karno)
+ggforest(
+  cox_final,
+  data      = veteran2,
+  main      = "Adjusted Hazard Ratios — Final Cox PH Model",
+  fontsize  = 0.9,
+  noDigits  = 2,
+  refLabel  = "Reference"
+)
 
-# Schoenfeld residuals (PH assumption)
-cox_zph_karno <- cox.zph(cox_karno)
-print(cox_zph_karno)
-plot(cox_zph_karno)
+# Aalen additive model
+aa_fit <- aareg(
+  Surv(time, status) ~ trt + celltype + karno + age + prior,
+  data = veteran2
+)
+aa_fit
 
-# Martingale residuals
-veteran$martingale_karno <- residuals(cox_karno, type = "martingale")
-ggplot(veteran, aes(x = karno, y = martingale_karno)) +
-  geom_point(alpha = 0.6) +
-  geom_hline(yintercept = 0, linetype = "dashed", color = "grey30") +
-  theme_minimal() +
-  labs(title = "Martingale Residuals vs Karnofsky Score", x = "Karnofsky Score", y = "Martingale Residual")
-
-# Functional form check
-ggcoxfunctional(cox_karno, data = veteran)
-
-# 2. Cell type only
-cox_celltype <- coxph(Surv(time, status) ~ celltype, data = veteran)
-summary(cox_celltype)
-
-# Schoenfeld residuals
-cox_zph_celltype <- cox.zph(cox_celltype)
-print(cox_zph_celltype)
-plot(cox_zph_celltype)
-
-# Martingale residuals
-veteran$martingale_celltype <- residuals(cox_celltype, type = "martingale")
-ggplot(veteran, aes(x = as.numeric(celltype), y = martingale_celltype, color = celltype)) +
-  geom_point(alpha = 0.6) +
-  geom_hline(yintercept = 0, linetype = "dashed", color = "grey30") +
-  theme_minimal() +
-  labs(title = "Martingale Residuals vs Cell Type", x = "Cell Type (numeric)", y = "Martingale Residual")
-
-# 3. Karnofsky score + cell type
-cox_karno_celltype <- coxph(Surv(time, status) ~ karno + celltype, data = veteran)
-summary(cox_karno_celltype)
-
-# Schoenfeld residuals
-cox_zph_karno_celltype <- cox.zph(cox_karno_celltype)
-print(cox_zph_karno_celltype)
-plot(cox_zph_karno_celltype)
-
-# Martingale residuals
-veteran$martingale_karno_celltype <- residuals(cox_karno_celltype, type = "martingale")
-veteran$linear_pred_karno_celltype <- predict(cox_karno_celltype, type = "lp")
-ggplot(veteran, aes(x = linear_pred_karno_celltype, y = martingale_karno_celltype, color = celltype)) +
-  geom_point(alpha = 0.6) +
-  geom_hline(yintercept = 0, linetype = "dashed", color = "grey30") +
-  theme_minimal() +
-  labs(title = "Martingale Residuals vs Linear Predictor (Karno + Cell Type)",
-       x = "Linear Predictor", y = "Martingale Residual")
-
-# 4. Karnofsky score + cell type + age (splines) + prior + trt
-cox_full <- coxph(Surv(time, status) ~ trt + prior + ns(age, df = 3) + karno + celltype, data = veteran)
-summary(cox_full)
-
-# Schoenfeld residuals
-cox_zph_full <- cox.zph(cox_full)
-print(cox_zph_full)
-plot(cox_zph_full)
-
-# Martingale residuals
-veteran$martingale_full <- residuals(cox_full, type = "martingale")
-veteran$linear_pred_full <- predict(cox_full, type = "lp")
-ggplot(veteran, aes(x = linear_pred_full, y = martingale_full, color = celltype)) +
-  geom_point(alpha = 0.6) +
-  geom_hline(yintercept = 0, linetype = "dashed", color = "grey30") +
-  theme_minimal() +
-  labs(title = "Martingale Residuals vs Linear Predictor (Full Model)",
-       x = "Linear Predictor", y = "Martingale Residual")
-
-# Functional form check for Karnofsky in the full model
-ggcoxfunctional(cox_full, data = veteran, covariate = "karno")
-
+autoplot(aa_fit) +
+  theme_minimal(base_size = 12) +
+  labs(title = "Aalen Additive Model: Cumulative Regression Functions")

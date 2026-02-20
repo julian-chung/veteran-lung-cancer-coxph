@@ -2,12 +2,12 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.7.30">
+<meta name="generator" content="quarto-1.8.25">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Veteran Lung Cancer Analysis – Veteran Lung Cancer Survival Analysis</title>
+<title>Veteran Lung Cancer Survival Analysis</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -32,14 +32,15 @@ ul.task-list li input[type="checkbox"] {
 <meta name="quarto:offset" content="./">
 <script src="site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/axe/axe-check.js" type="module"></script>
 <script src="site_libs/quarto-html/popper.min.js"></script>
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="site_libs/quarto-html/anchor.min.js"></script>
 <link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-de070a7b0ab54f8780927367ac907214.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-7b89279ff1a6dce999919e0e67d4d9ec.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-fa64533f80f639ee7329b9a0bdd09959.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-1aca5e54e35ed150b03d5ecc722476db.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -78,6 +79,8 @@ ul.task-list li input[type="checkbox"] {
     <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
+    <a href="./index.html" class="navbar-brand navbar-brand-logo">
+    </a>
     <a class="navbar-brand" href="./index.html">
     <span class="navbar-title">Veteran Lung Cancer Survival Analysis</span>
     </a>
@@ -93,8 +96,16 @@ ul.task-list li input[type="checkbox"] {
 <span class="menu-text">Home</span></a>
   </li>  
   <li class="nav-item">
+    <a class="nav-link" href="./notebooks/veteran-lung-cancer-overview.html"> 
+<span class="menu-text">Overview</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./notebooks/veteran-lung-cancer-coxph-report.html"> 
+<span class="menu-text">Report</span></a>
+  </li>  
+  <li class="nav-item">
     <a class="nav-link" href="./notebooks/veteran-lung-cancer-coxph.html"> 
-<span class="menu-text">Lung Cancer Analysis</span></a>
+<span class="menu-text">Teaching Notebook</span></a>
   </li>  
 </ul>
           </div> <!-- /navcollapse -->
@@ -112,7 +123,9 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#project-overview" id="toc-project-overview" class="nav-link active" data-scroll-target="#project-overview">Project Overview</a></li>
+  <li><a href="#overview" id="toc-overview" class="nav-link active" data-scroll-target="#overview">Overview</a></li>
+  <li><a href="#full-report" id="toc-full-report" class="nav-link" data-scroll-target="#full-report">Full Report</a></li>
+  <li><a href="#teaching-learning-reference" id="toc-teaching-learning-reference" class="nav-link" data-scroll-target="#teaching-learning-reference">Teaching &amp; Learning Reference</a></li>
   </ul>
 </nav>
     </div>
@@ -121,7 +134,7 @@ ul.task-list li input[type="checkbox"] {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Veteran Lung Cancer Analysis</h1>
+<h1 class="title">Veteran Lung Cancer Survival Analysis</h1>
 </div>
 
 
@@ -138,12 +151,25 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<section id="project-overview" class="level1">
-<h1>Project Overview</h1>
-<p>This site contains analyses of lung cancer survival data from a Veterans Administration clinical trial.</p>
-<ul>
-<li><a href="notebooks/veteran-lung-cancer-coxph.html">Lung Cancer Survival Analysis</a></li>
-</ul>
+<p>This project applies survival analysis to a Veterans Administration randomised controlled trial comparing standard vs experimental chemotherapy in patients with advanced, inoperable lung cancer. It uses Kaplan–Meier estimation, Cox proportional hazards modelling, spline transformations, interaction testing, and the Aalen additive model — all implemented in R with <code>survival</code>, <code>survminer</code>, and <code>ggplot2</code>, rendered via Quarto.</p>
+<p>The project is organised into three parts:</p>
+<hr>
+<section id="overview" class="level2">
+<h2 class="anchored" data-anchor-id="overview">Overview</h2>
+<p>A concise summary of the dataset, key survival estimates, and the main model findings — four plots that tell the full story at a glance.</p>
+<p>👉 <a href="notebooks/veteran-lung-cancer-overview.html">Open Overview »</a></p>
+<hr>
+</section>
+<section id="full-report" class="level2">
+<h2 class="anchored" data-anchor-id="full-report">Full Report</h2>
+<p>A complete step-by-step analysis: exploratory survival analysis, model building, functional form checking, spline transformations, interaction testing, diagnostics, and final model interpretation.</p>
+<p>👉 <a href="notebooks/veteran-lung-cancer-coxph-report.html">Open Full Report »</a></p>
+<hr>
+</section>
+<section id="teaching-learning-reference" class="level2">
+<h2 class="anchored" data-anchor-id="teaching-learning-reference">Teaching &amp; Learning Reference</h2>
+<p>The same analysis with collapsible callout sections explaining the statistical reasoning behind each step — theory, assumptions, code decisions, and diagnostics. A reusable reference for future survival analyses.</p>
+<p>👉 <a href="notebooks/veteran-lung-cancer-coxph.html">Open Teaching Notebook »</a></p>
 
 
 </section>
@@ -200,13 +226,14 @@ ul.task-list li input[type="checkbox"] {
       e.clearSelection();
     }
     const getTextToCopy = function(trigger) {
-        const codeEl = trigger.previousElementSibling.cloneNode(true);
-        for (const childEl of codeEl.children) {
-          if (isCodeAnnotation(childEl)) {
-            childEl.remove();
-          }
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
         }
-        return codeEl.innerText;
+      }
+      return codeEl.innerText;
     }
     const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
       text: getTextToCopy
