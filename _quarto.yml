@@ -5,6 +5,7 @@ project:
 website:
   title: "Veteran Lung Cancer Survival Analysis"
   navbar:
+    background: dark
     left:
       - href: index.qmd
         text: Home
@@ -17,5 +18,7 @@ website:
 
 format:
   html:
-    theme: cosmo
+    theme:
+      light: [cosmo, assets/styles.css]
+      dark: [darkly, assets/styles-dark.css]
     toc: true

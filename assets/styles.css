@@ -1,0 +1,136 @@
+/*-- scss:rules --*/
+
+/* Light mode — inspired by mickael.canouil.fr */
+
+body {
+  background-color: #fafafa;
+  color: #333333;
+}
+
+.navbar {
+  background-color: #fafafa;
+  border-bottom: 1px solid #e0dedd;
+}
+
+.navbar-brand,
+.navbar-nav .nav-link {
+  color: #333333 !important;
+}
+
+.navbar-brand:hover,
+.navbar-nav .nav-link:hover {
+  color: #555555 !important;
+}
+
+.navbar-nav .nav-link.active {
+  font-weight: 700;
+}
+
+/* About page title sizing and alignment */
+.quarto-about-solana h1.title {
+  font-size: 2.75rem;
+  text-align: center;
+}
+
+.quarto-about-solana .subtitle {
+  font-size: 0.95rem;
+  text-align: center;
+}
+
+.quarto-about-solana .about-entity {
+  margin-bottom: 4rem;
+}
+
+.quarto-about-solana .about-contents {
+  padding-top: 3rem;
+}
+
+/* Section heading hover underline */
+.quarto-about-solana h2 {
+  width: fit-content;
+  position: relative;
+  padding-bottom: 0.2em;
+}
+
+.quarto-about-solana h2::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 2px;
+  width: 1.5em;
+  background-color: currentColor;
+  transition: width 0.25s ease;
+}
+
+.quarto-about-solana h2:hover::after {
+  width: 100%;
+}
+
+/* Education item boxes */
+.edu-item {
+  padding: 0.6em 0.9em;
+  border-radius: 0 6px 6px 0;
+  border-left: 3px solid #aaaaaa;
+  background-color: rgba(0, 0, 0, 0.03);
+  margin-bottom: 0.5em;
+  transition: background-color 0.2s ease;
+}
+
+.edu-item:hover {
+  background-color: rgba(0, 0, 0, 0.08);
+}
+
+/* Navbar link underline — expands from center on hover */
+.navbar-nav .nav-link {
+  position: relative;
+}
+
+.navbar-nav .nav-link::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  right: 50%;
+  height: 1px;
+  background-color: currentColor;
+  transition: left 0.25s ease, right 0.25s ease;
+}
+
+.navbar-nav .nav-link:hover::after {
+  left: 0;
+  right: 0;
+}
+
+/* Light/dark toggle — sun SVG (light mode, dark fill) */
+.quarto-color-scheme-toggle .bi {
+  display: none !important;
+}
+
+.quarto-color-scheme-toggle::after {
+  content: "";
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23333333' viewBox='0 0 16 16'%3E%3Cpath d='M8 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8M8 0a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 0m0 13a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 13m8-5a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2a.5.5 0 0 1 .5.5M3 8a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2A.5.5 0 0 1 3 8m10.657-5.657a.5.5 0 0 1 0 .707l-1.414 1.415a.5.5 0 1 1-.707-.708l1.414-1.414a.5.5 0 0 1 .707 0m-9.193 9.193a.5.5 0 0 1 0 .707L3.05 13.657a.5.5 0 0 1-.707-.707l1.414-1.414a.5.5 0 0 1 .707 0m9.193 2.121a.5.5 0 0 1-.707 0l-1.414-1.414a.5.5 0 0 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .707zM4.464 4.465a.5.5 0 0 1-.707 0L2.343 3.05a.5.5 0 1 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .707z'/%3E%3C/svg%3E");
+  background-size: contain;
+  background-repeat: no-repeat;
+  cursor: pointer;
+  vertical-align: middle;
+}
+
+.quarto-color-scheme-toggle a {
+  text-decoration: none !important;
+}
+
+.quarto-color-scheme-toggle a:focus,
+.quarto-color-scheme-toggle a:active {
+  text-decoration: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+/* Profile photo crop */
+.quarto-about-solana .about-image {
+  object-position: 43% center;
+}
