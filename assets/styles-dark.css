@@ -98,3 +98,20 @@ body {
   box-shadow: none !important;
   outline: none !important;
 }
+
+/* Responsive figures — catches all Quarto/Jupyter output image containers */
+.cell-output-display img,
+.quarto-figure img,
+figure.figure img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* Wide tables scroll horizontally rather than pushing the layout */
+.cell-output-display table,
+.dataframe {
+  display: block;
+  overflow-x: auto;
+  max-width: 100%;
+}
