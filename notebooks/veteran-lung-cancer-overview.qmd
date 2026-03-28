@@ -3,7 +3,6 @@ title: "Veteran Lung Cancer Survival Analysis: Overview"
 format:
   html:
     toc: true
-    theme: cosmo
 execute:
   warning: false
   message: false

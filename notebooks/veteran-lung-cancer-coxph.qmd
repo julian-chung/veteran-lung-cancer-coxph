@@ -6,7 +6,6 @@ format:
     toc: true
     code-fold: true
     number-sections: true
-    theme: cosmo
 execute:
   echo: true
   warning: false
