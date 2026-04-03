@@ -271,7 +271,7 @@ ul.task-list li input[type="checkbox"] {
   </li>  
   <li class="nav-item">
     <a class="nav-link" href="./notebooks/veteran-lung-cancer-coxph.html"> 
-<span class="menu-text">Teaching Notebook</span></a>
+<span class="menu-text">Guide</span></a>
   </li>  
 </ul>
           </div> <!-- /navcollapse -->
@@ -292,7 +292,7 @@ ul.task-list li input[type="checkbox"] {
   <ul>
   <li><a href="#overview" id="toc-overview" class="nav-link active" data-scroll-target="#overview">Overview</a></li>
   <li><a href="#full-report" id="toc-full-report" class="nav-link" data-scroll-target="#full-report">Full Report</a></li>
-  <li><a href="#teaching-learning-reference" id="toc-teaching-learning-reference" class="nav-link" data-scroll-target="#teaching-learning-reference">Teaching &amp; Learning Reference</a></li>
+  <li><a href="#guide" id="toc-guide" class="nav-link" data-scroll-target="#guide">Guide</a></li>
   </ul>
 </nav>
     </div>
@@ -319,25 +319,25 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<p>This project applies survival analysis to a Veterans Administration randomised controlled trial comparing standard vs experimental chemotherapy in patients with advanced, inoperable lung cancer. It uses Kaplan–Meier estimation, Cox proportional hazards modelling, spline transformations, interaction testing, and the Aalen additive model — all implemented in R with <code>survival</code>, <code>survminer</code>, and <code>ggplot2</code>, rendered via Quarto.</p>
+<p>This project analyses survival outcomes in the Veterans Administration lung cancer trial, a classic dataset for time-to-event modelling in R. It compares standard and experimental chemotherapy in patients with advanced, inoperable lung cancer using Kaplan-Meier curves, Cox proportional hazards models, diagnostic checks, spline terms, and an Aalen additive model.</p>
 <p>The project is organised into three parts:</p>
 <hr>
 <section id="overview" class="level2">
 <h2 class="anchored" data-anchor-id="overview">Overview</h2>
-<p>A concise summary of the dataset, key survival estimates, and the main model findings — four plots that tell the full story at a glance.</p>
-<p>👉 <a href="notebooks/veteran-lung-cancer-overview.html">Open Overview »</a></p>
+<p>A concise summary of the analysis, key survival estimates, and main model findings. This is the quickest way to see the headline results.</p>
+<p>↗ <a href="notebooks/veteran-lung-cancer-overview.html">Open Overview »</a></p>
 <hr>
 </section>
 <section id="full-report" class="level2">
 <h2 class="anchored" data-anchor-id="full-report">Full Report</h2>
-<p>A complete step-by-step analysis: exploratory survival analysis, model building, functional form checking, spline transformations, interaction testing, diagnostics, and final model interpretation.</p>
-<p>👉 <a href="notebooks/veteran-lung-cancer-coxph-report.html">Open Full Report »</a></p>
+<p>A full step-by-step analysis covering exploratory survival analysis, model building, functional form checks, spline terms, diagnostics, and final model interpretation.</p>
+<p>↗ <a href="notebooks/veteran-lung-cancer-coxph-report.html">Open Full Report »</a></p>
 <hr>
 </section>
-<section id="teaching-learning-reference" class="level2">
-<h2 class="anchored" data-anchor-id="teaching-learning-reference">Teaching &amp; Learning Reference</h2>
-<p>The same analysis with collapsible callout sections explaining the statistical reasoning behind each step — theory, assumptions, code decisions, and diagnostics. A reusable reference for future survival analyses.</p>
-<p>👉 <a href="notebooks/veteran-lung-cancer-coxph.html">Open Teaching Notebook »</a></p>
+<section id="guide" class="level2">
+<h2 class="anchored" data-anchor-id="guide">Guide</h2>
+<p>A guided version of the analysis with collapsible sections explaining each step, the modelling choices, and the diagnostics.</p>
+<p>↗ <a href="notebooks/veteran-lung-cancer-coxph.html">Open Guide »</a></p>
 
 
 </section>
