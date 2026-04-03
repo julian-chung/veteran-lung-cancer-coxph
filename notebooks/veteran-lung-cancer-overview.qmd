@@ -32,21 +32,24 @@ veteran2 <- survival::veteran %>%
 
 # Introduction
 
-Survival analysis models the time until an event of interest occurs — most
-often death, relapse, or system failure. Unlike standard regression, it
-accounts for censoring (patients still alive at study end) and estimates both
-the probability of survival over time and the influence of covariates on that
-time.
+This project analyses survival outcomes in the Veterans Administration lung
+cancer trial, a classic dataset used to demonstrate time-to-event modelling in
+R. The goal is to compare standard and experimental chemotherapy while showing a
+full Cox proportional hazards workflow: exploratory survival curves, adjusted
+modelling, and model checks.
 
-This analysis uses the Veterans Administration lung cancer trial dataset
-(Kalbfleisch & Prentice, 1980): 137 male patients with advanced, inoperable
-lung cancer randomised to standard vs experimental chemotherapy. It is a
-well-established teaching dataset for survival modelling — compact,
-clinically relevant, and rich enough to illustrate the full Cox PH workflow.
+Survival analysis is useful when the outcome is not just whether an event
+happened, but when it happened. In this case, the event is death, and the
+methods account for censoring as well as differences in follow-up time.
+
+The dataset includes 137 male patients with advanced, inoperable lung cancer
+randomised to standard or experimental treatment. It is compact enough to work
+through end to end, but rich enough to show the main decisions involved in a
+real survival analysis.
 
 The project is organised into three parts:
 
-- **Overview** — this page; key numbers and visualisations at a glance.
+- **Overview** — this page; a brief, high-level summary of the key findings and visuals.
 - **Full Report** — step-by-step analysis, model building, and diagnostics.
 - **Teaching & Learning Reference** — statistical theory, code explanations,
   and a reusable reference for future survival analyses.
@@ -140,8 +143,8 @@ survival in this cohort.
 
 # Plot 2 — Survival by Karnofsky Performance Score
 
-Karnofsky score — a measure of physical functional status scored 0–100 — is
-the dominant prognostic factor in this dataset and in oncology more broadly.
+Karnofsky score is a 0-100 measure of functional status. In this dataset, it is
+one of the clearest predictors of survival.
 
 ```{r km-karnofsky, fig.width=8, fig.height=6}
 veteran2$karno_group <- cut(
@@ -169,16 +172,15 @@ ggsurvplot(
 )
 ```
 
-The separation between groups is striking: patients with high functional status
-survived substantially longer than those in the low group. This gradient
-persists and is highly significant, foreshadowing Karnofsky score's dominance
-in the multivariable model.
+The separation between the groups is clear: patients with higher functional
+status survived much longer than those with lower scores. That pattern is
+strong, consistent, and carries through to the adjusted Cox model, where
+Karnofsky score is the most important predictor in the analysis.
 
 # Plot 3 — Final Cox Model: Adjusted Hazard Ratios
 
-The final Cox proportional hazards model adjusts simultaneously for treatment
-group, prior therapy, age (modeled with a natural cubic spline), Karnofsky
-score, and cell type.
+This plot shows the final adjusted Cox model, including treatment group, prior
+therapy, age, Karnofsky score, and cell type.
 
 ```{r cox-forest, fig.width=9, fig.height=6}
 cox_final <- coxph(
@@ -196,20 +198,18 @@ ggforest(
 )
 ```
 
-Karnofsky score (HR = 0.97 per point, p < 0.001) and cell type are the
-dominant predictors. Adenocarcinoma and small cell carcinoma carry
-substantially higher hazard than squamous cell (HR ≈ 3.3 and 2.2
-respectively). Treatment group remains non-significant after adjustment
-(HR ≈ 1.4, p = 0.097). The model concordance is 0.735 — a marked improvement
-over a treatment-only model (concordance ≈ 0.51).
+The clearest signals in the model are Karnofsky score and tumour cell type.
+Higher Karnofsky scores are associated with lower risk, while adenocarcinoma and
+small cell carcinoma show substantially higher hazard than squamous cell
+carcinoma. Even after adjustment, the treatment effect remains modest and
+uncertain (HR ≈ 1.4, *p* = 0.097). Overall, the model discriminates much better
+than a treatment-only model, with concordance improving from about 0.51 to
+0.74.
 
 # Plot 4 — Aalen Additive Model: Time-Varying Effects
 
-The Cox model assumes that each covariate's effect is constant over time
-(proportional hazards). The Aalen additive model relaxes this assumption,
-estimating cumulative covariate effects as a function of follow-up time. A
-steep, consistent slope indicates a strong, stable effect; a flat or erratic
-line suggests little or no independent contribution.
+This plot checks the main findings using an additive survival model rather than
+the Cox model.
 
 ```{r aalen, fig.width=10, fig.height=8}
 aa_fit <- aareg(
@@ -222,11 +222,7 @@ autoplot(aa_fit) +
   labs(title = "Aalen Additive Model: Cumulative Regression Functions")
 ```
 
-The Aalen plots reinforce the Cox model findings from a different methodological
-angle. Karnofsky score shows the steepest, most consistent negative slope —
-confirming its role as the strongest and most stable predictor of survival.
-Cell type subtypes (particularly small cell and adenocarcinoma) show clear
-positive slopes relative to the intercept. Treatment group and prior therapy
-show flat trajectories close to zero, consistent with their non-significant
-status in the Cox model. The convergence of two distinct modelling approaches
-on the same substantive conclusions strengthens confidence in the findings.
+The result is broadly the same. Karnofsky score remains the strongest and most
+stable predictor of survival, while treatment group and prior therapy contribute
+little on their own. Seeing the same pattern across two different modelling
+approaches adds confidence to the overall interpretation.

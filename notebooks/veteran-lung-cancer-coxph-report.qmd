@@ -17,28 +17,28 @@ editor:
 
 # Introduction
 
-This report presents a survival analysis of patients with advanced,
-inoperable lung cancer who participated in a randomized clinical trial
-conducted by the Veterans Administration in the United States. The
-objective of the study was to compare the effectiveness of a standard
-chemotherapy protocol versus a test (experimental) treatment in
-prolonging patient survival.
+This report analyses survival outcomes in the Veterans Administration lung
+cancer trial, a randomized study comparing standard and experimental
+chemotherapy in patients with advanced, inoperable lung cancer. The outcome of
+interest is overall survival time in days, with follow-up ending at death or
+censoring.
 
-Participants were followed until death or censoring, with overall
-survival time (in days from treatment initiation) as the primary
-outcome. This dataset, originally introduced in The Statistical Analysis
-of Failure Time Data by Kalbfleisch and Prentice (1980), has become a
-foundational paper in the teaching survival analysis due to its manageable size,
-clear structure, and strong clinical relevance.
+The dataset is widely used for teaching survival analysis because it is small
+enough to work through in full, while still containing the main ingredients of
+a realistic time-to-event workflow: censoring, multiple clinical predictors,
+and clinically interpretable modeling decisions.
 
-This analysis explores survival outcomes using both Kaplan-Meier
-estimation and Cox proportional hazards modeling, followed by diagnostic
-checks to assess model assumptions and potential improvements. 
+The analysis begins with Kaplan-Meier estimation and a log-rank comparison of
+the treatment groups, then moves to Cox proportional hazards models with
+progressive model building, diagnostic checks, and interpretation of adjusted
+effects. The aim is not just to fit a model, but to show how the model is
+built, checked, and justified.
 
 # Setup and Data Import
 
-We begin by loading the necessary R packages and importing the veteran
-lung cancer dataset from the `survival` package.
+The analysis uses standard R packages for survival modelling, visualisation, and
+data handling. The dataset comes from the `survival` package, with treatment
+groups relabeled for readability in tables and plots.
 
 ```{r}
 # Load required libraries
@@ -52,15 +52,15 @@ library(splines) # Splines for flexible modeling
 ```
 
 
-Next, the dataset is loaded and a quick transformation applied to label
-the treatment and control groups.
+The dataset is loaded below, with a simple relabeling step for the treatment
+groups.
 
 ```{r}
 # Load the dataset
 veteran <- survival::veteran %>%
   mutate(trt = factor(trt,
                       levels = c(1, 2),
-                      labels = c("Control", "Intervention")))
+                      labels = c("Standard", "Experimental")))
 
 # Peek at the structure and summary
 # glimpse(veteran)
@@ -70,29 +70,30 @@ veteran <- survival::veteran %>%
 
 **Variable Summary:**
 
-Below is a summary of the key variable in the dataset.
+The main variables used in the analysis are summarised below.
 
 | Variable | Type | Description | Notes |
 |------------|------------|-------------------------|------------------------|
-| `trt` | Factor | Treatment group: 1 = Standard, 2 = Test | Relabeled to `"Control"` and `"Intervention"` |
+| `trt` | Factor | Treatment group: 1 = Standard, 2 = Test | Relabeled to `"Standard"` and `"Experimental"` |
 | `celltype` | Factor | Histologic type of lung cancer: squamous, small cell, adeno, large | Included in final model; squamous is the reference category |
 | `time` | Numeric | Survival time in days | Outcome variable in the `Surv()` object |
 | `status` | Numeric | Event indicator: 1 = died, 0 = censored | Used to define survival endpoint |
-| `karno` | Numeric | Karnofsky performance score (proxy for baseline health status) | Included in final model as a continuous linear predictor |
+| `karno` | Numeric | Karnofsky performance score (proxy for baseline health status) | Included later in the fuller multivariable models |
 | `diagtime` | Numeric | Time from diagnosis to study entry (in months) | Possibly useful in extended time-dependent models |
 | `age` | Numeric | Patient age (in years) | Treated as **continuous**; **checked for linearity and splines** |
 | `prior` | Numeric | Number of prior therapies (0 or 10) | Binary variable: 0 = none, 10 = prior treatment |
 
 # Exploratory Survival Analysis
 
-Before proceeding with formal regression modeling, we begin with a non-parametric exploration of the survival data using the Kaplan-Meier estimator. This allows us to visualize survival patterns and group differences without making assumptions about the underlying hazard function. 
+Before fitting regression models, it helps to look at the raw survival patterns.
+Kaplan-Meier curves provide a simple, non-parametric view of survival over time
+and allow an initial comparison between treatment groups.
 
 
 ## Kaplan-Meier Survival Curve
 
-Firstly we estimate the **survival function** for patients using the
-Kaplan-Meier estimator. This provides a non-parametric view of survival
-over time, stratified by treatment group.
+We start with Kaplan-Meier curves to compare the unadjusted survival experience
+of the two treatment groups.
 
 ```{r}
 # Create the survival object
@@ -122,7 +123,7 @@ ggsurvplot(
   risk.table.y.text.col = TRUE,
   risk.table.fontsize = 4,
   legend.title = "Treatment Group",
-  legend.labs = c("Control", "Intervention"),
+  legend.labs = c("Standard", "Experimental"),
   xlab = "Time (days)",
   ylab = "Survival Probability",
   palette = c("#A569BD", "#45B39D"),
@@ -142,24 +143,16 @@ ggsurvplot(
 
 **Interpretation of the Kaplan-Meier Plot**
 
-The Kaplan-Meier plot shows the survival curves for patients in the
-intervention and control arms. For both groups there is a steep decline
-in survival probability during the first 200 days, indicating rapid
-disease progression. The shaded areas represent the 95% confidence
-intervals, which largely overlap throughout the follow-up period,
-suggesting no significant difference in survival between treatment arms.
-The log-rank test yields a p-value of 0.93, providing no evidence to
-reject the null hypothesis of equal survival. Therefore, we conclude
-that there is no statistically significant difference in survival
-between the two chemotherapy regimens.
+The Kaplan-Meier curves for the control and intervention groups are very similar
+throughout follow-up. Survival drops sharply in both groups within the first 200
+days, reflecting the severity of disease in this cohort. The confidence
+intervals overlap heavily, and the log-rank test (*p* = 0.93) shows no clear
+difference in survival between the two treatment arms.
 
 
 ## Log-Rank Test
 
-The log-rank test is a statistical test used to compare the survival
-distributions of two or more groups. It assesses whether there are
-significant differences in survival times between the groups, based on
-the observed and expected number of events (deaths) at each time point.
+The log-rank test provides a formal comparison of the two survival curves.
 
 
 ```{r}
@@ -176,25 +169,29 @@ log_rank_test
 
 **Interpretation of the Log-Rank Test Results**
 
-A log-rank test was performed to compare survival distributions between
-the control and intervention treatment groups. The test yielded a
-chi-square statistic of 0.008 with 1 degree of freedom, resulting in a
-p-value of 0.93. This indicates no statistically significant difference
-in survival between the two treatment arms. The observed and expected
-number of events (deaths) were nearly identical in both groups, further
-supporting the conclusion that survival outcomes did not differ
-meaningfully between treatments in this sample.
+A log-rank test was performed to compare survival distributions between the
+control and intervention treatment groups. The test yielded a chi-square
+statistic of 0.008 with 1 degree of freedom and a *p*-value of 0.93. This is
+consistent with the Kaplan-Meier plot: the observed survival experience is
+effectively the same in the two treatment groups, with no evidence of a
+meaningful difference in overall survival.
 
-However, the log-rank test is a univariate method — it does not account for covariates that may confound or modify treatment effects (e.g., age, prior therapy). Additionally, it assumes proportional hazards and constant hazard differences over time. These limitations justify the use of a Cox proportional hazards model, which allows for multivariable adjustment and more nuanced interpretation of the treatment effect in the context of patient characteristics.
+The log-rank test is useful, but limited. It compares groups one variable at a
+time and does not account for other clinical factors that may affect survival.
+A Cox model allows those factors to be included directly, giving an adjusted
+estimate of the treatment effect and a clearer view of which variables are most
+strongly associated with risk.
 
 
 ## Why Proceed with the Cox Model?
 
-While the Kaplan-Meier plot and log-rank test indicate no statistically significant difference in survival between treatment arms, these methods do not account for other variables that may affect outcomes. The Cox proportional hazards model allows us to:
+Even though the unadjusted comparison shows no treatment difference, that is not
+the end of the analysis. A Cox model lets us:
 
-- Adjust for confounding covariates (e.g., age, prior treatment)
-- Estimate hazard ratios for each variable
-- Explore possible interactions or time-varying effects
+- adjust for other clinical predictors
+- estimate hazard ratios for each covariate
+- assess whether the treatment result changes after adjustment
+- check whether the model assumptions are reasonable
 
 Thus, we proceed with a Cox model to assess whether treatment effects become more apparent after adjusting for relevant clinical factors.
 
@@ -202,24 +199,29 @@ Thus, we proceed with a Cox model to assess whether treatment effects become mor
 
 The Cox proportional hazards model is a regression method for analysing time-to-event data. Unlike the Kaplan-Meier estimator, which provides a non-parametric, unadjusted view of survival, the Cox model allows us to examine the effect of multiple covariates on the hazard of death.
 
-This model assumes that covariates have a multiplicative and time-constant effect on the hazard (the proportional hazards assumption). By estimating hazard ratios, we can assess whether factors such as treatment type, age, or prior therapy are independently associated with better or worse survival outcomes.
+The Cox model allows the treatment effect to be assessed alongside other
+clinical variables, rather than in isolation. The key assumption is
+proportional hazards: covariate effects are assumed to be multiplicative and
+constant over time.
 
-We begin with a simple model including only treatment group, and progressively build toward a multivariable model incorporating continuous and categorical variables. Each model is followed by diagnostic checks to assess assumptions and guide model refinement.
+The modelling strategy here is incremental. I start with treatment alone, then
+add additional predictors, check functional form and proportional hazards
+assumptions, and refine the model where needed.
 
 
 ## Univariable Models
 
-In this section, we fit a series of univariable Cox models to assess the effect of individual covariates on survival. This step helps us explore the independent contribution of each variable before building more complex multivariable models.
+I begin with simple Cox models for individual predictors before moving to more
+complex adjusted models.
 
 ### Treatment Group Only
 
-We begin with a univariable Cox model that includes only the treatment
-variable (`trt`). This allows us to assess the effect of treatment on
-survival without adjusting for any other covariates.
+The first Cox model includes treatment group only, providing an
+adjusted-hazard analogue to the earlier Kaplan-Meier and log-rank comparison.
 
 ```{r}
 # Fit the Cox Proportional Hazards model
-cox_model <- coxph(surv_obj ~ trt, data = veteran) # Where trt is a binary treatment variable with levels Control and Intervention
+cox_model <- coxph(surv_obj ~ trt, data = veteran) # Where trt is a binary treatment variable with levels Standard and Experimental
 
 # Summarize the model
 summary(cox_model)
@@ -229,7 +231,12 @@ summary(cox_model)
 
 **Interpretation of the Cox Model Results**
 
-The univariable Cox proportional hazards model found no statistically significant difference in survival between the control and intervention groups (HR = 1.02, 95% CI: 0.71–1.45, p = 0.92). The hazard ratio near 1 suggests little to no effect of the treatment on mortality risk. The wide confidence interval spans both potential benefit and harm, highlighting uncertainty in the estimate. The concordance statistic (0.525) indicates the model’s discriminative ability is only marginally better than chance. Overall, this analysis offers no evidence that the intervention improves survival in this sample.
+The treatment-only Cox model shows essentially no difference in hazard between
+the control and intervention groups (HR = 1.02, 95% CI: 0.71–1.45, *p* = 0.92).
+The estimate is close to 1, and the confidence interval is wide enough to allow
+for either modest benefit or modest harm. Concordance is 0.525, which is only
+slightly better than chance. On its own, treatment does not explain survival
+well in this cohort.
 
 ```{r}
 # Use ggadjustedcurves for plotting adjusted survival curves directly from the Cox model
@@ -239,7 +246,7 @@ ggadjustedcurves(
   variable = "trt",              # The variable to plot adjusted curves for
   method = "average",            # Method for adjusting (average effect of other covariates)
   conf.int = TRUE,
-  legend.labs = c("Control", "Intervention"),
+  legend.labs = c("Standard", "Experimental"),
   legend.title = "Treatment Group",
   risk.table = TRUE,             # Include the risk table
   risk.table.title = "Number at Risk",
@@ -263,46 +270,26 @@ ggadjustedcurves(
 
 **Interpretation of the Adjusted Survival Curves**
 
-The Cox-adjusted survival curves for the Control and Intervention groups are nearly identical, indicating no meaningful difference in predicted survival probabilities between the treatment arms. This visual overlap aligns with the Cox model's hazard ratio, which was close to 1 and not statistically significant. Together, the model output and adjusted curves reinforce the conclusion that the intervention had no observable effect on survival in this cohort.
+The adjusted survival curves are nearly indistinguishable, which matches the
+hazard ratio from the treatment-only Cox model. This reinforces the earlier
+finding that the two treatment groups had very similar survival experience.
 
 
 **Model Diagnostics**
 
-Before interpreting the results of a Cox proportional hazards model, it’s important to ensure that the model’s assumptions are met. The two key assumptions are:
-
-- The proportional hazards (PH) assumption: The effect of each covariate on the hazard is constant over time.
-
-- Linearity of continuous covariates: Continuous covariates are assumed to have a linear relationship with the log hazard.
-
-Violations of these assumptions can undermine the model’s predictive utility and lead to misleading conclusions.
-
-In this section, we use the following diagnostic tools to assess model adequacy:
-
-- Schoenfeld residuals to test the PH assumption.
-
-- Martingale residuals to check for non-linearity and outliers.
-
-- Functional form checks, particularly for continuous covariates like age.
-
-- Where needed, we apply transformations (e.g., natural splines) to better capture nonlinear effects.
-
-These checks help ensure that the model remains a sound and interpretable framework for estimating covariate effects on survival.
+Before relying on the Cox model, its main assumptions need to be checked. The
+most important issues here are proportional hazards and the functional form of
+continuous predictors. I use Schoenfeld residuals to assess proportional
+hazards, and Martingale residuals plus functional-form plots to assess whether
+continuous terms are specified appropriately.
 
 _Checking the Proportional Hazards Assumption_
 
-A central assumption of the Cox proportional hazards model is that hazard ratios remain constant over time — meaning the relative risk between any two individuals does not change as time progresses. This is known as the proportional hazards (PH) assumption, and verifying it is crucial before interpreting model results.
-
 **Schoenfeld Residuals**
 
-To assess the PH assumption, we use Schoenfeld residuals, which evaluate whether covariate effects vary over time. If residuals show a systematic pattern against time, it may indicate a violation of the assumption.
-
-We check this in two ways:
-
-- Statistical tests: The cox.zph() function provides both a global test and tests for each covariate. A p-value < 0.05 suggests evidence against the PH assumption.
-
-- Visual inspection: Plots of scaled Schoenfeld residuals include a smoothed line and 95% confidence bands. Systematic trends or large deviations from zero may indicate time-varying effects.
-
-If either test indicates a violation, we may need to adjust the model using time-varying covariates, stratification, or alternative approaches.
+Schoenfeld residuals provide both a formal test and a visual check for the
+proportional hazards assumption. Large systematic trends over time would suggest
+that the treatment effect is not constant during follow-up.
 
 ```{r}
 # Test the PH assumption
@@ -312,11 +299,9 @@ cox.zph(cox_model)
 
 **Interpretation of PH Assumption Test (Schoenfeld residuals)**
 
-- trt p = 0.06: Slightly above the conventional 0.05 threshold. This suggests no strong evidence that the effect of treatment changes over time.
-
-- GLOBAL p = 0.06: The overall model does not show a statistically significant violation of the PH assumption.
-
-Conclusion: We do not reject the PH assumption based on either the individual or global tests. The model is likely appropriate for interpretation without time-dependent adjustments.
+The Schoenfeld test gives *p* = 0.06 for treatment and *p* = 0.06 globally.
+Both are just above the conventional 0.05 threshold, so there is no strong
+evidence against the proportional hazards assumption in this model.
 
 **Schoenfeld Residuals Plot**
 
@@ -327,11 +312,16 @@ plot(cox.zph(cox_model))
 
 **Schoenfeld Residuals Interpretation**
 
-The global test for proportional hazards yielded a p-value of 0.06, slightly above the conventional 0.05 threshold, suggesting no strong evidence of a violation. The smoothed plot of Schoenfeld residuals for the treatment variable shows mild curvature but remains well within the 95% confidence bands, with no clear time-dependent trend. Together, these results support the proportional hazards assumption for treatment and the suitability of the Cox model in this context.
+The residual plot shows mild curvature, but no clear sustained trend over time,
+and the smooth remains within the confidence bands. Taken together with the
+formal test, this supports treating proportional hazards as a reasonable
+working assumption for the treatment-only model.
 
 **Martingale Residuals (for Functional Form of Covariates)**
 
-Martingale residuals are used to evaluate whether continuous covariates have been correctly specified in the Cox model. By plotting these residuals against each covariate, we can detect departures from linearity on the log-hazard scale. Systematic patterns, such as curvature or clustering, may indicate the need for transformations (e.g., splines or categorization) to better capture the relationship.
+Martingale residuals are useful for checking whether continuous predictors have
+been modeled with an appropriate functional form. Clear curvature can indicate
+that a simple linear term is inadequate.
 
 
 ```{r}
@@ -355,7 +345,7 @@ ggplot(veteran, aes(x = linear_pred, y = martingale, color = trt)) +
     y = "Martingale Residual",
     color = "Treatment Group"
   ) +
-  scale_color_manual(values = c("Control" = "#A569BD", "Intervention" = "#45B39D")) +
+  scale_color_manual(values = c("Standard" = "#A569BD", "Experimental" = "#45B39D")) +
   theme(plot.title = element_text(hjust = 0.5, face = "bold"))
 
 
@@ -366,7 +356,7 @@ ggplot(veteran, aes(x = linear_pred, y = martingale, color = trt)) +
 
 The Martingale residual plot helps assess whether the model’s assumptions—particularly the functional form of covariates—are valid.
 
-In this case, residuals were plotted against the linear predictor for a binary treatment variable. As expected, two vertical bands appear, corresponding to the Control and Intervention groups. The residuals are roughly symmetric around zero within each group, with no obvious curvature or systematic pattern. This supports the adequacy of the treatment variable’s specification in the model and suggests that no transformation is needed for this binary covariate.
+In this case, residuals were plotted against the linear predictor for a binary treatment variable. As expected, two vertical bands appear, corresponding to the Standard and Experimental groups. The residuals are roughly symmetric around zero within each group, with no obvious curvature or systematic pattern. This supports the adequacy of the treatment variable’s specification in the model and suggests that no transformation is needed for this binary covariate.
 
 
 **Additional Covariates**
@@ -388,9 +378,8 @@ explanatory power.
 
 ### Continuous Variable: Age
 
-Age is a clinically relevant factor that may influence survival outcomes
-in lung cancer. In this section, we assess whether age is independently
-associated with survival time and verify that its relationship with the log hazard is appropriately linear.
+Age is a clinically relevant predictor, so the next step is to check whether it
+adds useful information and whether a simple linear term is adequate.
 
 
 **Cox Model with Age**
@@ -402,36 +391,11 @@ summary(cox_age)
 
 **Interpretation of the Cox Model with Age**
 
-A Cox proportional hazards model was fitted to examine the relationship
-between survival time and two predictors: treatment group (trt) and
-patient age (age). The model included 137 patients, with 128 events
-(deaths).
-
-The hazard ratio for the intervention group was 0.996 (95% CI: 0.697 –
-1.425; p = 0.984), suggesting virtually no difference in hazard compared
-to the control group after adjusting for age. This effect was not
-statistically significant.
-
-For age, the hazard ratio was 1.008 (95% CI: 0.989 – 1.027; p = 0.436),
-indicating that each additional year of age was associated with a 0.8%
-increase in the hazard of death. However, this association was also not
-statistically significant and the confidence interval included 1,
-suggesting uncertainty about the true effect.
-
-Overall, the model's ability to discriminate between patients with
-longer vs shorter survival times was weak, with a concordance index of
-0.514 (where 0.5 = random chance). The global model statistics —
-including the likelihood ratio test, Wald test, and score test — were
-all non-significant (p = 0.7), indicating that neither variable added
-substantial predictive value to the model.
-
--   There is no evidence of a treatment effect after adjusting for age.
-
--   Age may have a small effect, but in this sample, it is not
-    statistically or clinically meaningful.
-
--   The overall model performs poorly in predicting survival in this
-    dataset.
+Adding age to the treatment model does not materially change the result. The
+treatment effect remains close to null (HR = 1.00, 95% CI: 0.70–1.43, *p* =
+0.984), and age itself shows only a weak association with hazard (HR = 1.01 per
+year, 95% CI: 0.99–1.03, *p* = 0.436). Model discrimination remains poor
+(concordance = 0.514), so this specification adds little explanatory value.
 
 
 **Schoenfeld Residuals for Age**
@@ -442,17 +406,11 @@ cox_zph_age <- cox.zph(cox_age)
 print(cox_zph_age)
 ```
 
-Proportional hazards were tested using Schoenfeld residuals. The
-assumption was met for **age** (`p = 0.195`) but marginally violated for
-**treatment group** (`p = 0.055`), which is slightly below the
-conventional threshold of 0.05. The **global test** for the model
-(`p = 0.045`) was also just below 0.05, indicating a **possible overall
-violation** of the proportional hazards assumption.
-
-While these results do not strongly indicate a breakdown of the PH
-assumption, the borderline p-values warrant caution. A visual inspection
-of the residual plots (`plot(cox.zph())`) can help determine whether the
-trend is substantial or random variation.
+The proportional hazards check is mostly acceptable for this model. Age shows no
+evidence of non-proportionality (*p* = 0.195), while treatment is borderline
+(*p* = 0.055). The global test is also borderline (*p* = 0.045), so the result
+does not point to a clear violation, but it does justify checking the residual
+plots carefully.
 
 
 ```{r}
@@ -460,22 +418,15 @@ trend is substantial or random variation.
 plot(cox_zph_age)
 ```
 
-The Schoenfeld residual plot for age, derived from the multivariable Cox
-model, reveals no strong evidence of violation of the proportional
-hazards assumption. The smoothed coefficient curve remains relatively
-flat across time, with the 95% confidence band consistently overlapping
-zero. This suggests that the effect of age on the hazard function does
-not meaningfully vary with time. This visual impression aligns with the
-result from the formal statistical test (χ² = 1.68, df = 1, p = 0.195),
-providing no significant indication that the proportional hazards
-assumption has been violated for age in this model.
+The residual plot for age is broadly flat over time, with the smooth staying
+close to zero and within the confidence bands. This supports treating the age
+effect as approximately time-constant in this model.
 
 
 **Martingale Residuals for Age to Assess Functional Form**
 
-To assess whether age is appropriately modeled as a linear predictor in
-the Cox model, we examine Martingale residuals plotted against age to
-detect non-linearity in its functional form.
+Martingale residuals are used here to check whether age is adequately captured
+by a simple linear term.
 
 ```{r}
 # Generate Martingale residuals
@@ -495,15 +446,14 @@ ggplot(veteran, aes(x = age, y = martingale_age, color = trt)) +
     y = "Martingale Residual",
     color = "Treatment Group"
   ) +
-  scale_color_manual(values = c("Control" = "#A569BD", "Intervention" = "#45B39D")) +
+  scale_color_manual(values = c("Standard" = "#A569BD", "Experimental" = "#45B39D")) +
   theme(plot.title = element_text(hjust = 0.5, face = "bold"))
 ```
 
-Martingale residuals plotted against age showed no clear non-linear
-trend, with residuals generally scattered randomly across the range of
-age values. This suggests that modeling age as a linear term in the Cox
-model is reasonable. There is no strong evidence to support the need for
-transformations or spline-based modeling of age in this dataset.
+The simple residual plot does not show an obvious pattern, but the
+functional-form plot suggests some curvature. Taken together, these checks do
+not support a strong linear age effect, and they leave open the possibility that
+age is better represented with a more flexible term.
 
 
 **Functional Form Check**
@@ -517,26 +467,14 @@ ggcoxfunctional(cox_age_only, data = veteran)
 ```
 
 
-The functional form check using Martingale residuals and a
-non-parametric smoother suggests that age may not have a strictly linear
-relationship with the log hazard. The smooth curve appears U-shaped,
-implying that risk may not increase evenly with age across the full
-range. This indicates that the assumption of linearity may be violated,
-and that alternative modeling strategies (e.g., polynomial terms or
-splines) could improve model fit.
-
-While the Martingale residual plot suggests that the relationship
-between age and the log hazard may not be strictly linear, age was not
-statistically significant in the model. As such, no transformation or
-spline was applied. This could be revisited in future modeling if age
-becomes more influential.
+The smoothed functional-form plot suggests that age may not relate to the log
+hazard in a strictly linear way. The curve appears mildly U-shaped, which makes
+a spline-based specification worth testing in the next model.
 
 ### Binary Variable: Prior Treatment
 
-We now evaluate the variable `prior`, which indicates whether a patient
-received prior therapy before enrolment in the study. This binary
-variable may capture important differences in disease severity,
-treatment history, or prognosis that could influence survival outcomes.
+The next variable considered is prior therapy, included here as a binary marker
+of previous treatment before study entry.
 
 
 **Fit Cox Model with Prior Treatment**
@@ -547,26 +485,10 @@ cox_prior <- coxph(Surv(time, status) ~ trt + prior, data = veteran)
 summary(cox_prior)
 ```
 
-A Cox proportional hazards model was fitted to evaluate the association
-between survival and two predictors: treatment group (trt) and prior
-therapy (prior). The model was based on 137 patients, with 128 observed
-events.
-
-The hazard ratio for the intervention group was 1.03 (95% CI: 0.72 –
-1.46, p = 0.885), indicating no evidence of a treatment effect after
-adjusting for prior therapy. Similarly, prior therapy was not associated
-with survival, with a hazard ratio of 0.99 (95% CI: 0.95 – 1.03, p =
-0.471).
-
-Model discrimination was weak, with a concordance of 0.517, suggesting
-the model has limited ability to rank survival times accurately. Global
-model fit tests (likelihood ratio, Wald, and score) were all
-non-significant (p = 0.8), indicating that the included variables do not
-significantly improve model performance.
-
-Neither treatment assignment nor prior therapy appear to be meaningful
-predictors of survival in this dataset. There is no evidence of an
-additive effect between these covariates.
+Adding prior therapy does not improve the model. The treatment effect remains
+close to null (HR = 1.03, 95% CI: 0.72–1.46, *p* = 0.885), and prior therapy is
+also not associated with survival (HR = 0.99, *p* = 0.471). Concordance remains
+low at 0.517, so this model still offers very limited discrimination.
 
 **Schoenfeld Residuals for Prior Treatment**
 
@@ -576,40 +498,19 @@ cox_zph_prior <- cox.zph(cox_prior)
 print(cox_zph_prior)
 ```
 
-Proportional hazards were assessed using Schoenfeld residuals for the
-model including treatment group and prior therapy. The global test was
-statistically significant (p = 0.048), suggesting potential violation of
-the proportional hazards assumption overall.
-
-Individually, both treatment (p = 0.066) and prior therapy (p = 0.081)
-had p-values slightly above the conventional 0.05 threshold, indicating
-borderline evidence of non-proportionality. These results do not
-strongly confirm a violation, but they do warrant cautious
-interpretation.
-
-Given the marginal nature of these findings, visual inspection of the
-Schoenfeld residual plots is recommended to assess whether any
-systematic time-varying effects are present.
+The global Schoenfeld test is borderline (*p* = 0.048), while the individual
+tests for treatment and prior therapy are both just above 0.05. This is enough
+to warrant caution, but not enough on its own to conclude that the proportional
+hazards assumption has clearly failed.
 
 ```{r}
 # Visual check
 plot(cox_zph_prior)
 ```
 
-The Schoenfeld residual plot for prior treatment shows a smoothed line
-that remains approximately flat over time, with the 95% confidence band
-consistently including zero. This suggests that the effect of prior
-treatment on the hazard is stable across the follow-up period, and
-supports the assumption of proportional hazards for this variable.
-
-In contrast, the plot for treatment group (trt) exhibits a noticeable
-wavy pattern in the smoothed line, particularly in the early to
-mid-study period. While the confidence bands still broadly include zero,
-the shape of the curve raises some concern about potential time-varying
-effects. Combined with a borderline p-value from the cox.zph() test (p =
-0.060), this suggests the proportional hazards assumption for trt is not
-clearly violated, but may warrant caution and further
-consideration—especially in more complex models.
+The residual plot for prior therapy is broadly flat, supporting a stable effect
+over time. Treatment shows more waviness, but not a strong enough pattern to
+argue for a clear violation on visual grounds.
 
 **Martingale Residuals for Prior Treatment**
 
@@ -629,27 +530,21 @@ ggplot(veteran, aes(x = prior, y = martingale_prior, color = trt)) +
     y = "Martingale Residual",
     color = "Treatment Group"
   ) +
-  scale_color_manual(values = c("Control" = "#A569BD", "Intervention" = "#45B39D")) +
+  scale_color_manual(values = c("Standard" = "#A569BD", "Experimental" = "#45B39D")) +
   theme(plot.title = element_text(hjust = 0.5, face = "bold")) +
   geom_point(position = position_jitter(width = 0.1), alpha = 0.6) # Adding jitter to avoid overlap
 
 ```
 
-The Martingale residual plot for the prior variable shows two distinct
-clusters of points at 0 and 1, corresponding to patients with and
-without prior treatment, respectively. The residuals appear to be
-roughly symmetric around zero in both groups, with no strong indication
-of skew or heteroscedasticity. This supports the appropriateness of
-modeling prior as a binary variable in the Cox regression model. No
-transformation or alternative coding appears necessary.
+Because prior therapy is binary, the residual plot is mainly a check for obvious
+imbalance or misspecification rather than curvature. The residuals look broadly
+similar across the two groups, so the binary coding appears reasonable.
 
 
 ### Multivariable Cox Model with Age and Prior Treatment
 
-In this section, we fit a multivariable Cox proportional hazards model
-that includes both age and prior treatment as covariates. This allows us
-to assess the independent effects of these variables on survival while
-controlling for treatment group.
+The next step is to fit a simple multivariable model with treatment, age, and
+prior therapy together.
 
 ```{r}
 # Fit the multivariable Cox model including age and prior treatment
@@ -658,30 +553,12 @@ summary(cox_multivariable)
 ```
 
 
-A multivariable Cox proportional hazards model was fitted to examine the
-association between survival and three covariates: treatment group, age,
-and prior therapy. After adjusting for all covariates:
-
--   The hazard ratio for the intervention group relative to control was
-    1.00 (HR = 1.00; 95% CI: 0.70–1.44; p = 0.984), indicating no
-    evidence of a treatment effect.
-
--   Age had a hazard ratio of 1.01 per year (p = 0.462), suggesting no
-    significant association with survival in this model.
-
--   Prior therapy also showed no effect on hazard (HR = 0.99; p =
-    0.500).
-
-Model discrimination was minimal (concordance = 0.507), and all global
-model tests were non-significant (p = 0.8), suggesting the model does
-not meaningfully predict survival in this dataset.
+This model does not materially improve on the earlier ones. Treatment remains
+null (HR = 1.00, *p* = 0.984), age remains weak (*p* = 0.462), and prior
+therapy remains uninformative (*p* = 0.500). Concordance is 0.507, confirming
+that these variables alone do little to explain survival in this dataset.
 
 **Schoenfeld Residuals for Multivariable Model**
-
-We now assess whether the **proportional hazards assumption** holds for
-each covariate in the multivariable Cox model. This step ensures that
-the effect of each variable — treatment group, age, and prior therapy —
-is consistent over time.
 
 ```{r}
 # Test proportional hazards assumption for the multivariable model
@@ -689,58 +566,21 @@ cox_zph_multivariable <- cox.zph(cox_multivariable)
 print(cox_zph_multivariable)
 ```
 
-The proportional hazards assumption was assessed for the multivariable
-Cox model using Schoenfeld residuals. The global test was statistically
-significant (p = 0.032), suggesting that at least one covariate may have
-a time-varying effect on the hazard.
-
-At the individual variable level:
-
--   trt showed borderline evidence of non-proportionality (p = 0.060)
-
--   prior also approached significance (p = 0.074)
-
--   age did not show evidence of time-varying effects (p = 0.184)
-
-While none of the individual tests crossed the 0.05 threshold, the
-cumulative result (GLOBAL p \< 0.05) suggests some caution is warranted.
-Visual inspection of the Schoenfeld residual plots is recommended to
-evaluate whether these borderline findings correspond to meaningful
-deviations over time.
+The global Schoenfeld test is significant (*p* = 0.032), although none of the
+individual covariates crosses the 0.05 threshold. That pattern suggests some
+model instability, but not a clear time-varying effect for any single term.
 
 ```{r}
 # Visual check
 plot(cox_zph_multivariable)
 ```
 
-Visual inspection of the Schoenfeld residual plots for treatment group
-(trt), age, and prior treatment (prior) showed no substantial evidence
-of non-proportionality. The smoothed lines for each covariate remained
-relatively flat and were mostly contained within their respective 95%
-confidence bands across the follow-up period.
-
--   For treatment group, the smoothed beta function showed some mild
-    undulation, but it remained within the confidence bounds, indicating
-    no major deviation from the proportional hazards assumption.
-
--   For age, the trend line was nearly horizontal with minimal
-    fluctuation, strongly supporting time-invariant effects.
-
--   For prior treatment, the estimated beta also remained relatively
-    stable over time, with the confidence interval consistently covering
-    zero.
-
-Together, these plots support the conclusion that the proportional
-hazards assumption is reasonably satisfied for each covariate in the
-multivariable model, aligning with the statistical test results where
-none of the individual covariate tests were significant at the 0.05
-level.
+The residual plots are broadly reassuring. Age is especially stable, while
+treatment and prior therapy show mild undulation but no strong sustained trends.
+Taken together, the plots suggest that proportional hazards is a workable
+assumption for this model, even if the global test is mildly concerning.
 
 **Martingale Residuals for Multivariable Model**
-
-We now examine the Martingale residuals from the multivariable Cox model
-to evaluate the overall model fit and identify any patterns or potential
-outliers in the covariate effects.
 
 ```{r}
 # Generate Martingale residuals
@@ -758,27 +598,18 @@ ggplot(veteran, aes(x = linear_pred_multivariable, y = martingale_multivariable,
     y = "Martingale Residual",
     color = "Treatment Group"
   ) +
-  scale_color_manual(values = c("Control" = "#A569BD", "Intervention" = "#45B39D")) +
+  scale_color_manual(values = c("Standard" = "#A569BD", "Experimental" = "#45B39D")) +
   theme(plot.title = element_text(hjust = 0.5, face = "bold"))
 ```
 
-The Martingale residuals plotted against the linear predictor for the
-multivariable model appear randomly scattered around the horizontal zero
-line, with no clear pattern, curvature, or systematic deviation. This
-suggests that the overall functional form of the covariates (treatment,
-age, and prior treatment) is reasonably specified. There is no strong
-evidence of model misspecification or non-linearity in the combined
-effects. However, the narrow spread of the linear predictor values
-(mostly between -0.2 and 0.2) reflects the modest effect sizes and
-limited variation in the log hazard estimates, which aligns with the
-model's lack of significant predictors.
+The Martingale residuals versus the linear predictor show no strong pattern,
+which argues against major misspecification in the combined linear predictor.
+That said, the narrow spread of predicted values reflects the same issue seen in
+the coefficients: this model has limited ability to separate higher-risk from
+lower-risk patients.
 
 
 **Functional Form Check for Continuous Covariates**
-
-We now recheck the functional form of the continuous variable age within
-the multivariable Cox model to ensure its effect on the log hazard
-remains appropriately modeled as linear.
 
 ```{r}
 # Refit a univariable model with age (again, for functional form check)
@@ -794,48 +625,30 @@ ggcoxfunctional(
 )
 ```
 
-The Martingale residual plot for age reveals a clear U-shaped curve,
-suggesting that the assumption of linearity in the log hazard may not
-hold. This implies that age may have a non-linear effect on survival,
-and modeling it as a simple linear term may lead to misestimation of its
-effect. A transformation (e.g., quadratic or restricted cubic splines)
-may be warranted in further analysis.
+The functional-form plot for age again suggests curvature rather than a clean
+linear relationship. That makes age the main candidate for a more flexible
+specification in the next model.
 
 
 ### Multivariable Cox Model with Spline-Transformed Age
 
-We refit the Cox model using a restricted cubic spline to model the
-non-linear relationship between age and the log hazard. This allows for
-greater flexibility in capturing age-related risk while still accounting
-for treatment and prior therapy.
+Given the repeated signs that age may not be linear on the log-hazard scale, the
+model is refit with age represented using a natural spline.
 
 
 **Model Output**
 
 ```{r}
-# Fit a Cox model with restricted cubic splines for age
+# Fit a Cox model with a natural spline for age
 cox_spline <- coxph(Surv(time, status) ~ ns(age, df = 3) + trt + prior, data = veteran)
 summary(cox_spline)
 ```
 
-A multivariable Cox proportional hazards model incorporating a
-restricted cubic spline transformation of age (df = 3) was fitted to
-explore potential non-linear effects of age on survival. None of the
-individual spline terms were statistically significant at the 0.05 level
-(p = 0.906, 0.143, and 0.157), suggesting that while the spline captures
-flexibility, the overall contribution of age remains statistically weak.
-
-The treatment group (p = 0.626) and prior therapy (p = 0.640) also
-remained non-significant. Model-level tests showed that the likelihood
-ratio test (p = 0.1), Wald test (p = 0.1), and score test (p = 0.1) were
-all non-significant, indicating that the model, as specified, may not
-provide strong explanatory power.
-
-However, the model's concordance improved slightly to 0.559 compared to
-the linear age model, suggesting a modest increase in predictive
-ability. While not conclusive, the use of splines helps satisfy the
-functional form assumption and could be valuable if future models
-identify stronger non-linear trends or interactions with age.
+Using a spline for age improves flexibility, but does not immediately transform
+the model. The treatment and prior-therapy terms remain uninformative, and the
+individual spline terms are not especially strong on their own. Even so,
+concordance improves slightly to 0.559, and the spline specification is more
+consistent with the functional-form checks.
 
 **Schoenfeld Residuals for Spline Model**
 
@@ -844,47 +657,17 @@ identify stronger non-linear trends or interactions with age.
 cox.zph(cox_spline)
 ```
 
-A Cox proportional hazards model incorporating a restricted cubic spline
-transformation of age (df = 3) demonstrated acceptable fit to the
-proportional hazards assumption across all covariates. The global
-Schoenfeld residuals test was non-significant (p = 0.116), suggesting
-that the model adequately satisfies the proportional hazards assumption.
-Individually, spline-transformed age (p = 0.211), treatment group (p =
-0.114), and prior treatment (p = 0.079) all showed no significant
-time-dependent effects.
+The spline model shows no clear proportional hazards problem. The global test is
+non-significant (*p* = 0.116), and the individual terms also look acceptable.
 
 ```{r}
 # Visual check of Schoenfeld residuals for spline model
 plot(cox.zph(cox_spline))
 ```
 
-The Schoenfeld residuals were examined for the final multivariable Cox
-model, which included a spline-transformed age term. Across all
-covariates—age (using splines), treatment group (trt), and prior
-treatment (prior)—the smoothed residual lines remained relatively flat
-and within the 95% confidence intervals, suggesting no strong evidence
-of time-varying effects.
-
--   Age (spline-transformed): Despite some visual variability, the three
-    spline basis functions for age each produce smoothed lines that
-    remain stable across time. Importantly, the confidence intervals
-    broadly contain zero, indicating that the assumption of
-    proportionality is not clearly violated despite the model’s
-    non-linear specification.
-
--   Treatment (trt): The smoothed residual curve shows a mild wave-like
-    pattern, but this fluctuation stays well within the confidence bands
-    and does not indicate a strong trend over time. While a borderline
-    global p-value was observed in earlier models, the residuals here
-    provide no compelling evidence against the proportional hazards
-    assumption for treatment.
-
--   Prior Treatment (prior): The smoothed residual line is relatively
-    flat, and although the lower bound of the 95% confidence interval
-    occasionally hovers just below zero, this does not strongly suggest
-    non-proportionality. The overall trend appears stable, and the
-    residuals provide visual reassurance that prior treatment's effect
-    on hazard is consistent over time.
+The residual plots for the spline model are more reassuring overall. None of the
+terms shows a strong or sustained time trend, so proportional hazards looks more
+comfortable here than in the simpler age models.
 
 **Martingale Residuals for Spline Model**
 
@@ -903,26 +686,13 @@ ggplot(veteran, aes(x = linear_pred_spline, y = martingale_spline, color = trt))
     y = "Martingale Residual",
     color = "Treatment Group"
   ) +
-  scale_color_manual(values = c("Control" = "#A569BD", "Intervention" = "#45B39D")) +
+  scale_color_manual(values = c("Standard" = "#A569BD", "Experimental" = "#45B39D")) +
   theme(plot.title = element_text(hjust = 0.5, face = "bold"))
 ```
 
-The plot displays Martingale residuals against the linear predictor (log
-hazard) for the spline-transformed Cox model. The residuals appear
-randomly scattered around the horizontal zero line, without a
-discernible systematic pattern or curvature. This suggests that the
-model has adequately captured the relationship between the covariates
-and the outcome.
-
-The use of restricted cubic splines for age appears to have addressed
-any previously observed non-linearity, as there is no strong evidence of
-model misfit. The distribution of residuals across treatment groups also
-seems relatively balanced, with no obvious separation or
-heteroscedasticity.
-
-The model’s functional form is appropriate, and the spline
-transformation has improved the model’s fit by flexibly accommodating
-the non-linear effect of age.
+The residuals against the linear predictor look broadly patternless, which
+suggests the spline model has addressed the main functional-form concern without
+introducing obvious new misspecification.
 
 ### Model Comparison: Linear vs Spline Age Term
 
@@ -936,11 +706,10 @@ spline significantly improves model fit.
 anova(cox_multivariable, cox_spline, test = "LRT")
 ```
 
-A likelihood ratio test comparing a model with age modeled linearly to
-one using restricted cubic splines (df = 3) showed a statistically
-significant improvement in fit (χ² = 7.91, df = 2, p = 0.019). This
-suggests that the effect of age on survival is non-linear, and that
-modeling age with splines better captures its relationship with hazard.
+A likelihood ratio test comparing the linear and spline age models shows that
+the spline specification fits better (χ² = 7.91, df = 2, *p* = 0.019). That is
+good evidence that age is better treated as a non-linear predictor in this
+analysis.
 
 **Visualizing the Effect of Spline-Transformed Age**
 
@@ -956,7 +725,7 @@ termplot(cox_spline, se = TRUE, col.term = "blue")
 The term plots from the spline-based Cox proportional hazards model
 illustrate the partial effect of each covariate on the log hazard:
 
--   Age (modeled using natural splines with 3 degrees of freedom)
+-   Age (modeled using a natural spline with 3 degrees of freedom)
     exhibits a non-linear association with the log hazard. The curve
     displays a shallow U-shape, with the lowest hazard around age 55,
     and a gradual increase in hazard at both younger and older ages.
@@ -1125,7 +894,7 @@ ggplot(veteran, aes(x = linear_pred_final, y = martingale_final, color = trt)) +
     y = "Martingale Residual",
     color = "Treatment Group"
   ) +
-  scale_color_manual(values = c("Control" = "#A569BD", "Intervention" = "#45B39D")) +
+  scale_color_manual(values = c("Standard" = "#A569BD", "Experimental" = "#45B39D")) +
   theme(plot.title = element_text(hjust = 0.5, face = "bold"))
 ```
 
@@ -1171,7 +940,7 @@ summary(cox_interaction)
 ```
 
 We tested for interaction between treatment group and age (modeled using
-natural splines with 3 degrees of freedom) to explore whether the effect
+a natural spline with 3 degrees of freedom) to explore whether the effect
 of treatment on survival varied across age groups. The interaction model
 revealed a statistically significant interaction for the second spline
 basis term (p = 0.037), suggesting a possible age-dependent treatment
@@ -1219,26 +988,11 @@ interaction, appear stable over time.
 plot(cox.zph(cox_interaction))
 ```
 
-The global test using cox.zph() indicated no significant violation of
-the PH assumption (χ² = 8.94, df = 8, p = 0.35). Individual covariate
-tests also returned non-significant p-values, suggesting that the
-estimated hazard ratios remain approximately constant over time.
-
-Visual inspection of the Schoenfeld residual plots supported this
-conclusion. The smoothed curves for treatment, age (spline terms), prior
-treatment, and their interaction remained relatively flat and within
-their 95% confidence bands. While a few outliers were
-present—particularly in the treatment and age components—these did not
-indicate strong evidence of non-proportionality.
-
-Taken together, these results suggest that the proportional hazards
-assumption is reasonably met for all terms in the interaction model.
+The interaction model does not show a clear proportional hazards problem. The
+global Schoenfeld test is non-significant (*p* = 0.35), and the residual plots
+do not show sustained time trends for the treatment, age, or interaction terms.
 
 **Martingale Residuals for Interaction Model**
-
-The Martingale residuals from the interaction model were plotted against
-the linear predictor (log hazard) to assess model fit and identify any
-potential patterns or outliers.
 
 ```{r}
 # Residuals vs linear predictor
@@ -1254,24 +1008,14 @@ ggplot(veteran, aes(x = linear_pred_interaction, y = martingale_interaction, col
     y = "Martingale Residual",
     color = "Treatment Group"
   ) +
-  scale_color_manual(values = c("Control" = "#A569BD", "Intervention" = "#45B39D")) +
+  scale_color_manual(values = c("Standard" = "#A569BD", "Experimental" = "#45B39D")) +
   theme(plot.title = element_text(hjust = 0.5, face = "bold"))
 ```
 
-The Martingale residuals plot from the interaction model reveals a
-concentration of predicted log hazard values for the control group
-between 0.5 and 1.0, whereas predictions for the intervention group span
-a wider range. This may reflect the influence of the age-by-treatment
-interaction term, which adds complexity primarily for patients receiving
-the intervention. The residuals themselves are randomly scattered around
-zero, suggesting that the functional form of the covariates is
-appropriately specified and that no major nonlinearity remains
-unaccounted for.
+The Martingale residuals are scattered without obvious structure, suggesting
+that the interaction model is not suffering from major misspecification.
 
 **Deviance Residuals for Interaction Model**
-
-Deviance residuals were generated to further assess the model fit and
-identify any potential outliers or influential observations.
 
 
 ```{r}
@@ -1288,34 +1032,18 @@ ggplot(veteran, aes(x = linear_pred_interaction, y = deviance_interaction, color
     y = "Deviance Residual",
     color = "Treatment Group"
   ) +
-  scale_color_manual(values = c("Control" = "#A569BD", "Intervention" = "#45B39D")) +
+  scale_color_manual(values = c("Standard" = "#A569BD", "Experimental" = "#45B39D")) +
   theme(plot.title = element_text(hjust = 0.5, face = "bold"))
 ```
 
-The deviance residual plot provides a diagnostic check on the adequacy
-of the Cox proportional hazards model that includes an interaction
-between treatment and age. In this plot, residuals are symmetrically
-distributed around zero with no discernible curvature or trend,
-suggesting that the model fits the data reasonably well.
-
-Notably, the intervention group shows a broader range of linear
-predictor values (i.e., estimated log hazard), indicating greater
-variability in predicted risk compared to the control group, which
-clusters tightly between 0.5 and 1.0. Despite this asymmetry in
-predictor spread, the vertical dispersion of residuals remains balanced,
-and no strong outliers or patterns emerge. This supports the
-appropriateness of the interaction model and suggests no serious
-violations of model assumptions related to functional form or
-influential observations.
-
-Overall, the deviance residuals confirm that the model adequately
-captures the observed survival data, with no clear evidence of misfit or
-heteroscedasticity.
+The deviance residuals are also broadly reassuring. Residuals are scattered
+around zero with no clear trend, suggesting that the interaction model fits the
+data reasonably well. That said, the model is more complex than the additive
+alternative and does not deliver a clearly better substantive interpretation.
 
 ## Interaction of Treatment and Prior Therapy
 
-Prior treatments might alter a patient’s response to new therapies
-(e.g., due to resistance, immune suppression, or cumulative toxicity).
+Prior treatments might alter a patient’s response to new therapies.
 
 ```{r}
 # Fit a cox model with interaction between treatment and prior therapy
@@ -1324,7 +1052,10 @@ summary(cox_interaction_prior)
 ```
 
 
-A Cox proportional hazards model including an interaction between treatment and prior therapy was fitted to assess potential effect modification. The interaction term (trt × prior) yielded a hazard ratio of 0.94 (95% CI: 0.87–1.02, p = 0.135), suggesting that the effect of treatment may be modestly attenuated in patients who had received prior therapy. However, this association did not reach statistical significance. Model-level tests (Likelihood Ratio, Wald, and Score) were borderline (p = 0.07–0.08), indicating weak evidence that the inclusion of an interaction term may improve model fit. While these findings are not conclusive in this sample, they raise the possibility of effect modification that could be explored further in larger, more adequately powered studies.
+A treatment-by-prior-therapy interaction was tested to assess whether previous
+treatment modified the effect of the experimental regimen. The interaction term
+was not statistically convincing (HR = 0.94, 95% CI: 0.87–1.02, *p* = 0.135),
+and the model offered only weak evidence of improvement overall.
 
 **Schoenfeld Residuals for Interaction with Prior Therapy**
 
@@ -1333,22 +1064,18 @@ A Cox proportional hazards model including an interaction between treatment and 
 cox.zph(cox_interaction_prior)
 ```
 
-The proportional hazards assumption was assessed using Schoenfeld residuals. The global test did not indicate violation (p = 0.171), supporting the use of the Cox model. Most individual terms showed no evidence of non-proportionality, though the interaction between treatment and prior therapy (trt:prior) was borderline (p = 0.054). This may suggest some time-dependent behavior in how prior treatment modifies the treatment effect, though the evidence is not conclusive.
+Diagnostics were broadly acceptable. The global Schoenfeld test was
+non-significant (*p* = 0.171), and although the interaction term was borderline
+(*p* = 0.054), the evidence for time-varying effects is weak.
 
 ```{r}
 # Visual check of Schoenfeld residuals for interaction with prior therapy
 plot(cox.zph(cox_interaction_prior))
 ```
 
-To assess whether the proportional hazards (PH) assumption holds in the model including an interaction between treatment and prior therapy, Schoenfeld residuals were examined both statistically and graphically.
-
-The global test for the PH assumption was not significant (p = 0.17), and all individual covariates—including the interaction term—also showed non-significant test results (all p > 0.05), suggesting no strong evidence of time-varying effects.
-
-Visual inspection of the residual plots supports this conclusion. For all variables, including trt, prior, age (splines), and the interaction term trt × prior, the smoothed lines remain relatively flat over time, and their 95% confidence bands generally include zero. While the plots for trt and prior show some scatter at the extremes—with several residuals appearing as outliers above and below the bands—these deviations do not appear systematic or directional.
-
-In particular, the clusters of points outside the confidence bounds likely reflect the influence of a small number of high-leverage observations rather than a violation of the PH assumption. These artifacts are common in small-to-moderate datasets, especially when stratifying by interactions.
-
-Conclusion: There is no strong statistical or visual evidence to reject the PH assumption for this interaction model. However, the presence of some outlier residuals may warrant further sensitivity analysis in larger samples.
+The residual plots do not show a clear or systematic time trend, so there is no
+strong visual evidence against the proportional hazards assumption for this
+interaction model.
 
 **Martingale Residuals for Interaction with Prior Therapy**
 
@@ -1367,21 +1094,14 @@ ggplot(veteran, aes(x = linear_pred_interaction_prior, y = martingale_interactio
     y = "Martingale Residual",
     color = "Treatment Group"
   ) +
-  scale_color_manual(values = c("Control" = "#A569BD", "Intervention" = "#45B39D")) +
+  scale_color_manual(values = c("Standard" = "#A569BD", "Experimental" = "#45B39D")) +
   theme(plot.title = element_text(hjust = 0.5, face = "bold"))
 ```
 
-The martingale residual plot shows the residuals plotted against the linear predictor (log hazard), grouped by treatment arm. In this context, the martingale residuals help assess the model's functional form — particularly whether the covariates are correctly specified (e.g., linearity assumptions, missing covariates, or poorly modeled interactions).
-Key Observations:
-
-_Vertical Spread (Residuals Axis):_
-There is substantial vertical scatter in the residuals, with several points deviating far from the horizontal line at 0. This is expected in survival models, particularly with smaller datasets. However, there is no clear systematic pattern, such as curvature or directional trend, that would suggest strong non-linearity or misspecification.
-
-_Horizontal Clustering (Linear Predictor Axis):_
-As with previous models, a dense cluster of observations is seen between approximately 0 and 1 on the linear predictor scale, mostly corresponding to the control group. This may reflect limited variation in the covariates for this subgroup, or overlapping risk profiles. The intervention group displays more dispersion, which aligns with the interaction term — suggesting greater heterogeneity in risk when prior treatment is included in the model.
-
-_Overall Interpretation:_
-The lack of a strong non-random pattern supports the adequacy of the covariate specification, including the interaction term. However, the wide spread and presence of extreme residuals imply potential outliers or influential cases that might warrant further sensitivity analysis in larger samples.
+The Martingale residuals do not show a strong non-random pattern, which
+supports the adequacy of the covariate specification, including the interaction
+term. As in earlier models, there is substantial scatter, but no clear sign of
+systematic misspecification.
 
 **Deviance Residuals for Interaction with Prior Therapy**
 
@@ -1400,45 +1120,25 @@ ggplot(veteran, aes(x = linear_pred_interaction_prior, y = deviance_interaction_
     y = "Deviance Residual",
     color = "Treatment Group"
   ) +
-  scale_color_manual(values = c("Control" = "#A569BD", "Intervention" = "#45B39D")) +
+  scale_color_manual(values = c("Standard" = "#A569BD", "Experimental" = "#45B39D")) +
   theme(plot.title = element_text(hjust = 0.5, face = "bold"))
 ```
 
-The plot of deviance residuals against the linear predictor for the interaction model reveals no strong patterns or obvious deviations from randomness. Residuals are symmetrically scattered around the zero line, with similar vertical spread across the range of the linear predictor. This suggests that:
-
-_Model Fit Appears Reasonable:_
-There is no clear evidence of systematic bias, such as curvature, funneling, or clustering that might imply model misspecification, omitted variables, or heteroscedasticity.
-
-_Symmetry Around Zero:_
-The relatively balanced distribution of residuals above and below the zero line supports the assumption that the model is neither consistently under- nor over-estimating the risk.
-
-_No Extreme Outliers:_
-While a few points have larger residuals, there are no values that fall far outside the typical range (±3), indicating a lack of highly influential or poorly fit observations.
-
-_Group Comparison:_
-The intervention and control groups appear similarly distributed across the range of linear predictors, lending further support to the appropriateness of the model specification including the interaction term.
-
-_Summary:_
-
-The deviance residual plot offers no strong evidence of model misfit and supports the adequacy of the Cox model including the interaction between treatment and prior therapy. Residuals appear randomly and symmetrically distributed, suggesting that the model captures the underlying structure of the data well, at least within the limitations of this dataset.
+The deviance residual plot offers no strong evidence of model misfit. Residuals
+are scattered fairly symmetrically around zero, which is consistent with an
+adequate fit, but the model still does not add enough value to justify keeping
+the interaction.
 
 # Model Comparison: Interaction vs Non-Interaction
 
-Two extended models were fit to explore potential effect modification: one
-including an interaction between treatment and age (via natural splines), and
-another between treatment and prior therapy. While the treatment × age model
-showed a statistically significant interaction term, the overall model-level
-tests remained marginal (Wald p = 0.05, Score p = 0.03), with no compelling
-evidence of meaningful improvement in predictive performance. The treatment ×
-prior therapy interaction suggested a potential moderating effect, but this did
-not reach statistical significance (p = 0.135), and proportional hazards
-assumptions were borderline (p = 0.054).
+Two interaction models were explored: treatment by age and treatment by prior
+therapy. The treatment-by-age model showed some signal, but the improvement in
+overall fit was modest and did not materially change the interpretation of the
+analysis. The treatment-by-prior-therapy interaction was weaker and not
+statistically convincing.
 
-When comparing these interaction models to the full additive model
-(trt + prior + ns(age, df=3) + karno + celltype), neither interaction offered
-substantial improvement in model fit or interpretability. Residual diagnostics
-also did not reveal meaningful deviations. The additive model was therefore
-selected as the final model.
+Neither interaction improved the model enough to offset the added complexity, so
+the additive model was retained as the final specification.
 
 # Final Model Selection and Interpretation
 
@@ -1477,67 +1177,48 @@ $$\text{trt} + \text{prior} + ns(\text{age}, df=3) + \text{karno} + \text{cellty
 
 **Interpretation of the Final Model**
 
--   **Treatment group:** The experimental chemotherapy regimen was not
-    associated with improved survival compared to standard treatment after
-    adjusting for all other covariates (HR = 1.40, 95% CI: 0.94–2.09,
-    p = 0.097). This null finding is consistent with the log-rank test
-    (p = 0.928).
+After adjustment for the other covariates, the experimental chemotherapy regimen
+was not associated with improved survival relative to standard treatment
+(HR = 1.40, 95% CI: 0.94–2.09, *p* = 0.097). This is consistent with the
+earlier unadjusted comparison.
 
--   **Karnofsky score:** Each 1-point increase in performance status was
-    associated with a 3.4% reduction in the hazard of death (HR = 0.966,
-    95% CI: 0.955–0.977, p < 0.001). This is the strongest predictor in the
-    model by a considerable margin.
+The strongest predictor in the model is Karnofsky performance score: each
+1-point increase is associated with a 3.4% reduction in the hazard of death
+(HR = 0.966, 95% CI: 0.955–0.977, *p* < 0.001). Tumour cell type is also
+important. Relative to squamous cell carcinoma, both small cell carcinoma
+(HR = 2.21, *p* = 0.003) and adenocarcinoma (HR = 3.30, *p* < 0.001) are
+associated with substantially higher hazard, while large cell carcinoma is not
+clearly different from squamous.
 
--   **Cell type:** Compared to squamous cell carcinoma, patients with small
-    cell carcinoma faced a 2.2-fold increased hazard (HR = 2.21, p = 0.003)
-    and adenocarcinoma patients faced a 3.3-fold increased hazard
-    (HR = 3.30, p < 0.001). Large cell carcinoma was not significantly
-    different from squamous (HR = 1.40, p = 0.233).
-
--   **Age:** The spline-transformed age term showed a non-linear association
-    with survival, with the second spline term reaching significance
-    (HR = 0.098, p = 0.025). The overall age effect was modest.
-
--   **Prior therapy:** Not a significant predictor in the adjusted model
-    (HR = 1.01, p = 0.658).
+Age is better represented non-linearly than with a simple linear term, but its
+overall contribution is modest. Prior therapy does not appear to be an
+independent predictor of survival in the adjusted model.
 
 **Overall Model Performance**
 
-The final model achieved a concordance index of 0.735, a substantial
-improvement over the earlier model using only treatment, age, and prior therapy
-(concordance ≈ 0.55). The likelihood ratio, Wald, and score tests were all
-highly significant (p < 0.001). Proportional hazards diagnostics showed no
-evidence of assumption violations.
+The final model achieved a concordance index of 0.735, a clear improvement over
+the simpler models based only on treatment, age, and prior therapy. Likelihood
+ratio, Wald, and score tests were all strongly significant (*p* < 0.001), and
+the proportional hazards diagnostics did not indicate a major assumption
+problem.
 
 # Conclusion
 
-This analysis examined survival outcomes among 137 male veterans with advanced,
-inoperable lung cancer enrolled in a randomised controlled trial comparing
-standard chemotherapy to an experimental regimen. A series of Cox proportional
-hazards models were fitted, with progressive inclusion of clinical covariates,
-functional form testing, and diagnostic checking.
+This analysis examined survival in 137 male veterans with advanced,
+inoperable lung cancer enrolled in a randomised trial of standard versus
+experimental chemotherapy. Across a sequence of Cox models, the main finding was
+consistent: the experimental treatment did not improve survival.
 
-The primary finding is that the experimental treatment did not improve survival
-relative to standard chemotherapy (HR = 1.40, 95% CI: 0.94–2.09, p = 0.097),
-consistent with the unadjusted log-rank test (p = 0.928). This null result is
-robust across model specifications and is not an artefact of inadequate
-adjustment.
+The clearest predictors of outcome were baseline functional status and tumour
+cell type. Higher Karnofsky scores were associated with lower hazard, while
+adenocarcinoma and small cell carcinoma were associated with worse prognosis
+than squamous cell carcinoma. Age showed some evidence of a non-linear
+association with hazard, but its contribution was modest, and prior therapy was
+not independently informative.
 
-The two dominant prognostic factors in this cohort were Karnofsky performance
-score and tumour cell type. A 10-point increase in Karnofsky score was
-associated with a roughly 29% reduction in the hazard of death; adenocarcinoma
-and small cell carcinoma conferred substantially higher hazard than squamous
-cell carcinoma. These findings align with decades of oncological literature and
-underscore the primacy of functional status and histology in lung cancer
-prognosis.
-
-Age, modeled with a natural cubic spline, showed some evidence of a
-non-monotonic association with survival. Prior therapy was not independently
-associated with survival in the adjusted model.
-
-The final model demonstrated good discrimination (concordance = 0.735),
-satisfied proportional hazards assumptions, and showed no major evidence of
-misspecification in residual diagnostics.
+Overall, the final model performed well enough to capture meaningful risk
+differences in the cohort, while remaining interpretable and diagnostically
+sound.
 
 # Limitations
 
