@@ -14,7 +14,7 @@ website:
       - href: notebooks/veteran-lung-cancer-coxph-report.qmd
         text: Report
       - href: notebooks/veteran-lung-cancer-coxph.qmd
-        text: Teaching Notebook
+        text: Guide
 
 format:
   html:

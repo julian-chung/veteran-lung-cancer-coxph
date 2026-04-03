@@ -3,12 +3,11 @@ title: "Veteran Lung Cancer Survival Analysis"
 format: html
 ---
 
-This project applies survival analysis to a Veterans Administration randomised
-controlled trial comparing standard vs experimental chemotherapy in patients
-with advanced, inoperable lung cancer. It uses Kaplan–Meier estimation, Cox
-proportional hazards modelling, spline transformations, interaction testing,
-and the Aalen additive model — all implemented in R with `survival`,
-`survminer`, and `ggplot2`, rendered via Quarto.
+This project analyses survival outcomes in the Veterans Administration lung
+cancer trial, a classic dataset for time-to-event modelling in R. It compares
+standard and experimental chemotherapy in patients with advanced, inoperable
+lung cancer using Kaplan-Meier curves, Cox proportional hazards models,
+diagnostic checks, spline terms, and an Aalen additive model.
 
 The project is organised into three parts:
 
@@ -16,27 +15,26 @@ The project is organised into three parts:
 
 ## Overview
 
-A concise summary of the dataset, key survival estimates, and the main model
-findings — four plots that tell the full story at a glance.
+A concise summary of the analysis, key survival estimates, and main model
+findings. This is the quickest way to see the headline results.
 
-👉 [Open Overview »](notebooks/veteran-lung-cancer-overview.html)
+↗ [Open Overview »](notebooks/veteran-lung-cancer-overview.html)
 
 ---
 
 ## Full Report
 
-A complete step-by-step analysis: exploratory survival analysis, model
-building, functional form checking, spline transformations, interaction
-testing, diagnostics, and final model interpretation.
+A full step-by-step analysis covering exploratory survival analysis, model
+building, functional form checks, spline terms, diagnostics, and final model
+interpretation.
 
-👉 [Open Full Report »](notebooks/veteran-lung-cancer-coxph-report.html)
+↗ [Open Full Report »](notebooks/veteran-lung-cancer-coxph-report.html)
 
 ---
 
-## Teaching & Learning Reference
+## Guide
 
-The same analysis with collapsible callout sections explaining the statistical
-reasoning behind each step — theory, assumptions, code decisions, and
-diagnostics. A reusable reference for future survival analyses.
+A guided version of the analysis with collapsible sections explaining each
+step, the modelling choices, and the diagnostics.
 
-👉 [Open Teaching Notebook »](notebooks/veteran-lung-cancer-coxph.html)
+↗ [Open Guide »](notebooks/veteran-lung-cancer-coxph.html)
