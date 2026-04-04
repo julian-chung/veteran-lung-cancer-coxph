@@ -1,6 +1,5 @@
 ---
 title: "Survival Analysis of Veterans with Advanced Lung Cancer: A Cox Proportional Hazards Approach"
-author: "Julian Chung"
 format:
   html:
     toc: true

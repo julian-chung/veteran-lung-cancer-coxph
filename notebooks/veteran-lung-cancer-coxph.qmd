@@ -1,6 +1,5 @@
 ---
 title: "Cox Proportional Hazards in R: A Practical Reference"
-author: "Julian Chung"
 format:
   html:
     toc: true
