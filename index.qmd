@@ -1,6 +1,8 @@
 ---
 title: "Veteran Lung Cancer Survival Analysis"
-format: html
+format:
+  html:
+    toc: false
 ---
 
 This project analyses survival outcomes in the Veterans Administration lung

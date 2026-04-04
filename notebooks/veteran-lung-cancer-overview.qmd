@@ -2,7 +2,7 @@
 title: "Veteran Lung Cancer Survival Analysis: Overview"
 format:
   html:
-    toc: false
+    toc: true
 execute:
   warning: false
   message: false
