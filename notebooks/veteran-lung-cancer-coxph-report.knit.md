@@ -38,7 +38,10 @@ The analysis uses standard R packages for survival modelling, visualisation, and
 data handling. The dataset comes from the `survival` package, with treatment
 groups relabelled for readability in tables and plots.
 
-```{r}
+
+::: {.cell}
+
+```{.r .cell-code}
 # Load required libraries
 library(survival) # Core survival analysis tools
 library(survminer)  # Visualisation and diagnostics
@@ -46,14 +49,18 @@ library(dplyr)  # Data wrangling
 library(ggplot2)  # Plotting
 library(broom)  # Tidying model output
 library(splines) # Splines for flexible modelling
-
 ```
+:::
+
 
 
 The dataset is loaded below, with a simple relabelling step for the treatment
 groups.
 
-```{r}
+
+::: {.cell}
+
+```{.r .cell-code}
 # Load the dataset
 veteran <- survival::veteran %>%
   mutate(trt = factor(trt,
@@ -64,6 +71,8 @@ veteran <- survival::veteran %>%
 # glimpse(veteran)
 # summary(veteran)
 ```
+:::
+
 
 
 **Variable Summary:**
@@ -93,7 +102,10 @@ and allow an initial comparison between treatment groups.
 We start with Kaplan-Meier curves to compare the unadjusted survival experience
 of the two treatment groups.
 
-```{r}
+
+::: {.cell}
+
+```{.r .cell-code}
 # Create the survival object
 surv_obj <- Surv(time = veteran$time, event = veteran$status)
 
@@ -102,12 +114,16 @@ km_fit <- survfit(surv_obj ~ trt, data = veteran)
 
 # View basic survival summary
 # summary(km_fit)
-
 ```
+:::
 
 
 
-```{r}
+
+
+::: {.cell}
+
+```{.r .cell-code}
 # Plot the KM curve
 ggsurvplot(
   km_fit,
@@ -139,6 +155,12 @@ ggsurvplot(
 )
 ```
 
+::: {.cell-output-display}
+![](veteran-lung-cancer-coxph-report_files/figure-html/unnamed-chunk-4-1.png){width=672}
+:::
+:::
+
+
 **Interpretation of the Kaplan-Meier Plot**
 
 The Kaplan-Meier curves for the control and intervention groups are very similar
@@ -153,16 +175,51 @@ difference in survival between the two treatment arms.
 The log-rank test provides a formal comparison of the two survival curves.
 
 
-```{r}
+
+::: {.cell}
+
+```{.r .cell-code}
 # Perform the log-rank test
 log_rank_test <- survdiff(surv_obj ~ trt, data = veteran)
 log_rank_test
 ```
 
-```{r}
+::: {.cell-output .cell-output-stdout}
+
+```
+Call:
+survdiff(formula = surv_obj ~ trt, data = veteran)
+
+                  N Observed Expected (O-E)^2/E (O-E)^2/V
+trt=Standard     69       64     64.5   0.00388   0.00823
+trt=Experimental 68       64     63.5   0.00394   0.00823
+
+ Chisq= 0  on 1 degrees of freedom, p= 0.9 
+```
+
+
+:::
+:::
+
+
+
+::: {.cell}
+
+```{.r .cell-code}
 # Extract the p-value
 1 - pchisq(log_rank_test$chisq, df = length(log_rank_test$n) - 1)
 ```
+
+::: {.cell-output .cell-output-stdout}
+
+```
+[1] 0.9277272
+```
+
+
+:::
+:::
+
 
 
 **Interpretation of the Log-Rank Test Results**
@@ -217,14 +274,41 @@ complex adjusted models.
 The first Cox model includes treatment group only, providing an
 adjusted-hazard analogue to the earlier Kaplan-Meier and log-rank comparison.
 
-```{r}
+
+::: {.cell}
+
+```{.r .cell-code}
 # Fit the Cox Proportional Hazards model
 cox_model <- coxph(surv_obj ~ trt, data = veteran) # Where trt is a binary treatment variable with levels Standard and Experimental
 
 # Summarise the model
 summary(cox_model)
+```
+
+::: {.cell-output .cell-output-stdout}
 
 ```
+Call:
+coxph(formula = surv_obj ~ trt, data = veteran)
+
+  n= 137, number of events= 128 
+
+                   coef exp(coef) se(coef)     z Pr(>|z|)
+trtExperimental 0.01774   1.01790  0.18066 0.098    0.922
+
+                exp(coef) exp(-coef) lower .95 upper .95
+trtExperimental     1.018     0.9824    0.7144      1.45
+
+Concordance= 0.525  (se = 0.026 )
+Likelihood ratio test= 0.01  on 1 df,   p=0.9
+Wald test            = 0.01  on 1 df,   p=0.9
+Score (logrank) test = 0.01  on 1 df,   p=0.9
+```
+
+
+:::
+:::
+
 
 
 **Interpretation of the Cox Model Results**
@@ -236,7 +320,10 @@ for either modest benefit or modest harm. Concordance is 0.525, which is only
 slightly better than chance. On its own, treatment does not explain survival
 well in this cohort.
 
-```{r}
+
+::: {.cell}
+
+```{.r .cell-code}
 # Use ggadjustedcurves for plotting adjusted survival curves directly from the Cox model
 ggadjustedcurves(
   cox_model,                     # The fitted Cox model
@@ -265,6 +352,12 @@ ggadjustedcurves(
 )
 ```
 
+::: {.cell-output-display}
+![](veteran-lung-cancer-coxph-report_files/figure-html/unnamed-chunk-8-1.png){width=672}
+:::
+:::
+
+
 
 **Interpretation of the Adjusted Survival Curves**
 
@@ -289,10 +382,26 @@ Schoenfeld residuals provide both a formal test and a visual check for the
 proportional hazards assumption. Large systematic trends over time would suggest
 that the treatment effect is not constant during follow-up.
 
-```{r}
+
+::: {.cell}
+
+```{.r .cell-code}
 # Test the PH assumption
 cox.zph(cox_model)
 ```
+
+::: {.cell-output .cell-output-stdout}
+
+```
+       chisq df    p
+trt     3.54  1 0.06
+GLOBAL  3.54  1 0.06
+```
+
+
+:::
+:::
+
 
 
 **Interpretation of PH Assumption Test (Schoenfeld residuals)**
@@ -303,9 +412,18 @@ evidence against the proportional hazards assumption in this model.
 
 **Schoenfeld Residuals Plot**
 
-```{r}
+
+::: {.cell}
+
+```{.r .cell-code}
 plot(cox.zph(cox_model))
 ```
+
+::: {.cell-output-display}
+![](veteran-lung-cancer-coxph-report_files/figure-html/unnamed-chunk-10-1.png){width=672}
+:::
+:::
+
 
 
 **Schoenfeld Residuals Interpretation**
@@ -322,7 +440,10 @@ been modelled with an appropriate functional form. Clear curvature can indicate
 that a simple linear term is inadequate.
 
 
-```{r}
+
+::: {.cell}
+
+```{.r .cell-code}
 # Generate Martingale residuals
 martingale_resid <- residuals(cox_model, type = "martingale")
 
@@ -345,9 +466,13 @@ ggplot(veteran, aes(x = linear_pred, y = martingale, color = trt)) +
   ) +
   scale_color_manual(values = c("Standard" = "#A569BD", "Experimental" = "#45B39D")) +
   theme(plot.title = element_text(hjust = 0.5, face = "bold"))
-
-
 ```
+
+::: {.cell-output-display}
+![](veteran-lung-cancer-coxph-report_files/figure-html/unnamed-chunk-11-1.png){width=672}
+:::
+:::
+
 
 
 **Interpretation of Martingale Residuals Plot**
@@ -389,10 +514,40 @@ adds useful information and whether a simple linear term is adequate.
 
 **Cox Model with Age**
 
-```{r}
+
+::: {.cell}
+
+```{.r .cell-code}
 cox_age <- coxph(Surv(time, status) ~ trt + age, data = veteran)
 summary(cox_age)
 ```
+
+::: {.cell-output .cell-output-stdout}
+
+```
+Call:
+coxph(formula = Surv(time, status) ~ trt + age, data = veteran)
+
+  n= 137, number of events= 128 
+
+                     coef exp(coef)  se(coef)      z Pr(>|z|)
+trtExperimental -0.003654  0.996352  0.182514 -0.020    0.984
+age              0.007527  1.007556  0.009661  0.779    0.436
+
+                exp(coef) exp(-coef) lower .95 upper .95
+trtExperimental    0.9964     1.0037    0.6967     1.425
+age                1.0076     0.9925    0.9887     1.027
+
+Concordance= 0.514  (se = 0.029 )
+Likelihood ratio test= 0.63  on 2 df,   p=0.7
+Wald test            = 0.62  on 2 df,   p=0.7
+Score (logrank) test = 0.62  on 2 df,   p=0.7
+```
+
+
+:::
+:::
+
 
 **Interpretation of the Cox Model with Age**
 
@@ -405,11 +560,28 @@ year, 95% CI: 0.99 to 1.03, *p* = 0.436). Model discrimination remains poor
 
 **Schoenfeld Residuals for Age**
 
-```{r}
+
+::: {.cell}
+
+```{.r .cell-code}
 # Test proportional hazards assumption for the model including age
 cox_zph_age <- cox.zph(cox_age)
 print(cox_zph_age)
 ```
+
+::: {.cell-output .cell-output-stdout}
+
+```
+       chisq df     p
+trt     3.67  1 0.055
+age     1.68  1 0.195
+GLOBAL  6.20  2 0.045
+```
+
+
+:::
+:::
+
 
 The proportional hazards check is mostly acceptable for this model. Age shows no
 evidence of non-proportionality (*p* = 0.195), while treatment is borderline
@@ -418,10 +590,23 @@ does not point to a clear violation, but it does justify checking the residual
 plots carefully.
 
 
-```{r}
+
+::: {.cell}
+
+```{.r .cell-code}
 # Visual check
 plot(cox_zph_age)
 ```
+
+::: {.cell-output-display}
+![](veteran-lung-cancer-coxph-report_files/figure-html/unnamed-chunk-14-1.png){width=672}
+:::
+
+::: {.cell-output-display}
+![](veteran-lung-cancer-coxph-report_files/figure-html/unnamed-chunk-14-2.png){width=672}
+:::
+:::
+
 
 The residual plot for age is broadly flat over time, with the smooth staying
 close to zero and within the confidence bands. This supports treating the age
@@ -433,7 +618,10 @@ effect as approximately time-constant in this model.
 Martingale residuals are used here to check whether age is adequately captured
 by a simple linear term.
 
-```{r}
+
+::: {.cell}
+
+```{.r .cell-code}
 # Generate Martingale residuals
 veteran$martingale_age <- residuals(cox_age, type = "martingale")
 
@@ -455,6 +643,12 @@ ggplot(veteran, aes(x = age, y = martingale_age, color = trt)) +
   theme(plot.title = element_text(hjust = 0.5, face = "bold"))
 ```
 
+::: {.cell-output-display}
+![](veteran-lung-cancer-coxph-report_files/figure-html/unnamed-chunk-15-1.png){width=672}
+:::
+:::
+
+
 The simple residual plot does not show an obvious pattern, but the
 functional-form plot suggests some curvature. Taken together, these checks do
 not support a strong linear age effect, and they leave open the possibility that
@@ -463,13 +657,22 @@ age is better represented with a more flexible term.
 
 **Functional Form Check**
 
-```{r}
+
+::: {.cell}
+
+```{.r .cell-code}
 # Fit a univariable Cox model to assess functional form of age
 cox_age_only <- coxph(Surv(time, status) ~ age, data = veteran)
 
 # Check the functional form visually using Martingale residuals
 ggcoxfunctional(cox_age_only, data = veteran)
 ```
+
+::: {.cell-output-display}
+![](veteran-lung-cancer-coxph-report_files/figure-html/unnamed-chunk-16-1.png){width=672}
+:::
+:::
+
 
 
 The smoothed functional-form plot suggests that age may not relate to the log
@@ -484,11 +687,41 @@ of previous treatment before study entry.
 
 **Fit Cox Model with Prior Treatment**
 
-```{r}
+
+::: {.cell}
+
+```{.r .cell-code}
 # Fit the Cox model including prior treatment
 cox_prior <- coxph(Surv(time, status) ~ trt + prior, data = veteran)
 summary(cox_prior)
 ```
+
+::: {.cell-output .cell-output-stdout}
+
+```
+Call:
+coxph(formula = Surv(time, status) ~ trt + prior, data = veteran)
+
+  n= 137, number of events= 128 
+
+                    coef exp(coef) se(coef)      z Pr(>|z|)
+trtExperimental  0.02608   1.02643  0.18099  0.144    0.885
+prior           -0.01447   0.98563  0.02009 -0.720    0.471
+
+                exp(coef) exp(-coef) lower .95 upper .95
+trtExperimental    1.0264     0.9743    0.7199     1.463
+prior              0.9856     1.0146    0.9476     1.025
+
+Concordance= 0.517  (se = 0.03 )
+Likelihood ratio test= 0.54  on 2 df,   p=0.8
+Wald test            = 0.53  on 2 df,   p=0.8
+Score (logrank) test = 0.53  on 2 df,   p=0.8
+```
+
+
+:::
+:::
+
 
 Adding prior therapy does not improve the model. The treatment effect remains
 close to null (HR = 1.03, 95% CI: 0.72 to 1.46, *p* = 0.885), and prior therapy is
@@ -497,21 +730,51 @@ low at 0.517, so this model still offers very limited discrimination.
 
 **Schoenfeld Residuals for Prior Treatment**
 
-```{r}
+
+::: {.cell}
+
+```{.r .cell-code}
 # Test proportional hazards assumption for the model including prior treatment
 cox_zph_prior <- cox.zph(cox_prior)
 print(cox_zph_prior)
 ```
+
+::: {.cell-output .cell-output-stdout}
+
+```
+       chisq df     p
+trt     3.38  1 0.066
+prior   3.04  1 0.081
+GLOBAL  6.06  2 0.048
+```
+
+
+:::
+:::
+
 
 The global Schoenfeld test is borderline (*p* = 0.048), while the individual
 tests for treatment and prior therapy are both just above 0.05. This is enough
 to warrant caution, but not enough on its own to conclude that the proportional
 hazards assumption has clearly failed.
 
-```{r}
+
+::: {.cell}
+
+```{.r .cell-code}
 # Visual check
 plot(cox_zph_prior)
 ```
+
+::: {.cell-output-display}
+![](veteran-lung-cancer-coxph-report_files/figure-html/unnamed-chunk-19-1.png){width=672}
+:::
+
+::: {.cell-output-display}
+![](veteran-lung-cancer-coxph-report_files/figure-html/unnamed-chunk-19-2.png){width=672}
+:::
+:::
+
 
 The residual plot for prior therapy is broadly flat, supporting a stable effect
 over time. Treatment shows more waviness, but not a strong enough pattern to
@@ -519,7 +782,10 @@ argue for a clear violation on visual grounds.
 
 **Martingale Residuals for Prior Treatment**
 
-```{r}
+
+::: {.cell}
+
+```{.r .cell-code}
 # Generate Martingale residuals
 veteran$martingale_prior <- residuals(cox_prior, type = "martingale")
 # Generate linear predictor
@@ -538,8 +804,13 @@ ggplot(veteran, aes(x = prior, y = martingale_prior, color = trt)) +
   scale_color_manual(values = c("Standard" = "#A569BD", "Experimental" = "#45B39D")) +
   theme(plot.title = element_text(hjust = 0.5, face = "bold")) +
   geom_point(position = position_jitter(width = 0.1), alpha = 0.6) # Adding jitter to avoid overlap
-
 ```
+
+::: {.cell-output-display}
+![](veteran-lung-cancer-coxph-report_files/figure-html/unnamed-chunk-20-1.png){width=672}
+:::
+:::
+
 
 Because prior therapy is binary, the residual plot is mainly a check for obvious
 imbalance or misspecification rather than curvature. The residuals look broadly
@@ -551,11 +822,43 @@ similar across the two groups, so the binary coding appears reasonable.
 The next step is to fit a simple multivariable model with treatment, age, and
 prior therapy together.
 
-```{r}
+
+::: {.cell}
+
+```{.r .cell-code}
 # Fit the multivariable Cox model including age and prior treatment
 cox_multivariable <- coxph(Surv(time, status) ~ trt + age + prior, data = veteran)
 summary(cox_multivariable)
 ```
+
+::: {.cell-output .cell-output-stdout}
+
+```
+Call:
+coxph(formula = Surv(time, status) ~ trt + age + prior, data = veteran)
+
+  n= 137, number of events= 128 
+
+                     coef exp(coef)  se(coef)      z Pr(>|z|)
+trtExperimental  0.003621  1.003628  0.183151  0.020    0.984
+age              0.007124  1.007149  0.009675  0.736    0.462
+prior           -0.013562  0.986529  0.020118 -0.674    0.500
+
+                exp(coef) exp(-coef) lower .95 upper .95
+trtExperimental    1.0036     0.9964    0.7009     1.437
+age                1.0071     0.9929    0.9882     1.026
+prior              0.9865     1.0137    0.9484     1.026
+
+Concordance= 0.507  (se = 0.03 )
+Likelihood ratio test= 1.09  on 3 df,   p=0.8
+Wald test            = 1.07  on 3 df,   p=0.8
+Score (logrank) test = 1.07  on 3 df,   p=0.8
+```
+
+
+:::
+:::
+
 
 
 This model does not materially improve on the earlier ones. Treatment remains
@@ -565,20 +868,55 @@ that these variables alone do little to explain survival in this dataset.
 
 **Schoenfeld Residuals for Multivariable Model**
 
-```{r}
+
+::: {.cell}
+
+```{.r .cell-code}
 # Test proportional hazards assumption for the multivariable model
 cox_zph_multivariable <- cox.zph(cox_multivariable)
 print(cox_zph_multivariable)
 ```
 
+::: {.cell-output .cell-output-stdout}
+
+```
+       chisq df     p
+trt     3.53  1 0.060
+age     1.76  1 0.184
+prior   3.19  1 0.074
+GLOBAL  8.80  3 0.032
+```
+
+
+:::
+:::
+
+
 The global Schoenfeld test is significant (*p* = 0.032), although none of the
 individual covariates crosses the 0.05 threshold. That pattern suggests some
 model instability, but not a clear time-varying effect for any single term.
 
-```{r}
+
+::: {.cell}
+
+```{.r .cell-code}
 # Visual check
 plot(cox_zph_multivariable)
 ```
+
+::: {.cell-output-display}
+![](veteran-lung-cancer-coxph-report_files/figure-html/unnamed-chunk-23-1.png){width=672}
+:::
+
+::: {.cell-output-display}
+![](veteran-lung-cancer-coxph-report_files/figure-html/unnamed-chunk-23-2.png){width=672}
+:::
+
+::: {.cell-output-display}
+![](veteran-lung-cancer-coxph-report_files/figure-html/unnamed-chunk-23-3.png){width=672}
+:::
+:::
+
 
 The residual plots are broadly reassuring. Age is especially stable, while
 treatment and prior therapy show mild undulation but no strong sustained trends.
@@ -587,7 +925,10 @@ assumption for this model, even if the global test is mildly concerning.
 
 **Martingale Residuals for Multivariable Model**
 
-```{r}
+
+::: {.cell}
+
+```{.r .cell-code}
 # Generate Martingale residuals
 veteran$martingale_multivariable <- residuals(cox_multivariable, type = "martingale")
 # Generate linear predictor
@@ -607,6 +948,12 @@ ggplot(veteran, aes(x = linear_pred_multivariable, y = martingale_multivariable,
   theme(plot.title = element_text(hjust = 0.5, face = "bold"))
 ```
 
+::: {.cell-output-display}
+![](veteran-lung-cancer-coxph-report_files/figure-html/unnamed-chunk-24-1.png){width=672}
+:::
+:::
+
+
 The Martingale residuals versus the linear predictor show no strong pattern,
 which argues against major misspecification in the combined linear predictor.
 That said, the narrow spread of predicted values reflects the same issue seen in
@@ -616,7 +963,10 @@ lower-risk patients.
 
 **Functional Form Check for Continuous Covariates**
 
-```{r}
+
+::: {.cell}
+
+```{.r .cell-code}
 # Refit a univariable model with age (again, for functional form check)
 cox_age_for_form_check <- coxph(Surv(time, status) ~ age, data = veteran)
 
@@ -629,6 +979,12 @@ ggcoxfunctional(
   title = "Functional Form Check: Age"
 )
 ```
+
+::: {.cell-output-display}
+![](veteran-lung-cancer-coxph-report_files/figure-html/unnamed-chunk-25-1.png){width=672}
+:::
+:::
+
 
 The functional-form plot for age again suggests curvature rather than a clean
 linear relationship. That makes age the main candidate for a more flexible
@@ -643,11 +999,48 @@ model is refit with age represented using a natural spline.
 
 **Model Output**
 
-```{r}
+
+::: {.cell}
+
+```{.r .cell-code}
 # Fit a Cox model with a natural spline for age
 cox_spline <- coxph(Surv(time, status) ~ ns(age, df = 3) + trt + prior, data = veteran)
 summary(cox_spline)
 ```
+
+::: {.cell-output .cell-output-stdout}
+
+```
+Call:
+coxph(formula = Surv(time, status) ~ ns(age, df = 3) + trt + 
+    prior, data = veteran)
+
+  n= 137, number of events= 128 
+
+                      coef exp(coef)  se(coef)      z Pr(>|z|)
+ns(age, df = 3)1  0.039605  1.040400  0.336973  0.118    0.906
+ns(age, df = 3)2 -1.464948  0.231090  1.001124 -1.463    0.143
+ns(age, df = 3)3  0.891042  2.437668  0.629382  1.416    0.157
+trtExperimental   0.090883  1.095141  0.186594  0.487    0.626
+prior            -0.009429  0.990615  0.020175 -0.467    0.640
+
+                 exp(coef) exp(-coef) lower .95 upper .95
+ns(age, df = 3)1    1.0404     0.9612   0.53749     2.014
+ns(age, df = 3)2    0.2311     4.3273   0.03248     1.644
+ns(age, df = 3)3    2.4377     0.4102   0.70998     8.370
+trtExperimental     1.0951     0.9131   0.75970     1.579
+prior               0.9906     1.0095   0.95221     1.031
+
+Concordance= 0.559  (se = 0.03 )
+Likelihood ratio test= 9  on 5 df,   p=0.1
+Wald test            = 9.13  on 5 df,   p=0.1
+Score (logrank) test = 9.34  on 5 df,   p=0.1
+```
+
+
+:::
+:::
+
 
 Using a spline for age improves flexibility, but does not immediately transform
 the model. The treatment and prior-therapy terms remain uninformative, and the
@@ -657,18 +1050,53 @@ consistent with the functional-form checks.
 
 **Schoenfeld Residuals for Spline Model**
 
-```{r}
+
+::: {.cell}
+
+```{.r .cell-code}
 # Test proportional hazards assumption for the spline model
 cox.zph(cox_spline)
 ```
 
+::: {.cell-output .cell-output-stdout}
+
+```
+                chisq df     p
+ns(age, df = 3)  4.52  3 0.211
+trt              2.50  1 0.114
+prior            3.08  1 0.079
+GLOBAL           8.84  5 0.116
+```
+
+
+:::
+:::
+
+
 The spline model shows no clear proportional hazards problem. The global test is
 non-significant (*p* = 0.116), and the individual terms also look acceptable.
 
-```{r}
+
+::: {.cell}
+
+```{.r .cell-code}
 # Visual check of Schoenfeld residuals for spline model
 plot(cox.zph(cox_spline))
 ```
+
+::: {.cell-output-display}
+![](veteran-lung-cancer-coxph-report_files/figure-html/unnamed-chunk-28-1.png){width=672}
+:::
+
+::: {.cell-output-display}
+![](veteran-lung-cancer-coxph-report_files/figure-html/unnamed-chunk-28-2.png){width=672}
+:::
+
+::: {.cell-output-display}
+![](veteran-lung-cancer-coxph-report_files/figure-html/unnamed-chunk-28-3.png){width=672}
+:::
+:::
+
 
 The residual plots for the spline model are more reassuring overall. None of the
 terms shows a strong or sustained time trend, so proportional hazards looks more
@@ -676,7 +1104,10 @@ comfortable here than in the simpler age models.
 
 **Martingale Residuals for Spline Model**
 
-```{r}
+
+::: {.cell}
+
+```{.r .cell-code}
 # Residuals vs linear predictor
 veteran$martingale_spline <- residuals(cox_spline, type = "martingale")
 veteran$linear_pred_spline <- predict(cox_spline, type = "lp")
@@ -695,6 +1126,12 @@ ggplot(veteran, aes(x = linear_pred_spline, y = martingale_spline, color = trt))
   theme(plot.title = element_text(hjust = 0.5, face = "bold"))
 ```
 
+::: {.cell-output-display}
+![](veteran-lung-cancer-coxph-report_files/figure-html/unnamed-chunk-29-1.png){width=672}
+:::
+:::
+
+
 The residuals against the linear predictor look broadly patternless, which
 suggests the spline model has addressed the main functional-form concern without
 introducing obvious new misspecification.
@@ -706,10 +1143,32 @@ linearly to the updated model using a spline transformation for age.
 This allows us to formally test whether the added flexibility of the
 spline significantly improves model fit.
 
-```{r}
+
+::: {.cell}
+
+```{.r .cell-code}
 # Compare linear age model vs spline-transformed age model
 anova(cox_multivariable, cox_spline, test = "LRT")
 ```
+
+::: {.cell-output .cell-output-stdout}
+
+```
+Analysis of Deviance Table
+ Cox model: response is  Surv(time, status)
+ Model 1: ~ trt + age + prior
+ Model 2: ~ ns(age, df = 3) + trt + prior
+   loglik  Chisq Df Pr(>|Chi|)  
+1 -504.90                       
+2 -500.95 7.9117  2    0.01914 *
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+```
+
+
+:::
+:::
+
 
 A likelihood ratio test comparing the linear and spline age models shows that
 the spline specification fits better (χ² = 7.91, df = 2, *p* = 0.019). That is
@@ -723,9 +1182,26 @@ across age when modelled as a spline. This provides an intuitive look at
 the non-linear relationship.
 
 
-```{r}
+
+::: {.cell}
+
+```{.r .cell-code}
 termplot(cox_spline, se = TRUE, col.term = "blue")
 ```
+
+::: {.cell-output-display}
+![](veteran-lung-cancer-coxph-report_files/figure-html/unnamed-chunk-31-1.png){width=672}
+:::
+
+::: {.cell-output-display}
+![](veteran-lung-cancer-coxph-report_files/figure-html/unnamed-chunk-31-2.png){width=672}
+:::
+
+::: {.cell-output-display}
+![](veteran-lung-cancer-coxph-report_files/figure-html/unnamed-chunk-31-3.png){width=672}
+:::
+:::
+
 
 The term plots show the partial effect of each covariate on the log hazard:
 
@@ -757,7 +1233,10 @@ strongest prognostic factors in oncology. Cell type captures the histology of
 each patient's tumour, which affects lung cancer prognosis independently of
 treatment.
 
-```{r}
+
+::: {.cell}
+
+```{.r .cell-code}
 # Fit a multivariable Cox model including Karnofsky score and Cell Type
 cox_karno_and_cell <- coxph(
   Surv(time, status) ~ ns(age, df = 3) + trt + prior + karno + celltype,
@@ -765,6 +1244,50 @@ cox_karno_and_cell <- coxph(
 
 summary(cox_karno_and_cell)
 ```
+
+::: {.cell-output .cell-output-stdout}
+
+```
+Call:
+coxph(formula = Surv(time, status) ~ ns(age, df = 3) + trt + 
+    prior + karno + celltype, data = veteran)
+
+  n= 137, number of events= 128 
+
+                       coef exp(coef)  se(coef)      z Pr(>|z|)    
+ns(age, df = 3)1   0.131552  1.140597  0.341194  0.386  0.69982    
+ns(age, df = 3)2  -2.320733  0.098202  1.031983 -2.249  0.02452 *  
+ns(age, df = 3)3  -0.936727  0.391908  0.692606 -1.352  0.17623    
+trtExperimental    0.337701  1.401721  0.203535  1.659  0.09708 .  
+prior              0.009195  1.009238  0.020755  0.443  0.65774    
+karno             -0.034771  0.965827  0.005819 -5.975 2.29e-09 ***
+celltypesmallcell  0.794755  2.213898  0.269496  2.949  0.00319 ** 
+celltypeadeno      1.192554  3.295488  0.301971  3.949 7.84e-05 ***
+celltypelarge      0.339055  1.403620  0.284048  1.194  0.23261    
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+                  exp(coef) exp(-coef) lower .95 upper .95
+ns(age, df = 3)1     1.1406     0.8767   0.58440    2.2262
+ns(age, df = 3)2     0.0982    10.1831   0.01299    0.7422
+ns(age, df = 3)3     0.3919     2.5516   0.10084    1.5231
+trtExperimental      1.4017     0.7134   0.94062    2.0889
+prior                1.0092     0.9908   0.96901    1.0511
+karno                0.9658     1.0354   0.95487    0.9769
+celltypesmallcell    2.2139     0.4517   1.30546    3.7545
+celltypeadeno        3.2955     0.3034   1.82340    5.9560
+celltypelarge        1.4036     0.7124   0.80439    2.4492
+
+Concordance= 0.735  (se = 0.021 )
+Likelihood ratio test= 66.35  on 9 df,   p=8e-11
+Wald test            = 63.43  on 9 df,   p=3e-10
+Score (logrank) test = 69  on 9 df,   p=2e-11
+```
+
+
+:::
+:::
+
 
 A multivariable Cox proportional hazards model was fitted including
 spline-transformed age (df = 3), treatment group, prior therapy, Karnofsky
@@ -799,14 +1322,26 @@ ratio, Wald, and score tests were all highly significant (p < 0.001).
 
 **Forest Plot**
 
-```{r}
+
+::: {.cell}
+
+```{.r .cell-code}
 library(forestmodel)
 forest_model(cox_karno_and_cell)
 ```
 
+::: {.cell-output-display}
+![](veteran-lung-cancer-coxph-report_files/figure-html/unnamed-chunk-33-1.png){width=672}
+:::
+:::
+
+
 **Survival by Karnofsky Score**
 
-```{r}
+
+::: {.cell}
+
+```{.r .cell-code}
 veteran$karno_group <- cut(veteran$karno,
                            breaks = c(0, 50, 70, 100),
                            labels = c("Low (≤50)", "Medium (51-70)", "High (>70)"),
@@ -827,6 +1362,12 @@ ggsurvplot(km_karno,
            title = "Kaplan-Meier Survival by Karnofsky Score Group")
 ```
 
+::: {.cell-output-display}
+![](veteran-lung-cancer-coxph-report_files/figure-html/unnamed-chunk-34-1.png){width=672}
+:::
+:::
+
+
 The Kaplan-Meier curves stratified by Karnofsky score group confirm the strong
 prognostic gradient seen in the Cox model. Patients with high functional status
 (Karnofsky > 70) had substantially longer median survival than those in the low
@@ -835,7 +1376,10 @@ difference across groups.
 
 **Survival by Cell Type**
 
-```{r}
+
+::: {.cell}
+
+```{.r .cell-code}
 km_cell <- survfit(Surv(time, status) ~ celltype, data = veteran)
 
 ggsurvplot(km_cell,
@@ -851,6 +1395,12 @@ ggsurvplot(km_cell,
            title = "Kaplan-Meier Survival by Cell Type")
 ```
 
+::: {.cell-output-display}
+![](veteran-lung-cancer-coxph-report_files/figure-html/unnamed-chunk-35-1.png){width=672}
+:::
+:::
+
+
 Survival curves by cell type show clear separation, particularly between
 squamous cell carcinoma and the adenocarcinoma and small cell groups. The
 log-rank test confirms a significant difference across histological subtypes,
@@ -858,14 +1408,59 @@ consistent with the hazard ratios estimated in the Cox model.
 
 **Proportional Hazards Assumption**
 
-```{r}
+
+::: {.cell}
+
+```{.r .cell-code}
 cox_zph_final <- cox.zph(cox_karno_and_cell)
 print(cox_zph_final)
 ```
 
-```{r}
+::: {.cell-output .cell-output-stdout}
+
+```
+                 chisq df       p
+ns(age, df = 3)  0.906  3 0.82403
+trt              0.387  1 0.53381
+prior            1.979  1 0.15945
+karno           15.547  1 8.0e-05
+celltype        16.367  3 0.00095
+GLOBAL          34.195  9 8.3e-05
+```
+
+
+:::
+:::
+
+
+
+::: {.cell}
+
+```{.r .cell-code}
 plot(cox_zph_final)
 ```
+
+::: {.cell-output-display}
+![](veteran-lung-cancer-coxph-report_files/figure-html/unnamed-chunk-37-1.png){width=672}
+:::
+
+::: {.cell-output-display}
+![](veteran-lung-cancer-coxph-report_files/figure-html/unnamed-chunk-37-2.png){width=672}
+:::
+
+::: {.cell-output-display}
+![](veteran-lung-cancer-coxph-report_files/figure-html/unnamed-chunk-37-3.png){width=672}
+:::
+
+::: {.cell-output-display}
+![](veteran-lung-cancer-coxph-report_files/figure-html/unnamed-chunk-37-4.png){width=672}
+:::
+
+::: {.cell-output-display}
+![](veteran-lung-cancer-coxph-report_files/figure-html/unnamed-chunk-37-5.png){width=672}
+:::
+:::
+
 
 The proportional hazards assumption was assessed via Schoenfeld residuals.
 None of the individual covariates reached statistical significance, and the
@@ -876,7 +1471,10 @@ with no systematic drift over time.
 
 **Martingale Residuals**
 
-```{r}
+
+::: {.cell}
+
+```{.r .cell-code}
 veteran$martingale_final <- residuals(cox_karno_and_cell, type = "martingale")
 veteran$linear_pred_final <- predict(cox_karno_and_cell, type = "lp")
 
@@ -894,6 +1492,12 @@ ggplot(veteran, aes(x = linear_pred_final, y = martingale_final, color = trt)) +
   theme(plot.title = element_text(hjust = 0.5, face = "bold"))
 ```
 
+::: {.cell-output-display}
+![](veteran-lung-cancer-coxph-report_files/figure-html/unnamed-chunk-38-1.png){width=672}
+:::
+:::
+
+
 Martingale residuals plotted against the linear predictor show random scatter
 around zero with no systematic curvature, supporting adequate overall model
 specification. The linear predictor now spans a wider range than the earlier
@@ -902,7 +1506,10 @@ and cell type. No major outliers or influential observations are apparent.
 
 **Functional Form Check: Karnofsky Score**
 
-```{r}
+
+::: {.cell}
+
+```{.r .cell-code}
 cox_karno_for_form_check <- coxph(Surv(time, status) ~ karno, data = veteran)
 
 ggcoxfunctional(
@@ -913,6 +1520,12 @@ ggcoxfunctional(
   title = "Functional Form Check: Karnofsky Score"
 )
 ```
+
+::: {.cell-output-display}
+![](veteran-lung-cancer-coxph-report_files/figure-html/unnamed-chunk-39-1.png){width=672}
+:::
+:::
+
 
 The Martingale residual plot for Karnofsky score shows a broadly linear
 decreasing trend, supporting its inclusion as a continuous linear predictor.
@@ -929,11 +1542,56 @@ additivity and may require stratified or more complex modelling.
 
 ## Interaction of Treatment and Age
 
-```{r}
+
+::: {.cell}
+
+```{.r .cell-code}
 # Fit a cox model with interaction between treatment and age 
 cox_interaction <- coxph(Surv(time, status) ~ trt * ns(age, df = 3) + prior, data = veteran)
 summary(cox_interaction)
 ```
+
+::: {.cell-output .cell-output-stdout}
+
+```
+Call:
+coxph(formula = Surv(time, status) ~ trt * ns(age, df = 3) + 
+    prior, data = veteran)
+
+  n= 137, number of events= 128 
+
+                                     coef exp(coef) se(coef)      z Pr(>|z|)  
+trtExperimental                   1.73222   5.65321  0.75308  2.300   0.0214 *
+ns(age, df = 3)1                  0.03919   1.03997  0.44791  0.087   0.9303  
+ns(age, df = 3)2                  0.37614   1.45666  1.44593  0.260   0.7948  
+ns(age, df = 3)3                  0.82507   2.28205  0.99671  0.828   0.4078  
+prior                            -0.01055   0.98950  0.02089 -0.505   0.6134  
+trtExperimental:ns(age, df = 3)1 -0.12095   0.88608  0.71003 -0.170   0.8647  
+trtExperimental:ns(age, df = 3)2 -4.14241   0.01588  1.98843 -2.083   0.0372 *
+trtExperimental:ns(age, df = 3)3 -0.08986   0.91406  1.28652 -0.070   0.9443  
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+                                 exp(coef) exp(-coef) lower .95 upper .95
+trtExperimental                    5.65321     0.1769 1.2920266   24.7354
+ns(age, df = 3)1                   1.03997     0.9616 0.4322778    2.5019
+ns(age, df = 3)2                   1.45666     0.6865 0.0856215   24.7818
+ns(age, df = 3)3                   2.28205     0.4382 0.3235341   16.0964
+prior                              0.98950     1.0106 0.9498124    1.0309
+trtExperimental:ns(age, df = 3)1   0.88608     1.1286 0.2203410    3.5633
+trtExperimental:ns(age, df = 3)2   0.01588    62.9546 0.0003224    0.7826
+trtExperimental:ns(age, df = 3)3   0.91406     1.0940 0.0734321   11.3779
+
+Concordance= 0.569  (se = 0.029 )
+Likelihood ratio test= 14.65  on 8 df,   p=0.07
+Wald test            = 15.79  on 8 df,   p=0.05
+Score (logrank) test = 16.63  on 8 df,   p=0.03
+```
+
+
+:::
+:::
+
 
 We tested for interaction between treatment group and age (modelled using
 a natural spline with 3 degrees of freedom) to explore whether the effect
@@ -951,10 +1609,29 @@ further exploration or stratified modelling.
 
 **Schoenfeld Residuals for Interaction Model**
 
-```{r}
+
+::: {.cell}
+
+```{.r .cell-code}
 # Test proportional hazards assumption for the interaction model
 cox.zph(cox_interaction)
 ```
+
+::: {.cell-output .cell-output-stdout}
+
+```
+                    chisq df    p
+trt                  1.39  1 0.24
+ns(age, df = 3)      3.90  3 0.27
+prior                2.42  1 0.12
+trt:ns(age, df = 3)  5.37  3 0.15
+GLOBAL               8.94  8 0.35
+```
+
+
+:::
+:::
+
 
 The Schoenfeld residual test was used to assess whether the proportional
 hazards assumption holds for each covariate and interaction term in the
@@ -979,10 +1656,31 @@ There is no strong evidence that the proportional hazards assumption is
 violated in this interaction model. The covariate effects, including the
 interaction, appear stable over time.
 
-```{r}
+
+::: {.cell}
+
+```{.r .cell-code}
 # Visual check of Schoenfeld residuals for interaction model
 plot(cox.zph(cox_interaction))
 ```
+
+::: {.cell-output-display}
+![](veteran-lung-cancer-coxph-report_files/figure-html/unnamed-chunk-42-1.png){width=672}
+:::
+
+::: {.cell-output-display}
+![](veteran-lung-cancer-coxph-report_files/figure-html/unnamed-chunk-42-2.png){width=672}
+:::
+
+::: {.cell-output-display}
+![](veteran-lung-cancer-coxph-report_files/figure-html/unnamed-chunk-42-3.png){width=672}
+:::
+
+::: {.cell-output-display}
+![](veteran-lung-cancer-coxph-report_files/figure-html/unnamed-chunk-42-4.png){width=672}
+:::
+:::
+
 
 The interaction model does not show a clear proportional hazards problem. The
 global Schoenfeld test is non-significant (*p* = 0.35), and the residual plots
@@ -990,7 +1688,10 @@ do not show sustained time trends for the treatment, age, or interaction terms.
 
 **Martingale Residuals for Interaction Model**
 
-```{r}
+
+::: {.cell}
+
+```{.r .cell-code}
 # Residuals vs linear predictor
 veteran$martingale_interaction <- residuals(cox_interaction, type = "martingale")
 veteran$linear_pred_interaction <- predict(cox_interaction, type = "lp")
@@ -1008,13 +1709,22 @@ ggplot(veteran, aes(x = linear_pred_interaction, y = martingale_interaction, col
   theme(plot.title = element_text(hjust = 0.5, face = "bold"))
 ```
 
+::: {.cell-output-display}
+![](veteran-lung-cancer-coxph-report_files/figure-html/unnamed-chunk-43-1.png){width=672}
+:::
+:::
+
+
 The Martingale residuals are scattered without obvious structure, suggesting
 that the interaction model is not suffering from major misspecification.
 
 **Deviance Residuals for Interaction Model**
 
 
-```{r}
+
+::: {.cell}
+
+```{.r .cell-code}
 # Deviance residuals
 veteran$deviance_interaction <- residuals(cox_interaction, type = "deviance")
 # Plot deviance residuals
@@ -1032,6 +1742,12 @@ ggplot(veteran, aes(x = linear_pred_interaction, y = deviance_interaction, color
   theme(plot.title = element_text(hjust = 0.5, face = "bold"))
 ```
 
+::: {.cell-output-display}
+![](veteran-lung-cancer-coxph-report_files/figure-html/unnamed-chunk-44-1.png){width=672}
+:::
+:::
+
+
 The deviance residuals are also broadly reassuring. Residuals are scattered
 around zero with no clear trend, suggesting that the interaction model fits the
 data reasonably well. That said, the model is more complex than the additive
@@ -1041,11 +1757,50 @@ alternative and does not deliver a clearly better substantive interpretation.
 
 Prior treatments might alter a patient’s response to new therapies.
 
-```{r}
+
+::: {.cell}
+
+```{.r .cell-code}
 # Fit a cox model with interaction between treatment and prior therapy
 cox_interaction_prior <- coxph(Surv(time, status) ~ trt * prior + ns(age, df = 3), data = veteran)
 summary(cox_interaction_prior)
 ```
+
+::: {.cell-output .cell-output-stdout}
+
+```
+Call:
+coxph(formula = Surv(time, status) ~ trt * prior + ns(age, df = 3), 
+    data = veteran)
+
+  n= 137, number of events= 128 
+
+                          coef exp(coef) se(coef)      z Pr(>|z|)
+trtExperimental        0.26788   1.30720  0.22118  1.211    0.226
+prior                  0.02017   1.02038  0.02739  0.737    0.461
+ns(age, df = 3)1      -0.07645   0.92640  0.34494 -0.222    0.825
+ns(age, df = 3)2      -1.44497   0.23575  1.00657 -1.436    0.151
+ns(age, df = 3)3       0.88992   2.43494  0.61682  1.443    0.149
+trtExperimental:prior -0.06206   0.93982  0.04149 -1.496    0.135
+
+                      exp(coef) exp(-coef) lower .95 upper .95
+trtExperimental          1.3072     0.7650   0.84736     2.017
+prior                    1.0204     0.9800   0.96705     1.077
+ns(age, df = 3)1         0.9264     1.0794   0.47118     1.821
+ns(age, df = 3)2         0.2358     4.2417   0.03278     1.695
+ns(age, df = 3)3         2.4349     0.4107   0.72686     8.157
+trtExperimental:prior    0.9398     1.0640   0.86642     1.019
+
+Concordance= 0.561  (se = 0.03 )
+Likelihood ratio test= 11.26  on 6 df,   p=0.08
+Wald test            = 11.23  on 6 df,   p=0.08
+Score (logrank) test = 11.51  on 6 df,   p=0.07
+```
+
+
+:::
+:::
+
 
 
 A treatment-by-prior-therapy interaction was tested to assess whether previous
@@ -1055,19 +1810,59 @@ and the model offered only weak evidence of improvement overall.
 
 **Schoenfeld Residuals for Interaction with Prior Therapy**
 
-```{r}
+
+::: {.cell}
+
+```{.r .cell-code}
 # Test proportional hazards assumption for the interaction with prior therapy
 cox.zph(cox_interaction_prior)
 ```
+
+::: {.cell-output .cell-output-stdout}
+
+```
+                chisq df     p
+trt              2.14  1 0.144
+prior            2.71  1 0.100
+ns(age, df = 3)  4.63  3 0.201
+trt:prior        3.70  1 0.054
+GLOBAL           9.04  6 0.171
+```
+
+
+:::
+:::
+
 
 Diagnostics were broadly acceptable. The global Schoenfeld test was
 non-significant (*p* = 0.171), and although the interaction term was borderline
 (*p* = 0.054), the evidence for time-varying effects is weak.
 
-```{r}
+
+::: {.cell}
+
+```{.r .cell-code}
 # Visual check of Schoenfeld residuals for interaction with prior therapy
 plot(cox.zph(cox_interaction_prior))
 ```
+
+::: {.cell-output-display}
+![](veteran-lung-cancer-coxph-report_files/figure-html/unnamed-chunk-47-1.png){width=672}
+:::
+
+::: {.cell-output-display}
+![](veteran-lung-cancer-coxph-report_files/figure-html/unnamed-chunk-47-2.png){width=672}
+:::
+
+::: {.cell-output-display}
+![](veteran-lung-cancer-coxph-report_files/figure-html/unnamed-chunk-47-3.png){width=672}
+:::
+
+::: {.cell-output-display}
+![](veteran-lung-cancer-coxph-report_files/figure-html/unnamed-chunk-47-4.png){width=672}
+:::
+:::
+
 
 The residual plots do not show a clear or systematic time trend, so there is no
 strong visual evidence against the proportional hazards assumption for this
@@ -1075,7 +1870,10 @@ interaction model.
 
 **Martingale Residuals for Interaction with Prior Therapy**
 
-```{r}
+
+::: {.cell}
+
+```{.r .cell-code}
 # Residuals vs linear predictor
 veteran$martingale_interaction_prior <- residuals(cox_interaction_prior, type = "martingale")
 veteran$linear_pred_interaction_prior <- predict(cox_interaction_prior, type = "lp")
@@ -1094,6 +1892,12 @@ ggplot(veteran, aes(x = linear_pred_interaction_prior, y = martingale_interactio
   theme(plot.title = element_text(hjust = 0.5, face = "bold"))
 ```
 
+::: {.cell-output-display}
+![](veteran-lung-cancer-coxph-report_files/figure-html/unnamed-chunk-48-1.png){width=672}
+:::
+:::
+
+
 The Martingale residuals do not show a strong non-random pattern, which
 supports the adequacy of the covariate specification, including the interaction
 term. As in earlier models, there is substantial scatter, but no clear sign of
@@ -1101,7 +1905,10 @@ systematic misspecification.
 
 **Deviance Residuals for Interaction with Prior Therapy**
 
-```{r}
+
+::: {.cell}
+
+```{.r .cell-code}
 # Deviance residuals
 veteran$deviance_interaction_prior <- residuals(cox_interaction_prior, type = "deviance")
 
@@ -1119,6 +1926,12 @@ ggplot(veteran, aes(x = linear_pred_interaction_prior, y = deviance_interaction_
   scale_color_manual(values = c("Standard" = "#A569BD", "Experimental" = "#45B39D")) +
   theme(plot.title = element_text(hjust = 0.5, face = "bold"))
 ```
+
+::: {.cell-output-display}
+![](veteran-lung-cancer-coxph-report_files/figure-html/unnamed-chunk-49-1.png){width=672}
+:::
+:::
+
 
 The deviance residual plot offers no strong evidence of model misfit. Residuals
 are scattered fairly symmetrically around zero, which is consistent with an
@@ -1247,3 +2060,4 @@ associations.
 **Interaction exploration was limited.** Only two interaction terms were
 tested. Clinically meaningful interactions between other covariates (e.g.,
 treatment × cell type) were not explored.
+

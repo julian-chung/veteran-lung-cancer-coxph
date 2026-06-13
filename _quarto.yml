@@ -1,5 +1,9 @@
 project:
   type: website
+  render:
+    - index.qmd
+    - notebooks/veteran-lung-cancer-overview.qmd
+    - notebooks/veteran-lung-cancer-coxph-report.qmd
 
 website:
   title: "Veteran Lung Cancer Survival Analysis"
@@ -12,8 +16,6 @@ website:
         text: Overview
       - href: notebooks/veteran-lung-cancer-coxph-report.qmd
         text: Report
-      - href: notebooks/veteran-lung-cancer-coxph.qmd
-        text: Guide
 
 format:
   html:

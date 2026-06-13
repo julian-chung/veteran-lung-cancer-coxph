@@ -32,27 +32,25 @@ veteran2 <- survival::veteran %>%
 
 # Introduction
 
-This project analyses survival outcomes in the Veterans Administration lung
-cancer trial, a classic dataset used to demonstrate time-to-event modelling in
-R. The goal is to compare standard and experimental chemotherapy while showing a
-full Cox proportional hazards workflow: exploratory survival curves, adjusted
+This project looks at how long patients survived in the Veterans Administration
+lung cancer trial, a classic dataset for time-to-event modelling in R. The goal
+is to compare standard and experimental chemotherapy while walking through a full
+Cox proportional hazards workflow: exploratory survival curves, adjusted
 modelling, and model checks.
 
-Survival analysis is useful when the outcome is not just whether an event
-happened, but when it happened. In this case, the event is death, and the
-methods account for censoring as well as differences in follow-up time.
+Survival analysis is useful when what matters is not just whether an event
+happened, but when. Here the event is death, and the methods account for
+censoring and for differences in how long each patient was followed.
 
-The dataset includes 137 male patients with advanced, inoperable lung cancer
-randomised to standard or experimental treatment. It is compact enough to work
-through end to end, but rich enough to show the main decisions involved in a
-real survival analysis.
+The dataset covers 137 male patients with advanced, inoperable lung cancer,
+randomised to standard or experimental treatment. It is small enough to work
+through end to end, but rich enough to show the main decisions a real survival
+analysis involves.
 
-The project is organised into three parts:
+The project comes in two parts:
 
-- **Overview** — this page; a brief, high-level summary of the key findings and visuals.
-- **Full Report** — step-by-step analysis, model building, and diagnostics.
-- **Teaching & Learning Reference** — statistical theory, code explanations,
-  and a reusable reference for future survival analyses.
+- **Overview**: this page, a high-level summary of the key findings and visuals.
+- **Full Report**: the step-by-step analysis, model building, and diagnostics.
 
 # Study Overview
 
@@ -98,16 +96,16 @@ cens_pct    <- round(100 * censored / n_total, 1)
 cat(glue("
 **Study population**
 - {n_total} male patients; Standard = **{n_std_n}**, Experimental = **{n_exp_n}**
-- Median age: **{med_age}** years (IQR: {iqr_age_l}–{iqr_age_u})
-- Median Karnofsky score: **{med_karno}** (IQR: {iqr_kar_l}–{iqr_kar_u})
+- Median age: **{med_age}** years (IQR: {iqr_age_l} to {iqr_age_u})
+- Median Karnofsky score: **{med_karno}** (IQR: {iqr_kar_l} to {iqr_kar_u})
 - Cell type: Squamous {cell_pct['Squamous']}%, Small cell {cell_pct['Small cell']}%,
   Adenocarcinoma {cell_pct['Adenocarcinoma']}%, Large cell {cell_pct['Large cell']}%
 - Prior therapy: **{prior_yes}%** yes
 
 **Survival outcomes**
-- Median survival (all): **{med_all}** days (95% CI: {ci_all_l}–{ci_all_u})
-- Standard arm: **{med_std}** days (95% CI: {ci_std_l}–{ci_std_u})
-- Experimental arm: **{med_exp}** days (95% CI: {ci_exp_l}–{ci_exp_u})
+- Median survival (all): **{med_all}** days (95% CI: {ci_all_l} to {ci_all_u})
+- Standard arm: **{med_std}** days (95% CI: {ci_std_l} to {ci_std_u})
+- Experimental arm: **{med_exp}** days (95% CI: {ci_exp_l} to {ci_exp_u})
 - Log-rank *p* = **{lr_p}**
 
 **Events**
@@ -115,10 +113,10 @@ cat(glue("
 "))
 ```
 
-# Plot 1 — Survival by Treatment Group
+# Survival by Treatment Group
 
-The primary question of the trial: does the experimental regimen improve
-survival over standard chemotherapy?
+The trial's main question: does the experimental regimen improve survival over
+standard chemotherapy?
 
 ```{r km-treatment, fig.width=8, fig.height=6}
 ggsurvplot(
@@ -131,7 +129,7 @@ ggsurvplot(
   legend.title = "Treatment",
   xlab        = "Time (days)",
   ylab        = "Survival probability",
-  title       = "Kaplan–Meier Survival Curves by Treatment Arm",
+  title       = "Kaplan-Meier Survival Curves by Treatment Arm",
   ggtheme     = theme_minimal(base_size = 13)
 )
 ```
@@ -141,16 +139,16 @@ throughout follow-up. The log-rank test confirms no statistically significant
 difference (p = `r lr_p`). The experimental chemotherapy did not improve
 survival in this cohort.
 
-# Plot 2 — Survival by Karnofsky Performance Score
+# Survival by Karnofsky Performance Score
 
-Karnofsky score is a 0-100 measure of functional status. In this dataset, it is
-one of the clearest predictors of survival.
+Karnofsky score is a 0 to 100 measure of functional status. In this dataset it
+is one of the clearest predictors of survival.
 
 ```{r km-karnofsky, fig.width=8, fig.height=6}
 veteran2$karno_group <- cut(
   veteran2$karno,
   breaks = c(0, 50, 70, 100),
-  labels = c("Low (≤50)", "Medium (51–70)", "High (>70)"),
+  labels = c("Low (≤50)", "Medium (51-70)", "High (>70)"),
   right  = TRUE
 )
 
@@ -164,10 +162,10 @@ ggsurvplot(
   conf.int     = FALSE,
   palette      = c("#E84855", "#F4A259", "#2E86AB"),
   legend.title = "Karnofsky group",
-  legend.labs  = c("Low (≤50)", "Medium (51–70)", "High (>70)"),
+  legend.labs  = c("Low (≤50)", "Medium (51-70)", "High (>70)"),
   xlab         = "Time (days)",
   ylab         = "Survival probability",
-  title        = "Kaplan–Meier Survival Curves by Karnofsky Score Group",
+  title        = "Kaplan-Meier Survival Curves by Karnofsky Score Group",
   ggtheme      = theme_minimal(base_size = 13)
 )
 ```
@@ -177,10 +175,10 @@ status survived much longer than those with lower scores. That pattern is
 strong, consistent, and carries through to the adjusted Cox model, where
 Karnofsky score is the most important predictor in the analysis.
 
-# Plot 3 — Final Cox Model: Adjusted Hazard Ratios
+# Final Cox Model: Adjusted Hazard Ratios
 
-This plot shows the final adjusted Cox model, including treatment group, prior
-therapy, age, Karnofsky score, and cell type.
+This plot shows the final adjusted Cox model: treatment group, prior therapy,
+age, Karnofsky score, and cell type.
 
 ```{r cox-forest, fig.width=9, fig.height=6}
 cox_final <- coxph(
@@ -191,7 +189,7 @@ cox_final <- coxph(
 ggforest(
   cox_final,
   data      = veteran2,
-  main      = "Adjusted Hazard Ratios — Final Cox PH Model",
+  main      = "Adjusted Hazard Ratios (Final Cox PH Model)",
   fontsize  = 0.9,
   noDigits  = 2,
   refLabel  = "Reference"
@@ -206,9 +204,9 @@ uncertain (HR ≈ 1.4, *p* = 0.097). Overall, the model discriminates much bette
 than a treatment-only model, with concordance improving from about 0.51 to
 0.74.
 
-# Plot 4 — Aalen Additive Model: Time-Varying Effects
+# Aalen Additive Model: Time-Varying Effects
 
-This plot checks the main findings using an additive survival model rather than
+This plot rechecks the main findings using an additive survival model instead of
 the Cox model.
 
 ```{r aalen, fig.width=10, fig.height=8}

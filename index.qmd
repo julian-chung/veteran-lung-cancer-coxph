@@ -5,20 +5,20 @@ format:
     toc: false
 ---
 
-This project analyses survival outcomes in the Veterans Administration lung
-cancer trial, a classic dataset for time-to-event modelling in R. It compares
-standard and experimental chemotherapy in patients with advanced, inoperable
-lung cancer using Kaplan-Meier curves, Cox proportional hazards models,
-diagnostic checks, spline terms, and an Aalen additive model.
+This project looks at how long patients survived in the Veterans Administration
+lung cancer trial, a classic dataset for time-to-event modelling in R. It
+compares standard and experimental chemotherapy in patients with advanced,
+inoperable lung cancer, and uses Kaplan-Meier curves and Cox proportional
+hazards models to work out what actually predicts survival.
 
-The project is organised into three parts:
+The project comes in two parts:
 
 ---
 
 ## Overview
 
-A concise summary of the analysis, key survival estimates, and main model
-findings. This is the quickest way to see the headline results.
+A short summary of the analysis, the key survival estimates, and the main model
+findings. The quickest way to see the headline results.
 
 ↗ [Open Overview »](notebooks/veteran-lung-cancer-overview.html)
 
@@ -26,17 +26,7 @@ findings. This is the quickest way to see the headline results.
 
 ## Full Report
 
-A full step-by-step analysis covering exploratory survival analysis, model
-building, functional form checks, spline terms, diagnostics, and final model
-interpretation.
+The step-by-step analysis: exploratory survival curves, model building,
+functional form and spline checks, diagnostics, and the final model.
 
 ↗ [Open Full Report »](notebooks/veteran-lung-cancer-coxph-report.html)
-
----
-
-## Guide
-
-A guided version of the analysis with collapsible sections explaining each
-step, the modelling choices, and the diagnostics.
-
-↗ [Open Guide »](notebooks/veteran-lung-cancer-coxph.html)
