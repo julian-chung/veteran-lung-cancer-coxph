@@ -2,13 +2,16 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.8.25">
+<meta name="generator" content="quarto-1.9.36">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
 <title>Survival Analysis of Veterans with Advanced Lung Cancer: A Cox Proportional Hazards Approach – Veteran Lung Cancer Survival Analysis</title>
 <style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
 div.columns{display: flex; gap: min(4vw, 1.5em);}
@@ -67,19 +70,18 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <meta name="quarto:offset" content="../">
 <script src="../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
-<script src="../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
 <script src="../site_libs/quarto-html/popper.min.js"></script>
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-7b89279ff1a6dce999919e0e67d4d9ec.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-707d8167ce6003fca903bfe2be84ab7f.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-7b89279ff1a6dce999919e0e67d4d9ec.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-845c23b38eaddc0f92fda52bfe77a8c8.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-f418161beb48e0141c760e455f12af2c.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-845c23b38eaddc0f92fda52bfe77a8c8.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-2227bf640ee03c897197f53c7efa3eb7.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="../site_libs/bootstrap/bootstrap-dark-0f864177ff4a8b85afeeffefe34b5712.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
-<link href="../site_libs/bootstrap/bootstrap-2227bf640ee03c897197f53c7efa3eb7.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-ae062b5845ea259e6e1a474600719564.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-dark-7ceb44cbd017cf2712827c2c34ca6ad6.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../site_libs/bootstrap/bootstrap-ae062b5845ea259e6e1a474600719564.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -109,7 +111,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 }</script>
 
   <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
-  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
 
 <script type="text/javascript">
 const typesetMath = (el) => {
@@ -309,8 +311,6 @@ window.Quarto = {
     <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
-    <a href="../index.html" class="navbar-brand navbar-brand-logo">
-    </a>
     <a class="navbar-brand" href="../index.html">
     <span class="navbar-title">Veteran Lung Cancer Survival Analysis</span>
     </a>
@@ -332,10 +332,6 @@ window.Quarto = {
   <li class="nav-item">
     <a class="nav-link active" href="../notebooks/veteran-lung-cancer-coxph-report.html" aria-current="page"> 
 <span class="menu-text">Report</span></a>
-  </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="../notebooks/veteran-lung-cancer-coxph.html"> 
-<span class="menu-text">Guide</span></a>
   </li>  
 </ul>
           </div> <!-- /navcollapse -->
@@ -415,26 +411,26 @@ window.Quarto = {
 
 <section id="introduction" class="level1" data-number="1">
 <h1 data-number="1"><span class="header-section-number">1</span> Introduction</h1>
-<p>This report analyses survival outcomes in the Veterans Administration lung cancer trial, a randomized study comparing standard and experimental chemotherapy in patients with advanced, inoperable lung cancer. The outcome of interest is overall survival time in days, with follow-up ending at death or censoring.</p>
-<p>The dataset is widely used for teaching survival analysis because it is small enough to work through in full, while still containing the main ingredients of a realistic time-to-event workflow: censoring, multiple clinical predictors, and clinically interpretable modeling decisions.</p>
-<p>The analysis begins with Kaplan-Meier estimation and a log-rank comparison of the treatment groups, then moves to Cox proportional hazards models with progressive model building, diagnostic checks, and interpretation of adjusted effects. The aim is not just to fit a model, but to show how the model is built, checked, and justified.</p>
+<p>This report analyses survival outcomes in the Veterans Administration lung cancer trial, a randomised study comparing standard and experimental chemotherapy in patients with advanced, inoperable lung cancer. The outcome is overall survival time in days, with follow-up ending at death or censoring.</p>
+<p>The dataset is a teaching favourite for survival analysis: small enough to work through in full, but with all the main ingredients of a realistic time-to-event workflow, including censoring, several clinical predictors, and interpretable modelling decisions.</p>
+<p>The analysis starts with Kaplan-Meier estimation and a log-rank comparison of the treatment groups, then moves to Cox proportional hazards models, building them up step by step with diagnostic checks and interpretation of the adjusted effects. The aim is not just to fit a model, but to show how it is built, checked, and justified.</p>
 </section>
 <section id="setup-and-data-import" class="level1" data-number="2">
 <h1 data-number="2"><span class="header-section-number">2</span> Setup and Data Import</h1>
-<p>The analysis uses standard R packages for survival modelling, visualisation, and data handling. The dataset comes from the <code>survival</code> package, with treatment groups relabeled for readability in tables and plots.</p>
+<p>The analysis uses standard R packages for survival modelling, visualisation, and data handling. The dataset comes from the <code>survival</code> package, with treatment groups relabelled for readability in tables and plots.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Load required libraries</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(survival) <span class="co"># Core survival analysis tools</span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(survminer)  <span class="co"># Visualization and diagnostics</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(survminer)  <span class="co"># Visualisation and diagnostics</span></span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)  <span class="co"># Data wrangling</span></span>
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)  <span class="co"># Plotting</span></span>
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(broom)  <span class="co"># Tidying model output</span></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(splines) <span class="co"># Splines for flexible modeling</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(splines) <span class="co"># Splines for flexible modelling</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
-<p>The dataset is loaded below, with a simple relabeling step for the treatment groups.</p>
+<p>The dataset is loaded below, with a simple relabelling step for the treatment groups.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
@@ -471,7 +467,7 @@ window.Quarto = {
 <td><code>trt</code></td>
 <td>Factor</td>
 <td>Treatment group: 1 = Standard, 2 = Test</td>
-<td>Relabeled to <code>"Standard"</code> and <code>"Experimental"</code></td>
+<td>Relabelled to <code>"Standard"</code> and <code>"Experimental"</code></td>
 </tr>
 <tr class="even">
 <td><code>celltype</code></td>
@@ -645,7 +641,7 @@ trt=Experimental 68       64     63.5   0.00394   0.00823
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Fit the Cox Proportional Hazards model</span></span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>cox_model <span class="ot">&lt;-</span> <span class="fu">coxph</span>(surv_obj <span class="sc">~</span> trt, <span class="at">data =</span> veteran) <span class="co"># Where trt is a binary treatment variable with levels Standard and Experimental</span></span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Summarize the model</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Summarise the model</span></span>
 <span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(cox_model)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
@@ -667,7 +663,7 @@ Score (logrank) test = 0.01  on 1 df,   p=0.9</code></pre>
 </div>
 </div>
 <p><strong>Interpretation of the Cox Model Results</strong></p>
-<p>The treatment-only Cox model shows essentially no difference in hazard between the control and intervention groups (HR = 1.02, 95% CI: 0.71–1.45, <em>p</em> = 0.92). The estimate is close to 1, and the confidence interval is wide enough to allow for either modest benefit or modest harm. Concordance is 0.525, which is only slightly better than chance. On its own, treatment does not explain survival well in this cohort.</p>
+<p>The treatment-only Cox model shows essentially no difference in hazard between the control and intervention groups (HR = 1.02, 95% CI: 0.71 to 1.45, <em>p</em> = 0.92). The estimate is close to 1, and the confidence interval is wide enough to allow for either modest benefit or modest harm. Concordance is 0.525, which is only slightly better than chance. On its own, treatment does not explain survival well in this cohort.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
@@ -744,7 +740,7 @@ GLOBAL  3.54  1 0.06</code></pre>
 <p><strong>Schoenfeld Residuals Interpretation</strong></p>
 <p>The residual plot shows mild curvature, but no clear sustained trend over time, and the smooth remains within the confidence bands. Taken together with the formal test, this supports treating proportional hazards as a reasonable working assumption for the treatment-only model.</p>
 <p><strong>Martingale Residuals (for Functional Form of Covariates)</strong></p>
-<p>Martingale residuals are useful for checking whether continuous predictors have been modeled with an appropriate functional form. Clear curvature can indicate that a simple linear term is inadequate.</p>
+<p>Martingale residuals are useful for checking whether continuous predictors have been modelled with an appropriate functional form. Clear curvature can indicate that a simple linear term is inadequate.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
@@ -780,15 +776,15 @@ GLOBAL  3.54  1 0.06</code></pre>
 </div>
 </div>
 <p><strong>Interpretation of Martingale Residuals Plot</strong></p>
-<p>The Martingale residual plot helps assess whether the model’s assumptions—particularly the functional form of covariates—are valid.</p>
-<p>In this case, residuals were plotted against the linear predictor for a binary treatment variable. As expected, two vertical bands appear, corresponding to the Standard and Experimental groups. The residuals are roughly symmetric around zero within each group, with no obvious curvature or systematic pattern. This supports the adequacy of the treatment variable’s specification in the model and suggests that no transformation is needed for this binary covariate.</p>
+<p>Martingale residuals help check whether covariates, especially continuous ones, are specified with the right functional form.</p>
+<p>Here the residuals are plotted against the linear predictor for a binary treatment variable. As expected, two vertical bands appear, one for each treatment group. The residuals are roughly symmetric around zero within each band, with no obvious curvature or systematic pattern, so the binary treatment term looks adequately specified and needs no transformation.</p>
 <p><strong>Additional Covariates</strong></p>
-<p>To improve the model and better account for variability in survival outcomes, we now include additional patient characteristics: age (a continuous variable) and prior treatment history (prior, a binary variable). Adding these covariates allows us to control for baseline differences between patients, assess their independent associations with survival, and explore whether they influence the effect of treatment.</p>
+<p>To better account for variation in survival, we now add two patient characteristics: age (continuous) and prior treatment history (binary). These let us adjust for baseline differences between patients, gauge each variable’s own association with survival, and check whether either one shifts the treatment effect.</p>
 </section>
 </section>
 <section id="multivariable-models" class="level2" data-number="4.2">
 <h2 data-number="4.2" class="anchored" data-anchor-id="multivariable-models"><span class="header-section-number">4.2</span> Multivariable Models</h2>
-<p>To build on the univariable analysis of treatment effects, we next fit a multivariable Cox proportional hazards model that incorporates additional patient-level covariates. This allows us to estimate the effect of treatment on survival <strong>while adjusting for other potential prognostic factors</strong>, such as age and prior treatment history. By doing so, we account for potential confounding and improve the model’s explanatory power.</p>
+<p>Building on the univariable models, we next fit a multivariable Cox model that includes several patient-level covariates at once. This estimates the treatment effect <strong>while adjusting for other prognostic factors</strong> such as age and prior therapy, which helps account for confounding and improves the model’s explanatory power.</p>
 <section id="continuous-variable-age" class="level3" data-number="4.2.1">
 <h3 data-number="4.2.1" class="anchored" data-anchor-id="continuous-variable-age"><span class="header-section-number">4.2.1</span> Continuous Variable: Age</h3>
 <p>Age is a clinically relevant predictor, so the next step is to check whether it adds useful information and whether a simple linear term is adequate.</p>
@@ -820,7 +816,7 @@ Score (logrank) test = 0.62  on 2 df,   p=0.7</code></pre>
 </div>
 </div>
 <p><strong>Interpretation of the Cox Model with Age</strong></p>
-<p>Adding age to the treatment model does not materially change the result. The treatment effect remains close to null (HR = 1.00, 95% CI: 0.70–1.43, <em>p</em> = 0.984), and age itself shows only a weak association with hazard (HR = 1.01 per year, 95% CI: 0.99–1.03, <em>p</em> = 0.436). Model discrimination remains poor (concordance = 0.514), so this specification adds little explanatory value.</p>
+<p>Adding age to the treatment model does not materially change the result. The treatment effect remains close to null (HR = 1.00, 95% CI: 0.70 to 1.43, <em>p</em> = 0.984), and age itself shows only a weak association with hazard (HR = 1.01 per year, 95% CI: 0.99 to 1.03, <em>p</em> = 0.436). Model discrimination remains poor (concordance = 0.514), so this specification adds little explanatory value.</p>
 <p><strong>Schoenfeld Residuals for Age</strong></p>
 <div class="cell">
 <details class="code-fold">
@@ -944,7 +940,7 @@ Wald test            = 0.53  on 2 df,   p=0.8
 Score (logrank) test = 0.53  on 2 df,   p=0.8</code></pre>
 </div>
 </div>
-<p>Adding prior therapy does not improve the model. The treatment effect remains close to null (HR = 1.03, 95% CI: 0.72–1.46, <em>p</em> = 0.885), and prior therapy is also not associated with survival (HR = 0.99, <em>p</em> = 0.471). Concordance remains low at 0.517, so this model still offers very limited discrimination.</p>
+<p>Adding prior therapy does not improve the model. The treatment effect remains close to null (HR = 1.03, 95% CI: 0.72 to 1.46, <em>p</em> = 0.885), and prior therapy is also not associated with survival (HR = 0.99, <em>p</em> = 0.471). Concordance remains low at 0.517, so this model still offers very limited discrimination.</p>
 <p><strong>Schoenfeld Residuals for Prior Treatment</strong></p>
 <div class="cell">
 <details class="code-fold">
@@ -1269,7 +1265,7 @@ GLOBAL           8.84  5 0.116</code></pre>
 </section>
 <section id="model-comparison-linear-vs-spline-age-term" class="level3" data-number="4.2.5">
 <h3 data-number="4.2.5" class="anchored" data-anchor-id="model-comparison-linear-vs-spline-age-term"><span class="header-section-number">4.2.5</span> Model Comparison: Linear vs Spline Age Term</h3>
-<p>We now compare the original multivariable Cox model with age modeled linearly to the updated model using a spline transformation for age. This allows us to formally test whether the added flexibility of the spline significantly improves model fit.</p>
+<p>We now compare the original multivariable Cox model with age modelled linearly to the updated model using a spline transformation for age. This allows us to formally test whether the added flexibility of the spline significantly improves model fit.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
@@ -1289,8 +1285,8 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 </div>
 </div>
 <p>A likelihood ratio test comparing the linear and spline age models shows that the spline specification fits better (χ² = 7.91, df = 2, <em>p</em> = 0.019). That is good evidence that age is better treated as a non-linear predictor in this analysis.</p>
-<p><strong>Visualizing the Effect of Spline-Transformed Age</strong></p>
-<p>This section uses ‘termplot()’ to visualize how the hazard changes across age when modeled as a spline. This provides an intuitive look at the non-linear relationship.</p>
+<p><strong>Visualising the Effect of Spline-Transformed Age</strong></p>
+<p>This section uses ‘termplot()’ to visualise how the hazard changes across age when modelled as a spline. This provides an intuitive look at the non-linear relationship.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
@@ -1318,17 +1314,17 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 </div>
 </div>
 </div>
-<p>The term plots from the spline-based Cox proportional hazards model illustrate the partial effect of each covariate on the log hazard:</p>
+<p>The term plots show the partial effect of each covariate on the log hazard:</p>
 <ul>
-<li><p>Age (modeled using a natural spline with 3 degrees of freedom) exhibits a non-linear association with the log hazard. The curve displays a shallow U-shape, with the lowest hazard around age 55, and a gradual increase in hazard at both younger and older ages. While the trend is suggestive, the wide confidence intervals—particularly at the distribution tails—indicate uncertainty in the precise shape of this relationship.</p></li>
-<li><p>Treatment Group (trt) is represented as a binary variable with two flat lines, one for each group. The narrow confidence intervals overlap with zero, implying no statistically significant difference in log hazard between the intervention and control arms in this model.</p></li>
-<li><p>Prior Treatment (prior) also shows a flat trend across the range of prior treatments, with confidence bands consistently containing zero. This suggests that the number of prior therapies does not contribute meaningfully to hazard estimation when adjusting for age and treatment.</p></li>
+<li><p>Age (natural spline, 3 degrees of freedom) has a non-linear association with the log hazard. The curve is a shallow U-shape, lowest around age 55 and rising at both younger and older ages. The trend is suggestive, but the wide confidence intervals, especially at the tails, leave the exact shape uncertain.</p></li>
+<li><p>Treatment group is a binary term shown as two flat lines. Their confidence intervals overlap zero, so there is no significant difference in log hazard between the arms.</p></li>
+<li><p>Prior therapy is also flat, with confidence bands that consistently include zero, so the number of prior therapies adds little once age and treatment are accounted for.</p></li>
 </ul>
-<p>These visualizations support the statistical findings from the model summary. Age is the only covariate showing a potentially complex, non-linear effect, while treatment and prior exposure show no clear independent impact on survival in this cohort.</p>
+<p>These plots line up with the model summary: age is the only covariate with a potentially complex, non-linear effect, while treatment and prior therapy show no clear independent impact on survival in this cohort.</p>
 </section>
 <section id="multivariable-cox-model-with-karnofsky-score-and-cell-type" class="level3" data-number="4.2.6">
 <h3 data-number="4.2.6" class="anchored" data-anchor-id="multivariable-cox-model-with-karnofsky-score-and-cell-type"><span class="header-section-number">4.2.6</span> Multivariable Cox Model with Karnofsky Score and Cell Type</h3>
-<p>Having established that spline-transformed age improves model fit, we now extend the model to include Karnofsky performance score and tumour cell type — two clinically important variables that were not included in earlier models. Karnofsky score is a widely used measure of functional status and is one of the strongest prognostic factors in oncology. Cell type captures the histological character of each patient’s tumour, which is known to influence prognosis in lung cancer independently of treatment.</p>
+<p>With spline-transformed age improving the fit, we now add Karnofsky performance score and tumour cell type, two clinically important variables left out of the earlier models. Karnofsky score measures functional status and is one of the strongest prognostic factors in oncology. Cell type captures the histology of each patient’s tumour, which affects lung cancer prognosis independently of treatment.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
@@ -1378,9 +1374,9 @@ Score (logrank) test = 69  on 9 df,   p=2e-11</code></pre>
 </div>
 <p>A multivariable Cox proportional hazards model was fitted including spline-transformed age (df = 3), treatment group, prior therapy, Karnofsky performance score, and tumour cell type. The model included 137 patients and 128 events.</p>
 <ul>
-<li><p><strong>Karnofsky score</strong> was the strongest independent predictor of survival. Each 1-point increase in score was associated with a 3.4% reduction in the hazard of death (HR = 0.966, 95% CI: 0.955–0.977, p &lt; 0.001).</p></li>
-<li><p><strong>Cell type</strong> was significantly associated with survival. Compared to squamous cell carcinoma (reference), patients with small cell carcinoma had a 2.2-fold increased hazard (HR = 2.21, 95% CI: 1.31–3.75, p = 0.003) and adenocarcinoma patients had a 3.3-fold increased hazard (HR = 3.30, 95% CI: 1.82–5.96, p &lt; 0.001). Large cell carcinoma was not significantly different from squamous (HR = 1.40, p = 0.233).</p></li>
-<li><p><strong>Treatment group</strong> was not statistically significant after adjusting for functional status and cell type (HR = 1.40, 95% CI: 0.94–2.09, p = 0.097), though the hazard ratio trended toward harm in the experimental arm.</p></li>
+<li><p><strong>Karnofsky score</strong> was the strongest independent predictor of survival. Each 1-point increase in score was associated with a 3.4% reduction in the hazard of death (HR = 0.966, 95% CI: 0.955 to 0.977, p &lt; 0.001).</p></li>
+<li><p><strong>Cell type</strong> was significantly associated with survival. Compared to squamous cell carcinoma (reference), patients with small cell carcinoma had a 2.2-fold increased hazard (HR = 2.21, 95% CI: 1.31 to 3.75, p = 0.003) and adenocarcinoma patients had a 3.3-fold increased hazard (HR = 3.30, 95% CI: 1.82 to 5.96, p &lt; 0.001). Large cell carcinoma was not significantly different from squamous (HR = 1.40, p = 0.233).</p></li>
+<li><p><strong>Treatment group</strong> was not statistically significant after adjusting for functional status and cell type (HR = 1.40, 95% CI: 0.94 to 2.09, p = 0.097), though the hazard ratio trended toward harm in the experimental arm.</p></li>
 <li><p><strong>Prior therapy</strong> was not associated with survival (HR = 1.01, p = 0.658).</p></li>
 <li><p><strong>Spline-transformed age</strong> showed evidence of a non-linear association with survival. The second spline term reached statistical significance (HR = 0.098, p = 0.025), consistent with the earlier functional form analysis.</p></li>
 </ul>
@@ -1406,7 +1402,7 @@ Score (logrank) test = 69  on 9 df,   p=2e-11</code></pre>
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb48"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a>veteran<span class="sc">$</span>karno_group <span class="ot">&lt;-</span> <span class="fu">cut</span>(veteran<span class="sc">$</span>karno,</span>
 <span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a>                           <span class="at">breaks =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">50</span>, <span class="dv">70</span>, <span class="dv">100</span>),</span>
-<span id="cb48-3"><a href="#cb48-3" aria-hidden="true" tabindex="-1"></a>                           <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"Low (≤50)"</span>, <span class="st">"Medium (51–70)"</span>, <span class="st">"High (&gt;70)"</span>),</span>
+<span id="cb48-3"><a href="#cb48-3" aria-hidden="true" tabindex="-1"></a>                           <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"Low (≤50)"</span>, <span class="st">"Medium (51-70)"</span>, <span class="st">"High (&gt;70)"</span>),</span>
 <span id="cb48-4"><a href="#cb48-4" aria-hidden="true" tabindex="-1"></a>                           <span class="at">right =</span> <span class="cn">TRUE</span>)</span>
 <span id="cb48-5"><a href="#cb48-5" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb48-6"><a href="#cb48-6" aria-hidden="true" tabindex="-1"></a>km_karno <span class="ot">&lt;-</span> <span class="fu">survfit</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> karno_group, <span class="at">data =</span> veteran)</span>
@@ -1417,7 +1413,7 @@ Score (logrank) test = 69  on 9 df,   p=2e-11</code></pre>
 <span id="cb48-11"><a href="#cb48-11" aria-hidden="true" tabindex="-1"></a>           <span class="at">pval =</span> <span class="cn">TRUE</span>,</span>
 <span id="cb48-12"><a href="#cb48-12" aria-hidden="true" tabindex="-1"></a>           <span class="at">conf.int =</span> <span class="cn">FALSE</span>,</span>
 <span id="cb48-13"><a href="#cb48-13" aria-hidden="true" tabindex="-1"></a>           <span class="at">legend.title =</span> <span class="st">"Karnofsky Group"</span>,</span>
-<span id="cb48-14"><a href="#cb48-14" aria-hidden="true" tabindex="-1"></a>           <span class="at">legend.labs =</span> <span class="fu">c</span>(<span class="st">"Low (≤50)"</span>, <span class="st">"Medium (51–70)"</span>, <span class="st">"High (&gt;70)"</span>),</span>
+<span id="cb48-14"><a href="#cb48-14" aria-hidden="true" tabindex="-1"></a>           <span class="at">legend.labs =</span> <span class="fu">c</span>(<span class="st">"Low (≤50)"</span>, <span class="st">"Medium (51-70)"</span>, <span class="st">"High (&gt;70)"</span>),</span>
 <span id="cb48-15"><a href="#cb48-15" aria-hidden="true" tabindex="-1"></a>           <span class="at">palette =</span> <span class="fu">c</span>(<span class="st">"firebrick"</span>, <span class="st">"steelblue"</span>, <span class="st">"darkgreen"</span>),</span>
 <span id="cb48-16"><a href="#cb48-16" aria-hidden="true" tabindex="-1"></a>           <span class="at">xlab =</span> <span class="st">"Time (days)"</span>,</span>
 <span id="cb48-17"><a href="#cb48-17" aria-hidden="true" tabindex="-1"></a>           <span class="at">ylab =</span> <span class="st">"Survival Probability"</span>,</span>
@@ -1620,7 +1616,7 @@ Wald test            = 15.79  on 8 df,   p=0.05
 Score (logrank) test = 16.63  on 8 df,   p=0.03</code></pre>
 </div>
 </div>
-<p>We tested for interaction between treatment group and age (modeled using a natural spline with 3 degrees of freedom) to explore whether the effect of treatment on survival varied across age groups. The interaction model revealed a statistically significant interaction for the second spline basis term (p = 0.037), suggesting a possible age-dependent treatment effect.</p>
+<p>We tested for interaction between treatment group and age (modelled using a natural spline with 3 degrees of freedom) to explore whether the effect of treatment on survival varied across age groups. The interaction model revealed a statistically significant interaction for the second spline basis term (p = 0.037), suggesting a possible age-dependent treatment effect.</p>
 <p>The overall Wald test for the model approached significance (p = 0.05), while the likelihood ratio test was marginal (p = 0.07), indicating that the model with interaction terms may provide a better fit than the additive model. These findings suggest that the benefit (or lack thereof) of treatment may differ depending on patient age, warranting further exploration or stratified modelling.</p>
 <p><strong>Schoenfeld Residuals for Interaction Model</strong></p>
 <div class="cell">
@@ -1781,7 +1777,7 @@ Wald test            = 11.23  on 6 df,   p=0.08
 Score (logrank) test = 11.51  on 6 df,   p=0.07</code></pre>
 </div>
 </div>
-<p>A treatment-by-prior-therapy interaction was tested to assess whether previous treatment modified the effect of the experimental regimen. The interaction term was not statistically convincing (HR = 0.94, 95% CI: 0.87–1.02, <em>p</em> = 0.135), and the model offered only weak evidence of improvement overall.</p>
+<p>A treatment-by-prior-therapy interaction was tested to assess whether previous treatment modified the effect of the experimental regimen. The interaction term was not statistically convincing (HR = 0.94, 95% CI: 0.87 to 1.02, <em>p</em> = 0.135), and the model offered only weak evidence of improvement overall.</p>
 <p><strong>Schoenfeld Residuals for Interaction with Prior Therapy</strong></p>
 <div class="cell">
 <details class="code-fold">
@@ -1904,19 +1900,19 @@ GLOBAL           9.04  6 0.171</code></pre>
 </section>
 <section id="final-model-selection-and-interpretation" class="level1" data-number="7">
 <h1 data-number="7"><span class="header-section-number">7</span> Final Model Selection and Interpretation</h1>
-<p>After evaluating a sequence of Cox proportional hazards models — from univariable models for each covariate individually, through multivariable models of increasing complexity, to interaction models — the final selected model is:</p>
+<p>After working through a sequence of Cox proportional hazards models, from univariable models for each covariate, through multivariable models of increasing complexity, to interaction models, the final selected model is:</p>
 <p><span class="math display">\[\text{trt} + \text{prior} + ns(\text{age}, df=3) + \text{karno} + \text{celltype}\]</span></p>
 <p><strong>Rationale for Model Selection</strong></p>
 <ul>
 <li><p><strong>Karnofsky score and cell type</strong> were included on clinical grounds. Karnofsky performance score is the dominant prognostic factor in oncology; cell type defines biologically distinct lung cancer subtypes with very different natural histories. Both were confirmed as strong independent predictors in the multivariable model.</p></li>
-<li><p><strong>Age</strong> was retained and modeled using a natural cubic spline (df = 3) following a functional form check that revealed a non-linear relationship with the log hazard. A likelihood ratio test confirmed the spline specification provided a significantly better fit than a linear age term (χ² = 7.91, df = 2, p = 0.019).</p></li>
+<li><p><strong>Age</strong> was retained and modelled using a natural cubic spline (df = 3) following a functional form check that revealed a non-linear relationship with the log hazard. A likelihood ratio test confirmed the spline specification provided a significantly better fit than a linear age term (χ² = 7.91, df = 2, p = 0.019).</p></li>
 <li><p><strong>Prior therapy</strong> was retained as a standard adjustment covariate in the RCT context. It was not statistically significant (HR = 1.01, p = 0.658) but its inclusion is clinically justified and does not meaningfully alter other estimates.</p></li>
 <li><p><strong>Interaction terms</strong> (treatment × age, treatment × prior therapy) were explored but neither provided a meaningful or significant improvement in model fit. Neither was retained in the final model.</p></li>
 <li><p><strong><code>diagtime</code></strong> was not included. It was non-significant and its interpretation as a predictor is clinically ambiguous in this context.</p></li>
 </ul>
 <p><strong>Interpretation of the Final Model</strong></p>
-<p>After adjustment for the other covariates, the experimental chemotherapy regimen was not associated with improved survival relative to standard treatment (HR = 1.40, 95% CI: 0.94–2.09, <em>p</em> = 0.097). This is consistent with the earlier unadjusted comparison.</p>
-<p>The strongest predictor in the model is Karnofsky performance score: each 1-point increase is associated with a 3.4% reduction in the hazard of death (HR = 0.966, 95% CI: 0.955–0.977, <em>p</em> &lt; 0.001). Tumour cell type is also important. Relative to squamous cell carcinoma, both small cell carcinoma (HR = 2.21, <em>p</em> = 0.003) and adenocarcinoma (HR = 3.30, <em>p</em> &lt; 0.001) are associated with substantially higher hazard, while large cell carcinoma is not clearly different from squamous.</p>
+<p>After adjustment for the other covariates, the experimental chemotherapy regimen was not associated with improved survival relative to standard treatment (HR = 1.40, 95% CI: 0.94 to 2.09, <em>p</em> = 0.097). This is consistent with the earlier unadjusted comparison.</p>
+<p>The strongest predictor in the model is Karnofsky performance score: each 1-point increase is associated with a 3.4% reduction in the hazard of death (HR = 0.966, 95% CI: 0.955 to 0.977, <em>p</em> &lt; 0.001). Tumour cell type is also important. Relative to squamous cell carcinoma, both small cell carcinoma (HR = 2.21, <em>p</em> = 0.003) and adenocarcinoma (HR = 3.30, <em>p</em> &lt; 0.001) are associated with substantially higher hazard, while large cell carcinoma is not clearly different from squamous.</p>
 <p>Age is better represented non-linearly than with a simple linear term, but its overall contribution is modest. Prior therapy does not appear to be an independent predictor of survival in the adjusted model.</p>
 <p><strong>Overall Model Performance</strong></p>
 <p>The final model achieved a concordance index of 0.735, a clear improvement over the simpler models based only on treatment, age, and prior therapy. Likelihood ratio, Wald, and score tests were all strongly significant (<em>p</em> &lt; 0.001), and the proportional hazards diagnostics did not indicate a major assumption problem.</p>
@@ -1931,10 +1927,10 @@ GLOBAL           9.04  6 0.171</code></pre>
 <h1 data-number="9"><span class="header-section-number">9</span> Limitations</h1>
 <p><strong>Sample size and generalisability.</strong> The dataset comprises 137 patients from a single trial, which constrains statistical power for detecting modest treatment effects and limits the precision of subgroup estimates. The small cell carcinoma and adenocarcinoma groups in particular have relatively few patients, making their hazard ratio estimates less stable.</p>
 <p><strong>All-male cohort.</strong> All participants were male veterans. Lung cancer biology, treatment response, and prognosis differ between sexes, so findings cannot be assumed to generalise to female patients.</p>
-<p><strong>Historical data.</strong> The trial was conducted in the 1970s–80s. Neither the experimental treatment nor the standard regimen reflects current clinical practice, and the trial predates targeted therapy, immunotherapy, and modern platinum-based regimens.</p>
+<p><strong>Historical data.</strong> The trial was conducted in the 1970s and 1980s. Neither the experimental treatment nor the standard regimen reflects current clinical practice, and the trial predates targeted therapy, immunotherapy, and modern platinum-based regimens.</p>
 <p><strong>Event rate and censoring.</strong> With 128 deaths among 137 patients (93.4%), this dataset has very limited censoring. Survival estimates at longer time points are based on very few at-risk individuals.</p>
 <p><strong>No external validation.</strong> Model performance (concordance = 0.735) was assessed on the same data used to fit the model. Without an independent validation cohort, this estimate is likely optimistic.</p>
-<p><strong>Residual confounding.</strong> Unmeasured factors — such as comorbidities, disease stage, smoking history, or treatment compliance — may confound the observed associations.</p>
+<p><strong>Residual confounding.</strong> Unmeasured factors such as comorbidities, disease stage, smoking history, or treatment compliance may confound the observed associations.</p>
 <p><strong>Interaction exploration was limited.</strong> Only two interaction terms were tested. Clinically meaningful interactions between other covariates (e.g., treatment × cell type) were not explored.</p>
 
 
@@ -2027,7 +2023,7 @@ GLOBAL           9.04  6 0.171</code></pre>
     }
       var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
       var mailtoRegex = new RegExp(/^mailto:/);
-        var filterRegex = new RegExp("https:\/\/julian-chung\.github\.io\/veteran-lung-cancer-coxph\/");
+        var filterRegex = new RegExp('/' + window.location.host + '/');
       var isInternal = (href) => {
           return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
       }

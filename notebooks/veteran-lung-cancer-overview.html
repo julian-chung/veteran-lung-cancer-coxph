@@ -2,13 +2,16 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.8.25">
+<meta name="generator" content="quarto-1.9.36">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
 <title>Veteran Lung Cancer Survival Analysis: Overview – Veteran Lung Cancer Survival Analysis</title>
 <style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
 div.columns{display: flex; gap: min(4vw, 1.5em);}
@@ -67,19 +70,18 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <meta name="quarto:offset" content="../">
 <script src="../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
-<script src="../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
 <script src="../site_libs/quarto-html/popper.min.js"></script>
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-7b89279ff1a6dce999919e0e67d4d9ec.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-707d8167ce6003fca903bfe2be84ab7f.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-7b89279ff1a6dce999919e0e67d4d9ec.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-845c23b38eaddc0f92fda52bfe77a8c8.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-f418161beb48e0141c760e455f12af2c.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-845c23b38eaddc0f92fda52bfe77a8c8.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-2227bf640ee03c897197f53c7efa3eb7.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="../site_libs/bootstrap/bootstrap-dark-0f864177ff4a8b85afeeffefe34b5712.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
-<link href="../site_libs/bootstrap/bootstrap-2227bf640ee03c897197f53c7efa3eb7.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-ae062b5845ea259e6e1a474600719564.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-dark-7ceb44cbd017cf2712827c2c34ca6ad6.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../site_libs/bootstrap/bootstrap-ae062b5845ea259e6e1a474600719564.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -280,8 +282,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
-    <a href="../index.html" class="navbar-brand navbar-brand-logo">
-    </a>
     <a class="navbar-brand" href="../index.html">
     <span class="navbar-title">Veteran Lung Cancer Survival Analysis</span>
     </a>
@@ -304,10 +304,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <a class="nav-link" href="../notebooks/veteran-lung-cancer-coxph-report.html"> 
 <span class="menu-text">Report</span></a>
   </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="../notebooks/veteran-lung-cancer-coxph.html"> 
-<span class="menu-text">Guide</span></a>
-  </li>  
 </ul>
           </div> <!-- /navcollapse -->
             <div class="quarto-navbar-tools">
@@ -327,10 +323,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <ul>
   <li><a href="#introduction" id="toc-introduction" class="nav-link active" data-scroll-target="#introduction">Introduction</a></li>
   <li><a href="#study-overview" id="toc-study-overview" class="nav-link" data-scroll-target="#study-overview">Study Overview</a></li>
-  <li><a href="#plot-1-survival-by-treatment-group" id="toc-plot-1-survival-by-treatment-group" class="nav-link" data-scroll-target="#plot-1-survival-by-treatment-group">Plot 1 — Survival by Treatment Group</a></li>
-  <li><a href="#plot-2-survival-by-karnofsky-performance-score" id="toc-plot-2-survival-by-karnofsky-performance-score" class="nav-link" data-scroll-target="#plot-2-survival-by-karnofsky-performance-score">Plot 2 — Survival by Karnofsky Performance Score</a></li>
-  <li><a href="#plot-3-final-cox-model-adjusted-hazard-ratios" id="toc-plot-3-final-cox-model-adjusted-hazard-ratios" class="nav-link" data-scroll-target="#plot-3-final-cox-model-adjusted-hazard-ratios">Plot 3 — Final Cox Model: Adjusted Hazard Ratios</a></li>
-  <li><a href="#plot-4-aalen-additive-model-time-varying-effects" id="toc-plot-4-aalen-additive-model-time-varying-effects" class="nav-link" data-scroll-target="#plot-4-aalen-additive-model-time-varying-effects">Plot 4 — Aalen Additive Model: Time-Varying Effects</a></li>
+  <li><a href="#survival-by-treatment-group" id="toc-survival-by-treatment-group" class="nav-link" data-scroll-target="#survival-by-treatment-group">Survival by Treatment Group</a></li>
+  <li><a href="#survival-by-karnofsky-performance-score" id="toc-survival-by-karnofsky-performance-score" class="nav-link" data-scroll-target="#survival-by-karnofsky-performance-score">Survival by Karnofsky Performance Score</a></li>
+  <li><a href="#final-cox-model-adjusted-hazard-ratios" id="toc-final-cox-model-adjusted-hazard-ratios" class="nav-link" data-scroll-target="#final-cox-model-adjusted-hazard-ratios">Final Cox Model: Adjusted Hazard Ratios</a></li>
+  <li><a href="#aalen-additive-model-time-varying-effects" id="toc-aalen-additive-model-time-varying-effects" class="nav-link" data-scroll-target="#aalen-additive-model-time-varying-effects">Aalen Additive Model: Time-Varying Effects</a></li>
   </ul>
 </nav>
     </div>
@@ -359,14 +355,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <section id="introduction" class="level1">
 <h1>Introduction</h1>
-<p>This project analyses survival outcomes in the Veterans Administration lung cancer trial, a classic dataset used to demonstrate time-to-event modelling in R. The goal is to compare standard and experimental chemotherapy while showing a full Cox proportional hazards workflow: exploratory survival curves, adjusted modelling, and model checks.</p>
-<p>Survival analysis is useful when the outcome is not just whether an event happened, but when it happened. In this case, the event is death, and the methods account for censoring as well as differences in follow-up time.</p>
-<p>The dataset includes 137 male patients with advanced, inoperable lung cancer randomised to standard or experimental treatment. It is compact enough to work through end to end, but rich enough to show the main decisions involved in a real survival analysis.</p>
-<p>The project is organised into three parts:</p>
+<p>This project looks at how long patients survived in the Veterans Administration lung cancer trial, a classic dataset for time-to-event modelling in R. The goal is to compare standard and experimental chemotherapy while walking through a full Cox proportional hazards workflow: exploratory survival curves, adjusted modelling, and model checks.</p>
+<p>Survival analysis is useful when what matters is not just whether an event happened, but when. Here the event is death, and the methods account for censoring and for differences in how long each patient was followed.</p>
+<p>The dataset covers 137 male patients with advanced, inoperable lung cancer, randomised to standard or experimental treatment. It is small enough to work through end to end, but rich enough to show the main decisions a real survival analysis involves.</p>
+<p>The project comes in two parts:</p>
 <ul>
-<li><strong>Overview</strong> — this page; a brief, high-level summary of the key findings and visuals.</li>
-<li><strong>Full Report</strong> — step-by-step analysis, model building, and diagnostics.</li>
-<li><strong>Teaching &amp; Learning Reference</strong> — statistical theory, code explanations, and a reusable reference for future survival analyses.</li>
+<li><strong>Overview</strong>: this page, a high-level summary of the key findings and visuals.</li>
+<li><strong>Full Report</strong>: the step-by-step analysis, model building, and diagnostics.</li>
 </ul>
 </section>
 <section id="study-overview" class="level1">
@@ -413,16 +408,16 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="fu">glue</span>(<span class="st">"</span></span>
 <span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a><span class="st">**Study population**</span></span>
 <span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a><span class="st">- {n_total} male patients; Standard = **{n_std_n}**, Experimental = **{n_exp_n}**</span></span>
-<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a><span class="st">- Median age: **{med_age}** years (IQR: {iqr_age_l}–{iqr_age_u})</span></span>
-<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a><span class="st">- Median Karnofsky score: **{med_karno}** (IQR: {iqr_kar_l}–{iqr_kar_u})</span></span>
+<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a><span class="st">- Median age: **{med_age}** years (IQR: {iqr_age_l} to {iqr_age_u})</span></span>
+<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a><span class="st">- Median Karnofsky score: **{med_karno}** (IQR: {iqr_kar_l} to {iqr_kar_u})</span></span>
 <span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a><span class="st">- Cell type: Squamous {cell_pct['Squamous']}%, Small cell {cell_pct['Small cell']}%,</span></span>
 <span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a><span class="st">  Adenocarcinoma {cell_pct['Adenocarcinoma']}%, Large cell {cell_pct['Large cell']}%</span></span>
 <span id="cb1-46"><a href="#cb1-46" aria-hidden="true" tabindex="-1"></a><span class="st">- Prior therapy: **{prior_yes}%** yes</span></span>
 <span id="cb1-47"><a href="#cb1-47" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-48"><a href="#cb1-48" aria-hidden="true" tabindex="-1"></a><span class="st">**Survival outcomes**</span></span>
-<span id="cb1-49"><a href="#cb1-49" aria-hidden="true" tabindex="-1"></a><span class="st">- Median survival (all): **{med_all}** days (95% CI: {ci_all_l}–{ci_all_u})</span></span>
-<span id="cb1-50"><a href="#cb1-50" aria-hidden="true" tabindex="-1"></a><span class="st">- Standard arm: **{med_std}** days (95% CI: {ci_std_l}–{ci_std_u})</span></span>
-<span id="cb1-51"><a href="#cb1-51" aria-hidden="true" tabindex="-1"></a><span class="st">- Experimental arm: **{med_exp}** days (95% CI: {ci_exp_l}–{ci_exp_u})</span></span>
+<span id="cb1-49"><a href="#cb1-49" aria-hidden="true" tabindex="-1"></a><span class="st">- Median survival (all): **{med_all}** days (95% CI: {ci_all_l} to {ci_all_u})</span></span>
+<span id="cb1-50"><a href="#cb1-50" aria-hidden="true" tabindex="-1"></a><span class="st">- Standard arm: **{med_std}** days (95% CI: {ci_std_l} to {ci_std_u})</span></span>
+<span id="cb1-51"><a href="#cb1-51" aria-hidden="true" tabindex="-1"></a><span class="st">- Experimental arm: **{med_exp}** days (95% CI: {ci_exp_l} to {ci_exp_u})</span></span>
 <span id="cb1-52"><a href="#cb1-52" aria-hidden="true" tabindex="-1"></a><span class="st">- Log-rank *p* = **{lr_p}**</span></span>
 <span id="cb1-53"><a href="#cb1-53" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-54"><a href="#cb1-54" aria-hidden="true" tabindex="-1"></a><span class="st">**Events**</span></span>
@@ -431,16 +426,16 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="cell-output cell-output-stdout">
 <pre><code>**Study population**
 - 137 male patients; Standard = **69**, Experimental = **68**
-- Median age: **62** years (IQR: 51–66)
-- Median Karnofsky score: **60** (IQR: 40–75)
+- Median age: **62** years (IQR: 51 to 66)
+- Median Karnofsky score: **60** (IQR: 40 to 75)
 - Cell type: Squamous 25.5%, Small cell 35%,
   Adenocarcinoma 19.7%, Large cell 19.7%
 - Prior therapy: **29.2%** yes
 
 **Survival outcomes**
-- Median survival (all): **80** days (95% CI: 52–105)
-- Standard arm: **103** days (95% CI: 59–132)
-- Experimental arm: **52** days (95% CI: 44–95)
+- Median survival (all): **80** days (95% CI: 52 to 105)
+- Standard arm: **103** days (95% CI: 59 to 132)
+- Experimental arm: **52** days (95% CI: 44 to 95)
 - Log-rank *p* = **0.928**
 
 **Events**
@@ -448,9 +443,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 </section>
-<section id="plot-1-survival-by-treatment-group" class="level1">
-<h1>Plot 1 — Survival by Treatment Group</h1>
-<p>The primary question of the trial: does the experimental regimen improve survival over standard chemotherapy?</p>
+<section id="survival-by-treatment-group" class="level1">
+<h1>Survival by Treatment Group</h1>
+<p>The trial’s main question: does the experimental regimen improve survival over standard chemotherapy?</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsurvplot</span>(</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  km_by,</span>
@@ -462,7 +457,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">legend.title =</span> <span class="st">"Treatment"</span>,</span>
 <span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">xlab        =</span> <span class="st">"Time (days)"</span>,</span>
 <span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">ylab        =</span> <span class="st">"Survival probability"</span>,</span>
-<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">title       =</span> <span class="st">"Kaplan–Meier Survival Curves by Treatment Arm"</span>,</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">title       =</span> <span class="st">"Kaplan-Meier Survival Curves by Treatment Arm"</span>,</span>
 <span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">ggtheme     =</span> <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">13</span>)</span>
 <span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
@@ -475,14 +470,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <p>The survival curves for the two treatment arms overlap almost entirely throughout follow-up. The log-rank test confirms no statistically significant difference (p = 0.928). The experimental chemotherapy did not improve survival in this cohort.</p>
 </section>
-<section id="plot-2-survival-by-karnofsky-performance-score" class="level1">
-<h1>Plot 2 — Survival by Karnofsky Performance Score</h1>
-<p>Karnofsky score is a 0-100 measure of functional status. In this dataset, it is one of the clearest predictors of survival.</p>
+<section id="survival-by-karnofsky-performance-score" class="level1">
+<h1>Survival by Karnofsky Performance Score</h1>
+<p>Karnofsky score is a 0 to 100 measure of functional status. In this dataset it is one of the clearest predictors of survival.</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>veteran2<span class="sc">$</span>karno_group <span class="ot">&lt;-</span> <span class="fu">cut</span>(</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  veteran2<span class="sc">$</span>karno,</span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">breaks =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">50</span>, <span class="dv">70</span>, <span class="dv">100</span>),</span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"Low (≤50)"</span>, <span class="st">"Medium (51–70)"</span>, <span class="st">"High (&gt;70)"</span>),</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"Low (≤50)"</span>, <span class="st">"Medium (51-70)"</span>, <span class="st">"High (&gt;70)"</span>),</span>
 <span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">right  =</span> <span class="cn">TRUE</span></span>
 <span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a></span>
@@ -496,10 +491,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>  <span class="at">conf.int     =</span> <span class="cn">FALSE</span>,</span>
 <span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>  <span class="at">palette      =</span> <span class="fu">c</span>(<span class="st">"#E84855"</span>, <span class="st">"#F4A259"</span>, <span class="st">"#2E86AB"</span>),</span>
 <span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>  <span class="at">legend.title =</span> <span class="st">"Karnofsky group"</span>,</span>
-<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>  <span class="at">legend.labs  =</span> <span class="fu">c</span>(<span class="st">"Low (≤50)"</span>, <span class="st">"Medium (51–70)"</span>, <span class="st">"High (&gt;70)"</span>),</span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>  <span class="at">legend.labs  =</span> <span class="fu">c</span>(<span class="st">"Low (≤50)"</span>, <span class="st">"Medium (51-70)"</span>, <span class="st">"High (&gt;70)"</span>),</span>
 <span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>  <span class="at">xlab         =</span> <span class="st">"Time (days)"</span>,</span>
 <span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>  <span class="at">ylab         =</span> <span class="st">"Survival probability"</span>,</span>
-<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>  <span class="at">title        =</span> <span class="st">"Kaplan–Meier Survival Curves by Karnofsky Score Group"</span>,</span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>  <span class="at">title        =</span> <span class="st">"Kaplan-Meier Survival Curves by Karnofsky Score Group"</span>,</span>
 <span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>  <span class="at">ggtheme      =</span> <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">13</span>)</span>
 <span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
@@ -512,9 +507,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <p>The separation between the groups is clear: patients with higher functional status survived much longer than those with lower scores. That pattern is strong, consistent, and carries through to the adjusted Cox model, where Karnofsky score is the most important predictor in the analysis.</p>
 </section>
-<section id="plot-3-final-cox-model-adjusted-hazard-ratios" class="level1">
-<h1>Plot 3 — Final Cox Model: Adjusted Hazard Ratios</h1>
-<p>This plot shows the final adjusted Cox model, including treatment group, prior therapy, age, Karnofsky score, and cell type.</p>
+<section id="final-cox-model-adjusted-hazard-ratios" class="level1">
+<h1>Final Cox Model: Adjusted Hazard Ratios</h1>
+<p>This plot shows the final adjusted Cox model: treatment group, prior therapy, age, Karnofsky score, and cell type.</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>cox_final <span class="ot">&lt;-</span> <span class="fu">coxph</span>(</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">Surv</span>(time, status) <span class="sc">~</span> trt <span class="sc">+</span> prior <span class="sc">+</span> <span class="fu">ns</span>(age, <span class="at">df =</span> <span class="dv">3</span>) <span class="sc">+</span> karno <span class="sc">+</span> celltype,</span>
@@ -524,7 +519,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="fu">ggforest</span>(</span>
 <span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>  cox_final,</span>
 <span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">data      =</span> veteran2,</span>
-<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">main      =</span> <span class="st">"Adjusted Hazard Ratios — Final Cox PH Model"</span>,</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">main      =</span> <span class="st">"Adjusted Hazard Ratios (Final Cox PH Model)"</span>,</span>
 <span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">fontsize  =</span> <span class="fl">0.9</span>,</span>
 <span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">noDigits  =</span> <span class="dv">2</span>,</span>
 <span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">refLabel  =</span> <span class="st">"Reference"</span></span>
@@ -539,9 +534,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <p>The clearest signals in the model are Karnofsky score and tumour cell type. Higher Karnofsky scores are associated with lower risk, while adenocarcinoma and small cell carcinoma show substantially higher hazard than squamous cell carcinoma. Even after adjustment, the treatment effect remains modest and uncertain (HR ≈ 1.4, <em>p</em> = 0.097). Overall, the model discriminates much better than a treatment-only model, with concordance improving from about 0.51 to 0.74.</p>
 </section>
-<section id="plot-4-aalen-additive-model-time-varying-effects" class="level1">
-<h1>Plot 4 — Aalen Additive Model: Time-Varying Effects</h1>
-<p>This plot checks the main findings using an additive survival model rather than the Cox model.</p>
+<section id="aalen-additive-model-time-varying-effects" class="level1">
+<h1>Aalen Additive Model: Time-Varying Effects</h1>
+<p>This plot rechecks the main findings using an additive survival model instead of the Cox model.</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>aa_fit <span class="ot">&lt;-</span> <span class="fu">aareg</span>(</span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">Surv</span>(time, status) <span class="sc">~</span> trt <span class="sc">+</span> celltype <span class="sc">+</span> karno <span class="sc">+</span> age <span class="sc">+</span> prior,</span>
@@ -651,7 +646,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     }
       var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
       var mailtoRegex = new RegExp(/^mailto:/);
-        var filterRegex = new RegExp("https:\/\/julian-chung\.github\.io\/veteran-lung-cancer-coxph\/");
+        var filterRegex = new RegExp('/' + window.location.host + '/');
       var isInternal = (href) => {
           return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
       }

@@ -1,1 +1,0 @@
-Sitemap: https://julian-chung.github.io/veteran-lung-cancer-coxph/sitemap.xml
