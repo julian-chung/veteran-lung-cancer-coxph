@@ -55,6 +55,14 @@ docs/
 *.nb.html
 *.qmd~
 
+# In-source render intermediates (real outputs live in _site/ and docs/)
+*.knit.md
+*.rmarkdown
+*_files/
+/site_libs/
+/index.html
+/notebooks/*.html
+
 # ======================================
 # Output / Reports / Artifacts (custom)
 # ======================================
